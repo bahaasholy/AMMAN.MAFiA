@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v13</title>
+    <title>Amman Mafia — TV Control v14</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v13">
+    <meta name="app-version" content="tv-v14">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1308,36 +1308,86 @@
 
         function updateAllDropdowns() {
             const roleCounts = {};
+            const mafiaSeatSet = new Set((mafiaSetupSeats || []).map(Number));
             activeGameRoles.forEach(r => roleCounts[r.value] = 0);
 
+            // نتأكد أولاً أن كل مقعد يحمل دوراً مناسباً لتصنيفه:
+            // مقعد مافيا = أدوار المافيا فقط
+            // مقعد مواطن = جميع الأدوار غير التابعة للمافيا
             for (let i = 1; i <= totalGameSeats; i++) {
                 const select = document.getElementById(`select-${i}`);
-                if (select && select.value !== 'unassigned') { roleCounts[select.value] = (roleCounts[select.value] || 0) + 1; }
+                if (!select || select.value === 'unassigned') continue;
+
+                const currentRole = activeGameRoles.find(r => r.value === select.value);
+                const isMafiaSeat = mafiaSeatSet.has(i);
+                const isAllowed = currentRole && (
+                    isMafiaSeat
+                        ? currentRole.group === 'mafia_team'
+                        : currentRole.group !== 'mafia_team'
+                );
+
+                if (!isAllowed) {
+                    select.value = 'unassigned';
+                    const heirSelect = document.getElementById(`heir-select-${i}`);
+                    if (heirSelect) {
+                        heirSelect.value = 'none';
+                        heirSelect.style.display = 'none';
+                    }
+                    updateRoleColor(i, 'unassigned');
+                    continue;
+                }
+
+                roleCounts[select.value] = (roleCounts[select.value] || 0) + 1;
             }
 
             for (let i = 1; i <= totalGameSeats; i++) {
                 const select = document.getElementById(`select-${i}`);
                 if (!select) continue;
 
-                const currentValue = select.value || 'unassigned'; 
+                const isMafiaSeat = mafiaSeatSet.has(i);
+                const currentValue = select.value || 'unassigned';
+
                 select.innerHTML = `<option value="unassigned">حدد الكرت 🃏</option>`;
-                const citizenGroup = document.createElement('optgroup'); citizenGroup.label = 'فريق المواطنين 🛡️';
-                const mafiaGroup = document.createElement('optgroup'); mafiaGroup.label = 'فريق المافيا 🩸';
-                const soloGroup = document.createElement('optgroup'); soloGroup.label = 'دور منفرد ☠️';
+
+                const citizenGroup = document.createElement('optgroup');
+                citizenGroup.label = 'فريق المواطنين 🛡️';
+
+                const mafiaGroup = document.createElement('optgroup');
+                mafiaGroup.label = 'فريق المافيا 🩸';
+
+                const soloGroup = document.createElement('optgroup');
+                soloGroup.label = 'دور منفرد ☠️';
 
                 activeGameRoles.forEach(role => {
+                    const roleMatchesSeat = isMafiaSeat
+                        ? role.group === 'mafia_team'
+                        : role.group !== 'mafia_team';
+
+                    if (!roleMatchesSeat) return;
+
                     if (roleCounts[role.value] < role.limit || currentValue === role.value) {
-                        const opt = document.createElement('option'); opt.value = role.value; opt.textContent = role.label;
+                        const opt = document.createElement('option');
+                        opt.value = role.value;
+                        opt.textContent = role.label;
+
                         if (role.group === 'citizen_team') citizenGroup.appendChild(opt);
                         else if (role.group === 'mafia_team') mafiaGroup.appendChild(opt);
                         else if (role.group === 'solo_team') soloGroup.appendChild(opt);
                     }
                 });
 
-                if(citizenGroup.children.length > 0) select.appendChild(citizenGroup); 
-                if(mafiaGroup.children.length > 0) select.appendChild(mafiaGroup); 
-                if(soloGroup.children.length > 0) select.appendChild(soloGroup);
-                select.value = currentValue; 
+                if (citizenGroup.children.length > 0) select.appendChild(citizenGroup);
+                if (mafiaGroup.children.length > 0) select.appendChild(mafiaGroup);
+                if (soloGroup.children.length > 0) select.appendChild(soloGroup);
+
+                const currentRole = activeGameRoles.find(r => r.value === currentValue);
+                const currentStillAllowed = currentRole && (
+                    isMafiaSeat
+                        ? currentRole.group === 'mafia_team'
+                        : currentRole.group !== 'mafia_team'
+                );
+
+                select.value = currentStillAllowed ? currentValue : 'unassigned';
             }
         }
 
