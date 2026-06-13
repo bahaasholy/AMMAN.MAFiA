@@ -1,4 +1,4 @@
-const CACHE_NAME = 'amman-mafia-install-fix-v1';
+const CACHE_NAME = 'amman-mafia-role-picker-v11-cache-v1';
 const ASSETS = [
   './',
   './index.html',

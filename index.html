@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — Stable v10.1</title>
-    <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="stable-v10.1">
+    <title>Amman Mafia — Role Picker v11</title>
+    <meta name="description" content="Mobile app style dashboard for managing an in-person Mafia game, with improved role selection.">
+    <meta name="app-version" content="role-picker-v11">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -123,7 +123,7 @@
     
 
         /* ==========================================================
-           AMMAN MAFIA — Stable Mobile App UI v10
+           AMMAN MAFIA — Role Picker Mobile App UI v11
            نسخة مستقرة: تنظيف الواجهة وتثبيت جولة الليل والسجل بدون تغيير منطق اللعبة
            ========================================================== */
         html { min-height: 100%; background: #070709; }
@@ -263,6 +263,61 @@
             height: 36px !important;
             background: rgba(255,255,255,0.055) !important;
             border: 1px solid rgba(201,168,76,0.24) !important;
+        }
+
+        .deck-quick-tools {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .deck-quick-btn {
+            min-height: 42px !important;
+            padding: 9px 12px !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(201,168,76,0.25) !important;
+            background: rgba(255,255,255,0.055) !important;
+            color: var(--cream) !important;
+            font-size: 0.82rem !important;
+            cursor: pointer;
+        }
+        .deck-quick-btn.primary {
+            background: linear-gradient(135deg, rgba(201,168,76,0.95), rgba(151,119,43,0.95)) !important;
+            color: #0a0a0d !important;
+            border: none !important;
+        }
+        .deck-balance-notice {
+            margin: 0 0 10px 0;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #888;
+            font-size: 0.82rem;
+            font-weight: 800;
+            line-height: 1.6;
+        }
+        .deck-balance-notice.ok {
+            color: #7ee0a3;
+            border-color: rgba(126,224,163,0.20);
+            background: rgba(29,106,58,0.10);
+        }
+        .deck-balance-notice.warn {
+            color: #ffcc66;
+            border-color: rgba(255,204,102,0.20);
+            background: rgba(255,149,0,0.08);
+        }
+        .deck-balance-notice.danger {
+            color: #ff7777;
+            border-color: rgba(204,68,68,0.24);
+            background: rgba(139,0,0,0.10);
+        }
+        .deck-card-item.is-helper-role {
+            border-style: dashed !important;
+        }
+        @media (max-width: 420px) {
+            .deck-quick-tools { grid-template-columns: 1fr; }
         }
 
         /* Game top info */
@@ -726,11 +781,16 @@
                 <button id="deckBtnYesKiller" onclick="setDeckKiller(true)" style="padding:6px 12px; border-radius:8px; border:1px solid #2a2a30; background:#1a1a1f; color:#666; font-size:0.82rem; font-weight:bold; cursor:pointer;">مع سفاح 🔪</button>
             </div>
             <div id="deckSuggestion" style="font-size:0.9rem; font-weight:bold; color:#f0e6cc; text-align:center; width:100%;"></div>
+            <div class="deck-quick-tools">
+                <button class="deck-quick-btn primary" onclick="applySuggestedDeck()">تطبيق التوزيع المقترح ⚡</button>
+                <button class="deck-quick-btn" onclick="clearDeckSelection()">مسح اختيار الكروت 🧹</button>
+            </div>
         </div>
 
         <div class="deck-summary-bar">
+            <div id="deckBalanceNotice" class="deck-balance-notice">اختر الكروت أو طبّق التوزيع المقترح.</div>
             <h3>إجمالي الكروت والمقاعد المحددة: <span id="deckTotalCount" style="color:white;">0</span></h3>
-            <button class="start-game-btn" onclick="startGameFromDeck()">اعتماد الكروت وبدء الجلسة 🚀</button>
+            <button id="startGameDeckBtn" class="start-game-btn" onclick="startGameFromDeck()">اعتماد الكروت وبدء الجلسة 🚀</button>
         </div>
         <div id="deckGrid" class="deck-grid"></div>
     </div>
@@ -842,7 +902,7 @@
     </div>
 
     <script>
-        // ===== AMMAN MAFIA STABLE v10.1 BUGFIX =====
+        // ===== AMMAN MAFIA ROLE PICKER v11 =====
         // ملاحظة: هذه النسخة تنظف وتثبت v9 بدون إضافة ميزات جديدة.
         // ===== شاشة حساب التوزيع =====
         let pcPlayerCount = 8;
@@ -910,7 +970,9 @@
             const citizens = deckHasKiller ? deckPcCount - mafia - 1 : deckPcCount - mafia;
             document.getElementById('deckSuggestion').innerHTML =
                 `المقترح: <span style="color:#e50914;">${mafia} مافيا 🩸</span> + <span style="color:#0071e3;">${citizens} مواطن 🛡️</span>` +
-                (deckHasKiller ? ` + <span style="color:#ff9500;">1 سفاح 🔪</span>` : '');
+                (deckHasKiller ? ` + <span style="color:#ff9500;">1 سفاح 🔪</span>` : '') +
+                `<div style="color:#777; font-size:0.78rem; margin-top:5px;">اضغط تطبيق التوزيع المقترح، ثم بدّل بعض المواطنين لأدوار خاصة حسب رغبتك.</div>`;
+            updateDeckTotal();
         }
 
         function goToDeckBuilder() {
@@ -959,6 +1021,49 @@
         let nightRoundCounter = 1;
         let gameEventLog = [];
 
+        function refreshDeckUI() {
+            masterRoles.forEach(role => {
+                deckSelection[role.value] = Math.max(0, Math.min(role.maxAllowed, deckSelection[role.value] || 0));
+                const countEl = document.getElementById(`deck-count-${role.value}`);
+                const cardEl = document.getElementById(`deck-card-${role.value}`);
+                if (countEl) countEl.textContent = deckSelection[role.value];
+                if (cardEl) {
+                    if (deckSelection[role.value] > 0) cardEl.classList.add('selected');
+                    else cardEl.classList.remove('selected');
+                }
+            });
+            updateDeckTotal();
+        }
+
+        function setDeckRoleCount(roleValue, count) {
+            const role = masterRoles.find(r => r.value === roleValue);
+            if (!role) return;
+            deckSelection[roleValue] = Math.max(0, Math.min(role.maxAllowed, count));
+        }
+
+        function applySuggestedDeck() {
+            const mafiaCount = calcMafiaCount(deckPcCount, deckHasKiller);
+            const citizenCount = deckHasKiller ? deckPcCount - mafiaCount - 1 : deckPcCount - mafiaCount;
+
+            masterRoles.forEach(role => deckSelection[role.value] = 0);
+            if (mafiaCount > 0) {
+                setDeckRoleCount('mafia_boss', 1);
+                setDeckRoleCount('mafia', Math.max(0, mafiaCount - 1));
+            }
+            setDeckRoleCount('citizen', Math.max(0, citizenCount));
+            setDeckRoleCount('serial_killer', deckHasKiller ? 1 : 0);
+
+            refreshDeckUI();
+            if (navigator.vibrate) navigator.vibrate(18);
+        }
+
+        function clearDeckSelection() {
+            if (!confirm('مسح اختيار الكروت الحالي؟')) return;
+            masterRoles.forEach(role => deckSelection[role.value] = 0);
+            refreshDeckUI();
+            if (navigator.vibrate) navigator.vibrate(12);
+        }
+
         function initDeckBuilder() {
             const grid = document.getElementById('deckGrid');
             grid.innerHTML = '';
@@ -966,7 +1071,8 @@
             masterRoles.forEach(role => {
                 deckSelection[role.value] = deckSelection[role.value] || 0;
                 const card = document.createElement('div');
-                card.className = `deck-card-item ${deckSelection[role.value] > 0 ? 'selected' : ''}`;
+                const helperClass = ['citizen', 'mafia'].includes(role.value) ? ' is-helper-role' : '';
+                card.className = `deck-card-item${helperClass} ${deckSelection[role.value] > 0 ? 'selected' : ''}`;
                 card.id = `deck-card-${role.value}`;
                 
                 let groupColor = '#aaa';
@@ -989,7 +1095,7 @@
 
         function updateDeckCount(roleValue, change) {
             const role = masterRoles.find(r => r.value === roleValue);
-            let current = deckSelection[roleValue];
+            let current = deckSelection[roleValue] || 0;
             let newVal = current + change;
             
             if (newVal < 0) newVal = 0;
@@ -1007,12 +1113,42 @@
 
         function updateDeckTotal() {
             let total = Object.values(deckSelection).reduce((a, b) => a + b, 0);
-            document.getElementById('deckTotalCount').textContent = total;
+            const totalEl = document.getElementById('deckTotalCount');
+            if (totalEl) totalEl.textContent = total;
+
+            const notice = document.getElementById('deckBalanceNotice');
+            const startBtn = document.getElementById('startGameDeckBtn');
+            if (!notice) return;
+
+            const diff = deckPcCount - total;
+            notice.classList.remove('ok', 'warn', 'danger');
+            if (total === 0) {
+                notice.classList.add('warn');
+                notice.textContent = 'لسه ما اخترت كروت. استخدم زر تطبيق التوزيع المقترح لتعبئة الكروت بسرعة.';
+                if (startBtn) startBtn.textContent = 'اعتماد الكروت وبدء الجلسة 🚀';
+            } else if (diff === 0) {
+                notice.classList.add('ok');
+                notice.textContent = `تمام ✅ عدد الكروت مطابق لعدد اللاعبين (${deckPcCount}).`;
+                if (startBtn) startBtn.textContent = 'اعتماد الكروت وبدء الجلسة 🚀';
+            } else if (diff > 0) {
+                notice.classList.add('warn');
+                notice.textContent = `ناقص ${diff} كرت/مقعد عن عدد اللاعبين (${deckPcCount}).`;
+                if (startBtn) startBtn.textContent = `بدء الجلسة بعدد ${total} مقعد`;
+            } else {
+                notice.classList.add('danger');
+                notice.textContent = `زائد ${Math.abs(diff)} كرت عن عدد اللاعبين (${deckPcCount}). قلّل بعض الكروت قبل البدء.`;
+                if (startBtn) startBtn.textContent = `بدء الجلسة بعدد ${total} مقعد`;
+            }
         }
 
         function startGameFromDeck() {
             totalGameSeats = Object.values(deckSelection).reduce((a, b) => a + b, 0);
             if (totalGameSeats === 0) { alert("الرجاء اختيار كرت واحد على الأقل للبدء!"); return; }
+            if (totalGameSeats !== deckPcCount) {
+                const ok = confirm(`عدد الكروت المحددة (${totalGameSeats}) لا يساوي عدد اللاعبين المقترح (${deckPcCount}).
+هل تريد البدء بهذا العدد؟`);
+                if (!ok) return;
+            }
 
             activeGameRoles = [];
             masterRoles.forEach(role => {

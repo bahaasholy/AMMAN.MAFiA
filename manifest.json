@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Amman Mafia",
   "short_name": "Mafia",
-  "description": "لوحة إدارة لعبة المافيا الواقعية",
+  "description": "لوحة إدارة لعبة المافيا الواقعية مع شاشة اختيار أدوار محسنة",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
