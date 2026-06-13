@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v18</title>
+  <title>Amman Mafia — شاشة العرض v19</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -151,13 +151,14 @@
 </head>
 <body>
   <audio id="alarmAudio" preload="auto" src="time-up.wav"></audio>
+  <audio id="tickAudio" preload="auto" src="clock-tick.wav"></audio>
 
   <section id="soundGate" class="sound-gate">
     <div class="sound-gate-card">
       <div class="sound-gate-icon">🔊</div>
       <div class="sound-gate-title">تفعيل صوت شاشة العرض</div>
       <div class="sound-gate-text">
-        اضغط الزر مرة واحدة. ستسمع نغمة اختبار قصيرة، وبعدها يصدر التنبيه تلقائيًا عند انتهاء الوقت.
+        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها تعمل تكتكة الثواني الأخيرة وصوت التنبيه عند انتهاء الوقت.
       </div>
       <button id="soundGateBtn" class="sound-gate-btn" type="button">تفعيل الصوت وتجربته</button>
       <div id="soundGateError" class="sound-error"></div>
@@ -222,7 +223,8 @@
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
     let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
     let audioContext=null,soundEnabled=false,lastRemainingMs=null,lastTimerStatus='idle',activeTimerCycle='',playedTimerCycle='';
-    let alarmAudio=null;
+    let alarmAudio=null,tickAudio=null;
+    let lastTickSecond=null,lastTickCycle='';
     const $=id=>document.getElementById(id);
     
     function updateSoundButton(){
@@ -278,6 +280,7 @@
       let played=false;
       try{
         if(!alarmAudio)alarmAudio=$('alarmAudio');
+    tickAudio=$('tickAudio');
         if(alarmAudio){
           alarmAudio.pause();
           alarmAudio.currentTime=0;
@@ -305,6 +308,7 @@
       if(error)error.textContent='';
 
       alarmAudio=$('alarmAudio');
+      tickAudio=$('tickAudio');
       const contextReady=await ensureAudioContext();
 
       let audioReady=false;
@@ -324,6 +328,16 @@
         audioReady=audioReady||contextReady;
       }
 
+      try{
+        if(tickAudio){
+          tickAudio.volume=0;
+          await tickAudio.play();
+          tickAudio.pause();
+          tickAudio.currentTime=0;
+          tickAudio.volume=0.72;
+        }
+      }catch(_){}
+
       soundEnabled=Boolean(audioReady||contextReady);
       updateSoundButton();
 
@@ -335,6 +349,76 @@
 
       if(error)error.textContent='لم يشتغل الصوت. ارفع صوت التلفزيون وجرب مرة ثانية.';
       return false;
+    }
+
+
+    function getTickThresholdMs(){
+      const durationSec=Math.round(Math.max(0,Number(state?.timerDurationMs)||0)/1000);
+
+      if(durationSec===30)return 5000;
+      if(durationSec===45||durationSec===60)return 10000;
+
+      return durationSec>30?10000:5000;
+    }
+
+    async function playClockTick(){
+      if(!soundEnabled)return false;
+
+      let played=false;
+
+      try{
+        if(!tickAudio)tickAudio=$('tickAudio');
+        if(tickAudio){
+          tickAudio.pause();
+          tickAudio.currentTime=0;
+          tickAudio.volume=0.72;
+          await tickAudio.play();
+          played=true;
+        }
+      }catch(_){
+        played=false;
+      }
+
+      if(!played){
+        const ready=await ensureAudioContext();
+        if(ready&&audioContext){
+          try{
+            const now=audioContext.currentTime+0.01;
+            scheduleFallbackTone(audioContext,1850,now,0.055,0.09);
+            played=true;
+          }catch(_){}
+        }
+      }
+
+      return played;
+    }
+
+    function checkCountdownTicks(rem){
+      if(!state||!soundEnabled)return;
+
+      const status=state.timerStatus||'idle';
+
+      if(status!=='running'||rem<=0){
+        if(status==='idle'||status==='finished'){
+          lastTickSecond=null;
+          lastTickCycle='';
+        }
+        return;
+      }
+
+      const cycle=String(state.timerEndsAt||'');
+      if(cycle!==lastTickCycle){
+        lastTickCycle=cycle;
+        lastTickSecond=null;
+      }
+
+      if(rem>getTickThresholdMs())return;
+
+      const secondsLeft=Math.max(1,Math.ceil(rem/1000));
+      if(secondsLeft!==lastTickSecond){
+        lastTickSecond=secondsLeft;
+        playClockTick();
+      }
     }
 
     function checkTimerAlarm(rem){
@@ -385,7 +469,7 @@
       if(!state)return;
       $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
       const phase=PHASE_LABELS[state.phase]?state.phase:'idle';$('phase').textContent=PHASE_LABELS[phase];$('phase').className='phase '+phase;document.body.classList.toggle('night-view',phase==='night');
-      const rem=remaining(),timer=$('timer');timer.textContent=fmt(rem);timer.className='timer '+(state.timerStatus||'idle');checkTimerAlarm(rem);
+      const rem=remaining(),timer=$('timer');timer.textContent=fmt(rem);timer.className='timer '+(state.timerStatus||'idle');checkCountdownTicks(rem);checkTimerAlarm(rem);
       const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};$('timerLabel').textContent=labels[state.timerStatus]||'المؤقت جاهز';
       $('aliveCount').textContent=String(Math.max(0,Number(state.totalAlive)||0));
       $('citizenCount').textContent=String(Math.max(0,Number(state.citizenAlive)||0));
