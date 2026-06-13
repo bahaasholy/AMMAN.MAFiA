@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia v12 — Team Filter v12</title>
+    <title>Amman Mafia — TV Control v11</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
     <meta name="app-version" content="stable-v10.1">
     <meta name="application-name" content="Amman Mafia">
@@ -669,31 +669,8 @@
         .haptic-bump {
             animation: mafiaHapticBump 180ms ease;
         }
-    
-        .seat-team-lock {
-            width: 95%;
-            font-size: 0.68rem;
-            font-weight: 900;
-            padding: 4px 6px;
-            border-radius: 999px;
-            text-align: center;
-            letter-spacing: 0.2px;
-            display: none;
-        }
-        .seat-team-lock.mafia-lock {
-            display: block;
-            color: #ff6b6b;
-            background: rgba(139,0,0,0.22);
-            border: 0.5px solid rgba(204,68,68,0.40);
-        }
-        .seat-team-lock.citizen-lock {
-            display: block;
-            color: #74b9ff;
-            background: rgba(26,82,118,0.20);
-            border: 0.5px solid rgba(116,185,255,0.30);
-        }
-
     </style>
+    <link rel="stylesheet" href="tv-control.css">
 </head>
 <body>
 
@@ -1069,31 +1046,6 @@
         let mafiaSetupSeats = [];
         let mafiaSetupRequired = 0;
 
-        function isMafiaSeatNumber(seatNum) {
-            const n = Number(seatNum);
-            return Array.isArray(mafiaSetupSeats) && mafiaSetupSeats.includes(n);
-        }
-
-        function getAllowedGroupsForSeat(seatNum) {
-            return isMafiaSeatNumber(seatNum) ? ['mafia_team'] : ['citizen_team', 'solo_team'];
-        }
-
-        function updateSeatTeamLockBadge(seatNum) {
-            const badge = document.getElementById(`team-lock-${seatNum}`);
-            if (!badge) return;
-            const isMafiaSeat = isMafiaSeatNumber(seatNum);
-            badge.className = `seat-team-lock ${isMafiaSeat ? 'mafia-lock' : 'citizen-lock'}`;
-            badge.textContent = isMafiaSeat ? 'مقعد مافيا 🩸' : 'مقعد غير مافيا 🛡️';
-        }
-
-        function isRoleAllowedForSeat(seatNum, roleValue) {
-            if (!roleValue || roleValue === 'unassigned') return true;
-            const roleData = activeGameRoles.find(r => r.value === roleValue) || masterRoles.find(r => r.value === roleValue);
-            if (!roleData) return true;
-            return getAllowedGroupsForSeat(seatNum).includes(roleData.group);
-        }
-
-
         function buildMafiaSetupGrid(total, mafiaCount) {
             mafiaSetupSeats = [];
             mafiaSetupRequired = mafiaCount;
@@ -1255,10 +1207,6 @@
                 roleSelect.className = 'role-select';
                 roleSelect.id = `select-${i}`;
                 roleSelect.onchange = function() { 
-                    if (!isRoleAllowedForSeat(i, this.value)) {
-                        alert(isMafiaSeatNumber(i) ? "هذا المقعد محدد كـ مافيا، اختر دور من فريق المافيا فقط." : "هذا المقعد غير محدد كـ مافيا، اختر دور مواطن أو سفاح فقط.");
-                        this.value = 'unassigned';
-                    }
                     updateRoleColor(i, this.value);
                     updateAllDropdowns(); 
                     calculateLiveCounters(); 
@@ -1284,12 +1232,6 @@
                 killBtn.onclick = function(e) { e.stopPropagation(); toggleElimination(i); };
 
                 seatCard.appendChild(seatNumber);
-
-                const teamLock = document.createElement('div');
-                teamLock.className = 'seat-team-lock';
-                teamLock.id = `team-lock-${i}`;
-                seatCard.appendChild(teamLock);
-
                 seatCard.appendChild(roleSelect);
                 seatCard.appendChild(heirSelect);
                 seatCard.appendChild(killBtn);
@@ -1305,33 +1247,20 @@
 
             for (let i = 1; i <= totalGameSeats; i++) {
                 const select = document.getElementById(`select-${i}`);
-                if (select && select.value !== 'unassigned') {
-                    const roleData = activeGameRoles.find(r => r.value === select.value);
-                    if (roleData && isRoleAllowedForSeat(i, select.value)) {
-                        roleCounts[select.value] = (roleCounts[select.value] || 0) + 1;
-                    }
-                }
+                if (select && select.value !== 'unassigned') { roleCounts[select.value] = (roleCounts[select.value] || 0) + 1; }
             }
 
             for (let i = 1; i <= totalGameSeats; i++) {
                 const select = document.getElementById(`select-${i}`);
                 if (!select) continue;
 
-                updateSeatTeamLockBadge(i);
-
-                let currentValue = select.value || 'unassigned';
-                if (!isRoleAllowedForSeat(i, currentValue)) {
-                    currentValue = 'unassigned';
-                    select.value = 'unassigned';
-                }
-
+                const currentValue = select.value || 'unassigned'; 
                 select.innerHTML = `<option value="unassigned">حدد الكرت 🃏</option>`;
                 const citizenGroup = document.createElement('optgroup'); citizenGroup.label = 'فريق المواطنين 🛡️';
                 const mafiaGroup = document.createElement('optgroup'); mafiaGroup.label = 'فريق المافيا 🩸';
                 const soloGroup = document.createElement('optgroup'); soloGroup.label = 'دور منفرد ☠️';
 
                 activeGameRoles.forEach(role => {
-                    if (!isRoleAllowedForSeat(i, role.value)) return;
                     if (roleCounts[role.value] < role.limit || currentValue === role.value) {
                         const opt = document.createElement('option'); opt.value = role.value; opt.textContent = role.label;
                         if (role.group === 'citizen_team') citizenGroup.appendChild(opt);
@@ -2248,5 +2177,9 @@
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }
     </script>
+
+    <script src="realtime-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="tv-control.js"></script>
 </body>
 </html>
