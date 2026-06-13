@@ -103,25 +103,9 @@
     section.className = 'page-section';
     section.innerHTML = `
       <div class="tv-control-shell">
-        <section class="tv-control-card full">
+        <section class="tv-control-card full tv-timer-primary">
           <div class="tv-control-title">
-            <h2>ربط شاشة التلفزيون 📺</h2>
-            <span id="tvConnectionStatus" class="tv-status-pill waiting">جاري التجهيز</span>
-          </div>
-          <div class="tv-room-row">
-            <div id="tvRoomCode" class="tv-room-code">${roomCode}</div>
-            <button id="tvNewRoomBtn" class="tv-btn" type="button">رمز جديد</button>
-          </div>
-          <div class="tv-link-box">
-            <input id="tvDisplayUrl" readonly aria-label="رابط شاشة العرض">
-            <button id="tvCopyLinkBtn" class="tv-btn gold" type="button">نسخ الرابط</button>
-          </div>
-          <div id="tvDemoWarning" class="tv-demo-warning"></div>
-        </section>
-
-        <section class="tv-control-card">
-          <div class="tv-control-title">
-            <h3>مؤقت الكلام ⏱️</h3>
+            <h2>مؤقت الكلام ⏱️</h2>
             <span id="tvTimerStatusText" class="tv-muted">جاهز</span>
           </div>
           <div id="tvAdminTimer" class="tv-timer-display">01:00</div>
@@ -130,6 +114,10 @@
             <button class="tv-btn tv-preset" type="button" data-seconds="45">45 ثانية</button>
             <button class="tv-btn tv-preset" type="button" data-seconds="60">60 ثانية</button>
           </div>
+          <button id="tvTimerNext" class="tv-btn tv-next-btn" type="button">
+            التالي
+            <span>ابدأ وقت المتحدث التالي مباشرة</span>
+          </button>
           <div class="tv-timer-actions">
             <button id="tvTimerStart" class="tv-btn gold" type="button">بدء</button>
             <button id="tvTimerPause" class="tv-btn" type="button">إيقاف</button>
@@ -144,7 +132,7 @@
             <button class="tv-btn tv-phase gold" type="button" data-phase="voting">بدء جولة التصويت 🗳️</button>
             <button class="tv-btn tv-phase purple" type="button" data-phase="night">بدء جولة الليل 🌙</button>
           </div>
-          <div class="tv-muted" style="margin-top:10px">اختيار الحالة ينشرها فورًا على التلفزيون، والمؤقت تتحكم فيه بشكل منفصل.</div>
+          <div class="tv-muted" style="margin-top:10px">جولة الليل تتزامن تلقائيًا عند فتحها من لوحة الإدارة، وبعد إنهائها تتحول الشاشة تلقائيًا إلى جولة النقاش.</div>
         </section>
 
         <section class="tv-control-card">
@@ -176,7 +164,23 @@
           </div>
           <div id="tvPublicHistory" class="tv-public-history"></div>
         </section>
-      </div>`;
+
+        <section class="tv-control-card full tv-connection-card">
+          <div class="tv-control-title">
+            <h3>ربط شاشة التلفزيون 📺</h3>
+            <span id="tvConnectionStatus" class="tv-status-pill waiting">جاري التجهيز</span>
+          </div>
+          <div class="tv-room-row">
+            <div id="tvRoomCode" class="tv-room-code">${roomCode}</div>
+            <button id="tvNewRoomBtn" class="tv-btn" type="button">رمز جديد</button>
+          </div>
+          <div class="tv-link-box">
+            <input id="tvDisplayUrl" readonly aria-label="رابط شاشة العرض">
+            <button id="tvCopyLinkBtn" class="tv-btn gold" type="button">نسخ الرابط</button>
+          </div>
+          <div id="tvDemoWarning" class="tv-demo-warning"></div>
+        </section>
+      </div>`
 
     const logSection = document.getElementById('sectionLog');
     if (logSection && logSection.parentNode) logSection.parentNode.insertBefore(section, logSection.nextSibling);
@@ -189,6 +193,38 @@
     const url = new URL('display.html', window.location.href);
     url.searchParams.set('room', roomCode);
     return url.toString();
+  }
+
+
+  function setPublicPhase(phase, options = {}) {
+    if (!PHASE_LABELS[phase]) return;
+
+    publicState.phase = phase;
+
+    if (phase === 'night') {
+      if (publicState.timerStatus === 'running') {
+        publicState.timerRemainingMs = getRemainingMs();
+      }
+      publicState.timerEndsAt = 0;
+      publicState.timerStatus = 'paused';
+    }
+
+    if (phase === 'discussion' && options.resetTimer) {
+      publicState.timerRemainingMs = publicState.timerDurationMs;
+      publicState.timerEndsAt = 0;
+      publicState.timerStatus = 'idle';
+      hasBroadcastFinished = false;
+    }
+
+    if (options.syncRound) {
+      try {
+        if (typeof nightRoundCounter !== 'undefined') {
+          publicState.roundNumber = Math.max(1, Number(nightRoundCounter) || 1);
+        }
+      } catch (_) {}
+    }
+
+    saveState();
   }
 
   function bindUI() {
@@ -223,6 +259,17 @@
       vibrate(20); saveState();
     }));
 
+
+    document.getElementById('tvTimerNext').addEventListener('click', () => {
+      const duration = Math.max(1000, Number(publicState.timerDurationMs) || DEFAULT_SECONDS * 1000);
+      publicState.timerRemainingMs = duration;
+      publicState.timerEndsAt = Date.now() + duration;
+      publicState.timerStatus = 'running';
+      hasBroadcastFinished = false;
+      vibrate([35, 35, 55]);
+      saveState();
+    });
+
     document.getElementById('tvTimerStart').addEventListener('click', () => {
       let remaining = getRemainingMs();
       if (remaining <= 0) remaining = publicState.timerDurationMs;
@@ -250,13 +297,11 @@
     });
 
     document.querySelectorAll('.tv-phase').forEach(btn => btn.addEventListener('click', () => {
-      publicState.phase = btn.dataset.phase;
-      if (publicState.phase === 'night' && publicState.timerStatus === 'running') {
-        publicState.timerRemainingMs = getRemainingMs();
-        publicState.timerEndsAt = 0;
-        publicState.timerStatus = 'paused';
-      }
-      vibrate(35); saveState();
+      vibrate(35);
+      setPublicPhase(btn.dataset.phase, {
+        resetTimer: btn.dataset.phase === 'discussion',
+        syncRound: true
+      });
     }));
 
     document.getElementById('tvRoundMinus').addEventListener('click', () => {
@@ -442,29 +487,60 @@
   function installTabWrapper() {
     if (typeof window.switchTab !== 'function' || window.__tvSwitchWrapped) return;
     const originalSwitchTab = window.switchTab;
+
     window.switchTab = function (tabName) {
       const section = document.getElementById('sectionDisplayControl');
       const tab = document.getElementById('tabDisplayControl');
+      const setupBar = document.getElementById('setupBar');
+
       if (tabName === 'displayControl') {
         ['tabDashboard','tabNight','tabLog','tabDisplayControl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
         ['sectionDashboard','sectionNight','sectionLog','sectionDisplayControl'].forEach(id => document.getElementById(id)?.classList.remove('active'));
         document.body.classList.remove('night-mode');
+        if (setupBar) setupBar.style.display = 'none';
         section?.classList.add('active');
         tab?.classList.add('active');
         renderAll();
         window.scrollTo({ top:0, behavior:'instant' });
         return;
       }
+
       section?.classList.remove('active');
       tab?.classList.remove('active');
-      return originalSwitchTab(tabName);
+
+      if (setupBar && typeof totalGameSeats !== 'undefined' && Number(totalGameSeats) > 0) {
+        setupBar.style.display = 'flex';
+      }
+
+      const result = originalSwitchTab(tabName);
+
+      if (tabName === 'night') {
+        setPublicPhase('night', { syncRound:true });
+      }
+
+      return result;
     };
+
     window.__tvSwitchWrapped = true;
+  }
+
+  function installNightCompletionSync() {
+    if (typeof window.endNightRound !== 'function' || window.__tvNightCompletionWrapped) return;
+
+    const originalEndNightRound = window.endNightRound;
+    window.endNightRound = function (...args) {
+      const result = originalEndNightRound.apply(this, args);
+      setPublicPhase('discussion', { resetTimer:true, syncRound:true });
+      return result;
+    };
+
+    window.__tvNightCompletionWrapped = true;
   }
 
   function init() {
     createUI();
     installTabWrapper();
+    installNightCompletionSync();
     connectRealtime();
     renderAll();
     timerTicker = setInterval(timerTick, 250);

@@ -1,5 +1,5 @@
 
-/* ===== Amman Mafia — TV control extension v11 ===== */
+/* ===== Amman Mafia — TV control extension v15 ===== */
 #mainTabs .tab-btn { min-width: 0; padding-inline: 5px !important; }
 #tabDisplayControl { font-size: .78rem !important; }
 
@@ -95,4 +95,41 @@
   .tv-control-card { padding:13px; border-radius:15px; }
   .tv-room-code { font-size:1.15rem; letter-spacing:2px; }
   .tv-btn { padding-inline:8px; font-size:.78rem; }
+}
+
+
+/* ===== v15: ترتيب صفحة العرض وزر المتحدث التالي ===== */
+.tv-timer-primary {
+  border-color: rgba(201,168,76,.3);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(201,168,76,.08), transparent 48%),
+    linear-gradient(155deg, rgba(23,23,30,.99), rgba(10,10,14,.99));
+}
+.tv-next-btn {
+  width: 100%;
+  min-height: 74px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-color: rgba(201,168,76,.5);
+  background: linear-gradient(180deg, #d8bc68, #b18d36);
+  color: #09090c;
+  font-size: 1.28rem;
+  font-weight: 950;
+  box-shadow: 0 12px 28px rgba(201,168,76,.14);
+}
+.tv-next-btn span {
+  font-size: .7rem;
+  font-weight: 800;
+  opacity: .72;
+}
+.tv-next-btn:active {
+  transform: scale(.985);
+}
+.tv-connection-card {
+  margin-top: 4px;
+  opacity: .96;
 }
