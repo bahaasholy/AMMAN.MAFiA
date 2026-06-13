@@ -42,6 +42,11 @@
       timerEndsAt: Number(state.timerEndsAt) || 0,
       latestResult: String(state.latestResult || ''),
       publicHistory: Array.isArray(state.publicHistory) ? state.publicHistory.slice(0, 30) : [],
+      totalAlive: Math.max(0, Number(state.totalAlive) || 0),
+      citizenAlive: Math.max(0, Number(state.citizenAlive) || 0),
+      mafiaAlive: Math.max(0, Number(state.mafiaAlive) || 0),
+      killerAlive: Math.max(0, Number(state.killerAlive) || 0),
+      showKiller: Boolean(state.showKiller),
       updatedAt: Number(state.updatedAt) || now
     };
   }
@@ -85,6 +90,66 @@
     const minutes = Math.floor(total / 60);
     const seconds = total % 60;
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+
+  function readCounterValue(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const parsed = parseInt(String(el.textContent || '').replace(/[^\d-]/g, ''), 10);
+    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+  }
+
+  function killerWasIncludedFromStart() {
+    try {
+      if (typeof activeGameRoles !== 'undefined' &&
+          Array.isArray(activeGameRoles) &&
+          activeGameRoles.some(role =>
+            role && role.value === 'serial_killer' && Number(role.limit) > 0
+          )) return true;
+    } catch (_) {}
+
+    try {
+      if (typeof deckSelection !== 'undefined' &&
+          deckSelection &&
+          Number(deckSelection.serial_killer) > 0) return true;
+    } catch (_) {}
+
+    try {
+      const savedDeck = JSON.parse(localStorage.getItem('mafiaDeckSelection') || '{}');
+      if (Number(savedDeck.serial_killer) > 0) return true;
+    } catch (_) {}
+
+    return Boolean(publicState.showKiller);
+  }
+
+  function collectGameCounts() {
+    return {
+      totalAlive: readCounterValue('totalLiveCount'),
+      citizenAlive: readCounterValue('citizenLiveCount'),
+      mafiaAlive: readCounterValue('mafiaLiveCount'),
+      killerAlive: readCounterValue('soloLiveCount'),
+      showKiller: killerWasIncludedFromStart()
+    };
+  }
+
+  function syncGameCounts(forceBroadcast = false) {
+    const next = collectGameCounts();
+    const changed =
+      publicState.totalAlive !== next.totalAlive ||
+      publicState.citizenAlive !== next.citizenAlive ||
+      publicState.mafiaAlive !== next.mafiaAlive ||
+      publicState.killerAlive !== next.killerAlive ||
+      publicState.showKiller !== next.showKiller;
+
+    if (!changed && !forceBroadcast) return false;
+
+    Object.assign(publicState, next);
+    publicState.updatedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(publicState));
+    broadcastState();
+    renderAll();
+    return true;
   }
 
   function createUI() {
@@ -146,23 +211,6 @@
             <button id="tvRoundPlus" class="tv-btn" type="button">+</button>
           </div>
           <button id="tvPublishRound" class="tv-btn gold" type="button" style="width:100%;margin-top:9px">نشر رقم الجولة</button>
-        </section>
-
-        <section class="tv-control-card">
-          <div class="tv-control-title"><h3>نشر نتيجة الجولة</h3></div>
-          <textarea id="tvResultInput" class="tv-textarea" placeholder="مثال: تم إقصاء اللاعب رقم 7"></textarea>
-          <div class="tv-result-actions">
-            <button id="tvUseNightResult" class="tv-btn" type="button">استخدام آخر نتيجة ليل</button>
-            <button id="tvPublishResult" class="tv-btn gold" type="button">نشر النتيجة</button>
-          </div>
-        </section>
-
-        <section class="tv-control-card full">
-          <div class="tv-control-title">
-            <h3>النتائج المنشورة سابقًا</h3>
-            <button id="tvClearPublicHistory" class="tv-btn red" type="button">مسح</button>
-          </div>
-          <div id="tvPublicHistory" class="tv-public-history"></div>
         </section>
 
         <section class="tv-control-card full tv-connection-card">
@@ -317,39 +365,7 @@
       vibrate(30); saveState();
     });
 
-    document.getElementById('tvUseNightResult').addEventListener('click', () => {
-      let text = '';
-      try {
-        if (typeof gameEventLog !== 'undefined' && Array.isArray(gameEventLog) && gameEventLog[0]) text = gameEventLog[0].result || '';
-      } catch (_) {}
-      if (!text) text = 'لا توجد نتيجة ليل محفوظة حتى الآن.';
-      document.getElementById('tvResultInput').value = text.replace(/^.[^ ]*\s*النتيجة:\s*/u, '').trim();
-      vibrate(20);
-    });
 
-    document.getElementById('tvPublishResult').addEventListener('click', () => {
-      const input = document.getElementById('tvResultInput');
-      const text = input.value.trim();
-      if (!text) { alert('اكتب نتيجة الجولة أولًا.'); return; }
-      const item = {
-        id: Date.now(),
-        round: publicState.roundNumber,
-        text,
-        time: new Date().toLocaleTimeString('ar-JO', { hour:'2-digit', minute:'2-digit' })
-      };
-      publicState.latestResult = text;
-      publicState.publicHistory.unshift(item);
-      publicState.publicHistory = publicState.publicHistory.slice(0, 30);
-      input.value = '';
-      vibrate([25, 35, 25]); saveState();
-    });
-
-    document.getElementById('tvClearPublicHistory').addEventListener('click', () => {
-      if (!confirm('مسح النتائج المنشورة من شاشة التلفزيون؟')) return;
-      publicState.publicHistory = [];
-      publicState.latestResult = '';
-      saveState();
-    });
   }
 
   function renderAll() {
@@ -385,13 +401,7 @@
     try { if (typeof nightRoundCounter !== 'undefined') gameRound = `داخل اللعبة: ${nightRoundCounter}`; } catch (_) {}
     document.getElementById('tvGameRoundHint').textContent = gameRound;
 
-    const history = document.getElementById('tvPublicHistory');
-    if (!publicState.publicHistory.length) history.innerHTML = '<div class="tv-history-empty">ما تم نشر أي نتيجة بعد.</div>';
-    else history.innerHTML = publicState.publicHistory.map(item => `
-      <div class="tv-history-item">
-        <div class="tv-history-head"><span>الجولة ${escapeHtml(item.round)}</span><span>${escapeHtml(item.time || '')}</span></div>
-        <div class="tv-history-text">${escapeHtml(item.text)}</div>
-      </div>`).join('');
+
 
     updateConnectionStatus();
   }
@@ -419,6 +429,7 @@
   }
 
   function broadcastState() {
+    Object.assign(publicState, collectGameCounts());
     const payload = { ...publicState, roomCode, sentAt: Date.now() };
     if (connectionMode === 'supabase' && channel) {
       channel.send({ type:'broadcast', event:'state', payload }).catch(() => {});
@@ -468,6 +479,7 @@
   }
 
   function timerTick() {
+    syncGameCounts(false);
     if (publicState.timerStatus === 'running') {
       const remaining = getRemainingMs();
       if (remaining <= 0) {
