@@ -1,4 +1,4 @@
-const CACHE_NAME = 'amman-mafia-tv-v23-cache-v1';
+const CACHE_NAME = 'amman-mafia-tv-v24-cache-v1';
 const ASSETS = [
   './', './index.html', './display.html', './manifest.json',
   './realtime-config.js', './tv-control.css', './tv-control.js',
