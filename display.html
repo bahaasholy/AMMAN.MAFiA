@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Amman Mafia — شاشة العرض v28</title>
+  <meta name="theme-color" content="#07070a">
+  <style>
+    :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--cream);font-family:'Segoe UI',Tahoma,sans-serif;overflow-x:hidden}
+    body{background:radial-gradient(circle at 50% -10%,rgba(201,168,76,.12),transparent 38%),linear-gradient(180deg,#0b0b10,#050507 72%);}
+    button,input{font:inherit}
+    .pair-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:25px}
+    .pair-card{width:min(94vw,580px);background:rgba(18,18,24,.96);border:1px solid rgba(201,168,76,.2);border-radius:24px;padding:28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+    .brand{color:var(--gold);font-weight:950;letter-spacing:5px;font-size:clamp(1.4rem,5vw,2.3rem)}
+    .sub{color:#777;margin:7px 0 24px}.pair-row{display:flex;gap:9px;direction:ltr}.pair-row input{flex:1;min-width:0;padding:14px;border-radius:12px;border:1px solid #2a2a32;background:#09090d;color:var(--cream);text-align:center;text-transform:uppercase;letter-spacing:4px;font-weight:900}.pair-row button,.fullscreen-btn{border:0;border-radius:12px;background:var(--gold);color:#08080b;font-weight:900;padding:12px 18px;cursor:pointer}.pair-msg{min-height:24px;color:#cc9;margin-top:14px;font-size:.86rem}
+    .display{display:none;min-height:100vh;padding:clamp(18px,3vw,44px);position:relative}.display.active{display:grid;grid-template-rows:auto 1fr auto;gap:18px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(201,168,76,.16);padding-bottom:14px}.top-brand{color:var(--gold);font-weight:950;letter-spacing:4px;font-size:clamp(1rem,2.2vw,1.6rem)}.connection{display:flex;align-items:center;gap:8px;color:#777;font-size:clamp(.75rem,1.4vw,1rem)}.connection i{width:9px;height:9px;border-radius:50%;background:#cc9a35;display:inline-block}.connection.online{color:#6ed88e}.connection.online i{background:#60df88;box-shadow:0 0 14px rgba(96,223,136,.85)}
+    .main{display:grid;align-content:center;justify-items:center;text-align:center;gap:clamp(12px,2vw,24px)}
+    .round{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.07);border-radius:999px;padding:8px 20px;color:var(--gold);font-size:clamp(.9rem,2vw,1.4rem);font-weight:900}
+    .phase{font-size:clamp(2rem,6vw,5.5rem);line-height:1.12;font-weight:950;text-shadow:0 8px 35px rgba(0,0,0,.35)}
+    .phase.discussion{color:var(--blue)}.phase.voting{color:var(--gold)}.phase.night{color:var(--purple)}
+    .timer{direction:ltr;font-variant-numeric:tabular-nums;font-size:clamp(6rem,23vw,18rem);line-height:.9;font-weight:950;letter-spacing:-.02em;color:var(--cream);text-shadow:0 0 55px rgba(201,168,76,.09)}
+    .timer.running{color:var(--gold)}.timer.finished{color:var(--red);animation:pulse .85s ease-in-out infinite alternate}@keyframes pulse{to{opacity:.48;transform:scale(.985)}}
+    .timer-label{color:#777;font-size:clamp(.8rem,1.8vw,1.25rem);font-weight:800}
+    .latest{width:min(92vw,1050px);border:1px solid rgba(255,255,255,.07);background:rgba(18,18,24,.8);border-radius:22px;padding:clamp(16px,2.5vw,28px);box-shadow:0 20px 50px rgba(0,0,0,.25)}.latest-label{color:var(--gold);font-size:clamp(.75rem,1.4vw,1rem);font-weight:900;margin-bottom:8px}.latest-text{font-size:clamp(1.25rem,3.2vw,2.7rem);line-height:1.5;font-weight:850;white-space:pre-wrap}.latest.empty{display:none}
+    .bottom{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}.history{min-width:0}.history-title{color:#777;font-size:clamp(.7rem,1.2vw,.95rem);font-weight:900;margin-bottom:8px}.history-list{display:flex;gap:9px;overflow:hidden}.history-item{min-width:0;flex:1;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);border-radius:13px;padding:10px 12px}.history-head{display:flex;justify-content:space-between;color:var(--gold);font-size:clamp(.62rem,1vw,.82rem);font-weight:900}.history-text{margin-top:4px;color:#c9c0ab;font-size:clamp(.72rem,1.3vw,1rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fullscreen-btn{background:rgba(255,255,255,.06);color:#aaa;border:1px solid rgba(255,255,255,.07);font-size:.75rem}
+    body.night-view{background:radial-gradient(circle at 50% 25%,rgba(92,67,158,.13),transparent 42%),#030305}body.night-view .timer,body.night-view .timer-label{display:none}
+    @media(max-width:700px){.bottom{grid-template-columns:1fr}.history-list .history-item:nth-child(n+3){display:none}.fullscreen-btn{justify-self:end}.display{padding:18px}.timer{font-size:26vw}}
+to{opacity:1}}
+    @media(max-width:700px){}
+
+  
+    .live-stats{
+      width:min(940px,92vw);
+      display:grid;
+      grid-template-columns:repeat(3,minmax(130px,1fr));
+      gap:clamp(10px,1.5vw,18px);
+      margin-top:clamp(18px,3vh,34px)
+    }
+    .live-stats:has(.live-stat.killer:not([hidden])){
+      grid-template-columns:repeat(4,minmax(115px,1fr))
+    }
+    .live-stat{
+      min-height:clamp(92px,13vh,132px);
+      border-radius:clamp(16px,2vw,26px);
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.035);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:7px;
+      box-shadow:0 16px 40px rgba(0,0,0,.18)
+    }
+    .live-stat strong{
+      font-size:clamp(2rem,4.5vw,4rem);
+      line-height:1;
+      color:#f5ecd7
+    }
+    .live-stat-label{
+      color:#8e8e99;
+      font-size:clamp(.8rem,1.3vw,1.05rem);
+      font-weight:900;
+      letter-spacing:.5px
+    }
+    .live-stat.total{border-color:rgba(201,168,76,.38)}
+    .live-stat.total strong{color:#d9bd69}
+    .live-stat.citizen{border-color:rgba(55,126,184,.42)}
+    .live-stat.citizen strong{color:#57a6df}
+    .live-stat.mafia{border-color:rgba(204,68,68,.42)}
+    .live-stat.mafia strong{color:#e05b60}
+    .live-stat.killer{border-color:rgba(214,129,48,.45)}
+    .live-stat.killer strong{color:#e5a04c}
+    .bottom-actions-only{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center
+    }
+    @media(max-width:760px){
+      .live-stats,.live-stats:has(.live-stat.killer:not([hidden])){
+        grid-template-columns:repeat(2,minmax(120px,1fr))
+      }
+    }
+
+  
+    .timer.warning{
+      color:#ff4e57 !important;
+      text-shadow:
+        0 0 18px rgba(255,78,87,.72),
+        0 0 55px rgba(255,50,65,.46),
+        0 0 110px rgba(255,30,45,.20);
+      animation:countdownWarningPulse .72s ease-in-out infinite;
+    }
+    .timer-label.warning-label{
+      color:#ff6b72;
+      font-weight:950;
+      animation:warningLabelPulse .72s ease-in-out infinite;
+    }
+    body.countdown-warning::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      box-shadow:inset 0 0 115px rgba(180,0,16,.19);
+      animation:warningScreenGlow .72s ease-in-out infinite;
+    }
+    @keyframes countdownWarningPulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.045);opacity:.70}
+    }
+    @keyframes warningLabelPulse{
+      0%,100%{opacity:1}
+      50%{opacity:.52}
+    }
+    @keyframes warningScreenGlow{
+      0%,100%{opacity:.30}
+      50%{opacity:1}
+    }
+
+  </style>
+</head>
+<body>
+<section id="pairScreen" class="pair-screen">
+    <div class="pair-card">
+      <div class="brand">AMMAN MAFIA</div>
+      <div class="sub">شاشة اللاعبين</div>
+      <div class="pair-row">
+        <input id="roomInput" maxlength="14" placeholder="رمز الجلسة" autocomplete="off">
+        <button id="connectBtn" type="button">اتصال</button>
+      </div>
+      <div id="pairMessage" class="pair-msg"></div>
+    </div>
+  </section>
+
+  <main id="displayScreen" class="display">
+    <header class="top">
+      <div class="top-brand">AMMAN MAFIA</div>
+      <div id="connection" class="connection"><i></i><span>جاري الاتصال</span></div>
+    </header>
+    <section class="main">
+      <div id="round" class="round">الجولة 1</div>
+      <div id="phase" class="phase">بانتظار بدء الجولة</div>
+      <div id="timer" class="timer">01:00</div>
+      <div id="timerLabel" class="timer-label">المؤقت جاهز</div>
+      <section class="live-stats" aria-label="أعداد اللاعبين الأحياء">
+        <div class="live-stat total">
+          <span class="live-stat-label">الأحياء</span>
+          <strong id="aliveCount">0</strong>
+        </div>
+        <div class="live-stat citizen">
+          <span class="live-stat-label">مواطن</span>
+          <strong id="citizenCount">0</strong>
+        </div>
+        <div class="live-stat mafia">
+          <span class="live-stat-label">مافيا</span>
+          <strong id="mafiaCount">0</strong>
+        </div>
+        <div id="killerStat" class="live-stat killer" hidden>
+          <span class="live-stat-label">سفاح</span>
+          <strong id="killerCount">0</strong>
+        </div>
+      </section>
+      
+    </section>
+    <footer class="bottom bottom-actions-only">
+      <div class="footer-actions">
+<button id="fullscreenBtn" class="fullscreen-btn" type="button">ملء الشاشة ⛶</button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="realtime-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (function(){
+    'use strict';
+    const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
+    let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
+    const $=id=>document.getElementById(id);
+    
+    function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||'').trim())&&String(c.supabaseAnonKey||'').trim().length>40&&!String(c.supabaseAnonKey).includes('PUT_YOUR_')}
+    function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function getTickThresholdMs(){
+      if(!state)return 5000;
+
+      const durationSec=Math.round(
+        Math.max(0,Number(state.timerDurationMs)||0)/1000
+      );
+
+      if(durationSec===60)return 15000;
+      if(durationSec===45)return 10000;
+      if(durationSec===30)return 5000;
+
+      return durationSec>=60?15000:(durationSec>30?10000:5000);
+    }
+
+    function remaining(){if(!state)return 0;return state.timerStatus==='running'?Math.max(0,Number(state.timerEndsAt||0)-Date.now()):Math.max(0,Number(state.timerRemainingMs||0))}
+    function fmt(ms){const t=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(t/60),s=t%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+    function apply(payload){if(!payload||typeof payload!=='object')return;state=payload;lastStateAt=Date.now();render();}
+    function render(){
+      if(!state)return;
+      $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
+      const phase=PHASE_LABELS[state.phase]?state.phase:'idle';$('phase').textContent=PHASE_LABELS[phase];$('phase').className='phase '+phase;document.body.classList.toggle('night-view',phase==='night');
+      const rem=remaining(),timer=$('timer');
+      const rawTimerStatus=state.timerStatus||'idle';
+      const timerStatus=
+        rawTimerStatus==='running'&&rem<=0
+          ? 'finished'
+          : rawTimerStatus;
+      const warning=
+        timerStatus==='running'&&
+        rem>0&&
+        rem<=getTickThresholdMs();
+
+      timer.textContent=fmt(rem);
+      timer.className='timer '+timerStatus+(warning?' warning':'');
+      document.body.classList.toggle('countdown-warning',warning);
+
+
+      const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};
+      const timerLabel=$('timerLabel');
+      timerLabel.textContent=warning?'الوقت يوشك على الانتهاء':(labels[timerStatus]||'المؤقت جاهز');
+      timerLabel.classList.toggle('warning-label',warning);
+      $('aliveCount').textContent=String(Math.max(0,Number(state.totalAlive)||0));
+      $('citizenCount').textContent=String(Math.max(0,Number(state.citizenAlive)||0));
+      $('mafiaCount').textContent=String(Math.max(0,Number(state.mafiaAlive)||0));
+      $('killerCount').textContent=String(Math.max(0,Number(state.killerAlive)||0));
+      $('killerStat').hidden=!Boolean(state.showKiller);
+
+    }
+    function status(){const online=Date.now()-lastStateAt<18000;$('connection').className='connection '+(online?'online':'');$('connection').querySelector('span').textContent=online?'متصل بلوحة المنظم':(mode==='supabase'?'بانتظار لوحة المنظم':'تجربة محلية')}
+    function send(event,payload={}){if(mode==='supabase'&&channel)channel.send({type:'broadcast',event,payload}).catch(()=>{});else if(localChannel)localChannel.postMessage({event,payload})}
+    function connect(){
+      room=$('roomInput').value.trim().toUpperCase().replace(/[^A-Z2-9]/g,'');if(room.length<6){$('pairMessage').textContent='أدخل رمز الجلسة الظاهر في لوحة المنظم.';return}localStorage.setItem('ammanMafiaDisplayLastRoom',room);$('pairMessage').textContent='جاري الاتصال...';
+      if(configured()&&window.supabase&&typeof window.supabase.createClient==='function'){
+        mode='supabase';const c=window.AMMAN_MAFIA_REALTIME;client=window.supabase.createClient(c.supabaseUrl.trim(),c.supabaseAnonKey.trim(),{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:10}}});channel=client.channel(`amman-mafia-display-${room}`,{config:{broadcast:{self:false}}});channel.on('broadcast',{event:'state'},({payload})=>apply(payload)).subscribe(st=>{if(st==='SUBSCRIBED'){show();send('display_request',{at:Date.now()})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT')$('pairMessage').textContent='تعذر الاتصال. تأكد من الإنترنت والإعدادات.'});
+      }else if('BroadcastChannel'in window){mode='local';localChannel=new BroadcastChannel(`amman-mafia-display-${room}`);localChannel.onmessage=e=>{const d=e.data||{};if(d.event==='state')apply(d.payload)};show();send('display_request',{at:Date.now()});$('pairMessage').textContent='وضع تجربة محلي — افتح لوحة المنظم في تبويب آخر على نفس الجهاز.'
+      }else $('pairMessage').textContent='هذا المتصفح لا يدعم الاتصال.';
+      clearInterval(ping);ping=setInterval(()=>send('display_ping',{at:Date.now()}),7000);
+    }
+    function show(){$('pairScreen').style.display='none';$('displayScreen').classList.add('active')}
+    $('connectBtn').addEventListener('click',connect);
+    $('roomInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
+    $('fullscreenBtn').addEventListener('click',()=>{const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
+    const params=new URLSearchParams(location.search),initial=(params.get('room')||localStorage.getItem('ammanMafiaDisplayLastRoom')||'').toUpperCase();
+    $('roomInput').value=initial;
+    if(params.get('room'))connect();
+    tick=setInterval(()=>{render();status()},250);
+  })();
+  </script>
+</body>
+</html>
