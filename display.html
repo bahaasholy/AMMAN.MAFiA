@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v36</title>
+  <title>Amman Mafia — شاشة العرض v37</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -510,7 +510,10 @@ to{opacity:1}}
     body.phase-voting .speaker-card{
       border-color:rgba(201,168,76,.33);
     }
-    body.phase-night .speaker-card{display:none !important}
+    body.phase-night .speaker-card,
+    body.phase-voting .speaker-card{
+      display:none !important;
+    }
 
     .speaker-transition{
       position:fixed;
@@ -700,7 +703,7 @@ to{opacity:1}}
     </div>
   </section>
 
-  <script src="realtime-config.js?v=36"></script>
+  <script src="realtime-config.js?v=37"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -891,7 +894,7 @@ to{opacity:1}}
       const speakerVisible=
         Boolean(state.speakerVisible)&&
         speakerSeat>0&&
-        phase!=='night';
+        phase==='discussion';
 
       const speakerCard=$('speakerCard');
       speakerCard.hidden=!speakerVisible;
@@ -904,7 +907,8 @@ to{opacity:1}}
       if(
         lastSpeakerChangeId!==null&&
         changeId!==lastSpeakerChangeId&&
-        speakerVisible
+        speakerVisible&&
+        phase==='discussion'
       ){
         showSpeakerTransition(speakerSeat);
       }
