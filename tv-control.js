@@ -23,6 +23,7 @@
   let tvPresenceTimer = null;
   let timerTicker = null;
   let hasBroadcastFinished = false;
+  let timerSyncSequence = 0;
   let realtimeStatus = 'idle';
   let realtimeErrorText = '';
 
@@ -837,7 +838,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '56');
+    url.searchParams.set('v', '57');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -1115,7 +1116,21 @@
 
   function broadcastState() {
     Object.assign(publicState, collectGameCounts());
-    const payload = { ...publicState, roomCode, sentAt: Date.now() };
+
+    // The organizer is the authoritative clock. Sending the exact remaining
+    // milliseconds and the exact displayed second prevents TV clock skew from
+    // making the screen start one second ahead or behind.
+    const syncedRemainingMs = getRemainingMs();
+    const syncNow = Date.now();
+    const payload = {
+      ...publicState,
+      roomCode,
+      timerRemainingMs: syncedRemainingMs,
+      timerDisplaySeconds: Math.max(0, Math.ceil(syncedRemainingMs / 1000)),
+      timerSyncSequence: ++timerSyncSequence,
+      timerSyncSentAt: syncNow,
+      sentAt: syncNow
+    };
 
     // Reliable local-tab fallback: the display can always read the latest state.
     writeLocalState(payload);
@@ -1218,6 +1233,10 @@
           saveState();
           vibrate([120, 80, 120]);
         }
+      } else {
+        // Keep every connected television locked to the organizer's displayed
+        // second instead of trusting each device's system clock.
+        broadcastState();
       }
     }
     renderAll();
