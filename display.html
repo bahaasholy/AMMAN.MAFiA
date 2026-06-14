@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v26</title>
+  <title>Amman Mafia — شاشة العرض v27</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -27,12 +27,8 @@
     .bottom{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}.history{min-width:0}.history-title{color:#777;font-size:clamp(.7rem,1.2vw,.95rem);font-weight:900;margin-bottom:8px}.history-list{display:flex;gap:9px;overflow:hidden}.history-item{min-width:0;flex:1;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);border-radius:13px;padding:10px 12px}.history-head{display:flex;justify-content:space-between;color:var(--gold);font-size:clamp(.62rem,1vw,.82rem);font-weight:900}.history-text{margin-top:4px;color:#c9c0ab;font-size:clamp(.72rem,1.3vw,1rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fullscreen-btn{background:rgba(255,255,255,.06);color:#aaa;border:1px solid rgba(255,255,255,.07);font-size:.75rem}
     body.night-view{background:radial-gradient(circle at 50% 25%,rgba(92,67,158,.13),transparent 42%),#030305}body.night-view .timer,body.night-view .timer-label{display:none}
     @media(max-width:700px){.bottom{grid-template-columns:1fr}.history-list .history-item:nth-child(n+3){display:none}.fullscreen-btn{justify-self:end}.display{padding:18px}.timer{font-size:26vw}}
-  
-    .footer-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
-    .sound-btn{background:rgba(201,168,76,.07);color:var(--gold);border:1px solid rgba(201,168,76,.25);font-size:.75rem;border-radius:12px;font-weight:900;padding:12px 16px;cursor:pointer}
-    .sound-btn.enabled{color:#72df93;border-color:rgba(114,223,147,.35);background:rgba(114,223,147,.08)}
 to{opacity:1}}
-    @media(max-width:700px){.footer-actions{justify-self:end;flex-wrap:wrap}.sound-btn{padding:10px 12px}}
+    @media(max-width:700px){}
 
   
     .live-stats{
@@ -88,65 +84,6 @@ to{opacity:1}}
     }
 
   
-    .sound-gate{
-      position:fixed;
-      inset:0;
-      z-index:20000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:22px;
-      background:rgba(3,3,6,.94);
-      backdrop-filter:blur(12px);
-    }
-    .sound-gate.hidden{display:none}
-    .sound-gate-card{
-      width:min(92vw,560px);
-      border:1px solid rgba(201,168,76,.34);
-      background:linear-gradient(160deg,#17171e,#0b0b10);
-      border-radius:25px;
-      padding:30px;
-      text-align:center;
-      box-shadow:0 30px 90px rgba(0,0,0,.58);
-    }
-    .sound-gate-icon{font-size:3.4rem;margin-bottom:10px}
-    .sound-gate-title{
-      color:#d8bc68;
-      font-size:clamp(1.45rem,4vw,2.15rem);
-      font-weight:950;
-      margin-bottom:8px;
-    }
-    .sound-gate-text{
-      color:#999;
-      line-height:1.8;
-      font-weight:750;
-      margin-bottom:20px;
-    }
-    .sound-gate-btn{
-      width:100%;
-      min-height:62px;
-      border:0;
-      border-radius:15px;
-      background:linear-gradient(180deg,#dec46f,#b89138);
-      color:#08080b;
-      font-weight:950;
-      font-size:1.05rem;
-      cursor:pointer;
-    }
-    .sound-gate-note{
-      color:#777;
-      font-size:.76rem;
-      margin-top:12px;
-      line-height:1.7;
-    }
-    .sound-error{
-      color:#ef7377;
-      font-weight:850;
-      margin-top:12px;
-      min-height:22px;
-    }
-
-  
     .timer.warning{
       color:#ff4e57 !important;
       text-shadow:
@@ -185,23 +122,7 @@ to{opacity:1}}
   </style>
 </head>
 <body>
-  <audio id="countdownAudio30" preload="auto" src="countdown-5.mp3"></audio>
-  <audio id="countdownAudio45" preload="auto" src="countdown-10.mp3"></audio>
-  <audio id="countdownAudio60" preload="auto" src="countdown-15.mp3"></audio>
-
-  <section id="soundGate" class="sound-gate">
-    <div class="sound-gate-card">
-      <div class="sound-gate-icon">🔊</div>
-      <div class="sound-gate-title">تفعيل صوت شاشة العرض</div>
-      <div class="sound-gate-text">
-        اضغط الزر مرة واحدة. ستسمع عينة قصيرة من صوت العد التنازلي، وبعدها يشتغل الصوت فقط في الثواني الأخيرة ويتوقف عند الصفر.
-      </div>
-      <button id="soundGateBtn" class="sound-gate-btn" type="button">تفعيل الصوت وتجربته</button>
-      <div id="soundGateError" class="sound-error"></div>
-      <div class="sound-gate-note">تأكد أن صوت التلفزيون غير مكتوم وأن مستوى الصوت مرتفع.</div>
-    </div>
-  </section>
-  <section id="pairScreen" class="pair-screen">
+<section id="pairScreen" class="pair-screen">
     <div class="pair-card">
       <div class="brand">AMMAN MAFIA</div>
       <div class="sub">شاشة اللاعبين</div>
@@ -245,8 +166,7 @@ to{opacity:1}}
     </section>
     <footer class="bottom bottom-actions-only">
       <div class="footer-actions">
-        <button id="soundBtn" class="sound-btn" type="button">تفعيل الصوت 🔊</button>
-        <button id="fullscreenBtn" class="fullscreen-btn" type="button">ملء الشاشة ⛶</button>
+<button id="fullscreenBtn" class="fullscreen-btn" type="button">ملء الشاشة ⛶</button>
       </div>
     </footer>
   </main>
@@ -258,177 +178,8 @@ to{opacity:1}}
     'use strict';
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
     let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
-    let audioContext=null,soundEnabled=false;
-    let countdownAudios={30:null,45:null,60:null};
-    let activeCountdownAudio=null,countdownCycle='',countdownPlaying=false;
     const $=id=>document.getElementById(id);
     
-    function updateSoundButton(){
-      const btn=$('soundBtn');if(!btn)return;
-      btn.classList.toggle('enabled',soundEnabled);
-      btn.textContent=soundEnabled?'الصوت مفعّل ✓':'تفعيل الصوت 🔊';
-    }
-
-    async function ensureAudioContext(){
-      try{
-        const AudioCtx=window.AudioContext||window.webkitAudioContext;
-        if(!AudioCtx)return false;
-        if(!audioContext)audioContext=new AudioCtx();
-        if(audioContext.state==='suspended')await audioContext.resume();
-        return audioContext.state==='running';
-      }catch(_){
-        return false;
-      }
-    }
-
-    async function activateSound(showTest=true){
-      const error=$('soundGateError');
-      if(error)error.textContent='';
-
-      countdownAudios={
-        30:$('countdownAudio30'),
-        45:$('countdownAudio45'),
-        60:$('countdownAudio60')
-      };
-
-      const contextReady=await ensureAudioContext();
-      let audioReady=false;
-
-      for(const audio of Object.values(countdownAudios)){
-        if(!audio)continue;
-        try{
-          audio.volume=0;
-          await audio.play();
-          audio.pause();
-          audio.currentTime=0;
-          audio.volume=0.86;
-          audioReady=true;
-        }catch(_){}
-      }
-
-      if(showTest){
-        const testAudio=countdownAudios[30];
-        if(testAudio){
-          try{
-            testAudio.pause();
-            testAudio.currentTime=0;
-            testAudio.volume=0.55;
-            await testAudio.play();
-            audioReady=true;
-
-            setTimeout(()=>{
-              try{
-                testAudio.pause();
-                testAudio.currentTime=0;
-                testAudio.volume=0.86;
-              }catch(_){}
-            },900);
-          }catch(_){}
-        }
-      }
-
-      soundEnabled=Boolean(audioReady||contextReady);
-      updateSoundButton();
-
-      if(soundEnabled){
-        $('soundGate')?.classList.add('hidden');
-        sessionStorage.setItem('ammanMafiaSoundActivated','1');
-        return true;
-      }
-
-      if(error)error.textContent='لم يشتغل الصوت. ارفع صوت التلفزيون وجرب مرة ثانية.';
-      return false;
-    }
-
-    function getSelectedDurationSec(){
-      return Math.round(Math.max(0,Number(state?.timerDurationMs)||0)/1000);
-    }
-
-    function getTickThresholdMs(){
-      const durationSec=getSelectedDurationSec();
-
-      if(durationSec===60)return 15000;
-      if(durationSec===45)return 10000;
-      if(durationSec===30)return 5000;
-
-      return durationSec>=60?15000:(durationSec>30?10000:5000);
-    }
-
-    function getCountdownAudio(){
-      const durationSec=getSelectedDurationSec();
-      if(durationSec===60)return countdownAudios[60];
-      if(durationSec===45)return countdownAudios[45];
-      return countdownAudios[30];
-    }
-
-    function stopCountdownSound(resetPosition=true){
-      for(const audio of Object.values(countdownAudios)){
-        if(!audio)continue;
-        try{
-          audio.pause();
-          if(resetPosition)audio.currentTime=0;
-        }catch(_){}
-      }
-
-      activeCountdownAudio=null;
-      countdownPlaying=false;
-    }
-
-    async function startCountdownSound(cycle,rem){
-      if(!soundEnabled)return false;
-
-      const audio=getCountdownAudio();
-      if(!audio)return false;
-
-      const thresholdMs=getTickThresholdMs();
-      const elapsedSec=Math.max(0,(thresholdMs-rem)/1000);
-
-      try{
-        stopCountdownSound(true);
-        countdownCycle=cycle;
-        activeCountdownAudio=audio;
-        audio.loop=false;
-        audio.volume=0.86;
-
-        if(Number.isFinite(audio.duration)&&audio.duration>0){
-          audio.currentTime=Math.min(elapsedSec,Math.max(0,audio.duration-.12));
-        }else{
-          audio.currentTime=elapsedSec;
-        }
-
-        await audio.play();
-        countdownPlaying=true;
-        return true;
-      }catch(_){
-        activeCountdownAudio=null;
-        countdownPlaying=false;
-        return false;
-      }
-    }
-
-    function syncCountdownSound(rem){
-      if(!state||!soundEnabled){
-        stopCountdownSound(false);
-        return;
-      }
-
-      const status=state.timerStatus||'idle';
-      const threshold=getTickThresholdMs();
-      const shouldPlay=status==='running'&&rem>0&&rem<=threshold;
-      const cycle=String(state.timerEndsAt||'');
-
-      if(shouldPlay){
-        if(!countdownPlaying||countdownCycle!==cycle||activeCountdownAudio?.paused){
-          startCountdownSound(cycle,rem);
-        }
-      }else{
-        stopCountdownSound(true);
-        if(status==='idle'||status==='finished')countdownCycle='';
-      }
-    }
-
-
-
     function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||'').trim())&&String(c.supabaseAnonKey||'').trim().length>40&&!String(c.supabaseAnonKey).includes('PUT_YOUR_')}
     function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
     function remaining(){if(!state)return 0;return state.timerStatus==='running'?Math.max(0,Number(state.timerEndsAt||0)-Date.now()):Math.max(0,Number(state.timerRemainingMs||0))}
@@ -446,7 +197,6 @@ to{opacity:1}}
       timer.className='timer '+timerStatus+(warning?' warning':'');
       document.body.classList.toggle('countdown-warning',warning);
 
-      syncCountdownSound(rem);
 
       const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};
       const timerLabel=$('timerLabel');
@@ -470,20 +220,11 @@ to{opacity:1}}
       clearInterval(ping);ping=setInterval(()=>send('display_ping',{at:Date.now()}),7000);
     }
     function show(){$('pairScreen').style.display='none';$('displayScreen').classList.add('active')}
-    $('soundBtn').addEventListener('click',()=>activateSound(true));
-    $('connectBtn').addEventListener('click',async()=>{await activateSound(false);connect()});
-    $('roomInput').addEventListener('keydown',async e=>{if(e.key==='Enter'){await activateSound(false);connect()}});
-    $('fullscreenBtn').addEventListener('click',async()=>{await activateSound(false);const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
-    $('soundGateBtn').addEventListener('click',()=>activateSound(true));
-    countdownAudios={
-      30:$('countdownAudio30'),
-      45:$('countdownAudio45'),
-      60:$('countdownAudio60')
-    };
+    $('connectBtn').addEventListener('click',connect);
+    $('roomInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
+    $('fullscreenBtn').addEventListener('click',()=>{const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
     const params=new URLSearchParams(location.search),initial=(params.get('room')||localStorage.getItem('ammanMafiaDisplayLastRoom')||'').toUpperCase();
     $('roomInput').value=initial;
-    updateSoundButton();
-    $('soundGate').classList.remove('hidden');
     if(params.get('room'))connect();
     tick=setInterval(()=>{render();status()},250);
   })();

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'amman-mafia-tv-v26-cache-v1';
+const CACHE_NAME = 'amman-mafia-tv-v27-cache-v1';
 const ASSETS = [
   './', './index.html', './display.html', './manifest.json',
   './realtime-config.js', './tv-control.css', './tv-control.js',
-  './icon-192.png', './icon-512.png', './countdown-5.mp3', './countdown-10.mp3', './countdown-15.mp3'
+  './icon-192.png', './icon-512.png'
 ];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).catch(() => null));
