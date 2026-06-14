@@ -59,6 +59,17 @@
         : 'clockwise',
       speakerAutoTimer: state.speakerAutoTimer !== false,
       speakerChangeId: Math.max(0, Number(state.speakerChangeId) || 0),
+      speakerCycleStartSeat: Number(state.speakerCycleStartSeat) > 0
+        ? Math.floor(Number(state.speakerCycleStartSeat))
+        : null,
+      speakerVisitedSeats: Array.isArray(state.speakerVisitedSeats)
+        ? [...new Set(
+            state.speakerVisitedSeats
+              .map(Number)
+              .filter(seat => Number.isInteger(seat) && seat > 0)
+          )]
+        : [],
+      speakerCycleActive: Boolean(state.speakerCycleActive),
       updatedAt: Number(state.updatedAt) || now
     };
   }
@@ -249,6 +260,24 @@
     hasBroadcastFinished = false;
   }
 
+  function resetSpeakerCycle(options = {}) {
+    publicState.speakerCycleStartSeat = null;
+    publicState.speakerVisitedSeats = [];
+    publicState.speakerCycleActive = false;
+
+    if (options.clearSpeaker) {
+      publicState.speakerSeat = null;
+      publicState.speakerVisible = false;
+    }
+  }
+
+  function beginSpeakerCycle(seat) {
+    const parsedSeat = Number(seat);
+    publicState.speakerCycleStartSeat = parsedSeat;
+    publicState.speakerVisitedSeats = [parsedSeat];
+    publicState.speakerCycleActive = true;
+  }
+
   function selectSpeakerSeat(seat, options = {}) {
     const aliveSeats = getAliveSeatNumbers();
     const parsedSeat = Number(seat);
@@ -259,6 +288,13 @@
     publicState.speakerVisible = true;
     publicState.speakerChangeId += 1;
 
+    // A manual choice always starts a fresh, single lap from that player.
+    if (options.resetCycle !== false) {
+      beginSpeakerCycle(parsedSeat);
+    } else if (!publicState.speakerVisitedSeats.includes(parsedSeat)) {
+      publicState.speakerVisitedSeats.push(parsedSeat);
+    }
+
     if (options.startTimer !== false && publicState.speakerAutoTimer) {
       startFullSpeakerTimer();
     }
@@ -268,92 +304,250 @@
     return true;
   }
 
-  function getSpeakerTarget(step = 1) {
-    const aliveSeats = getAliveSeatNumbers();
-    if (!aliveSeats.length) return null;
+  function getCircularSeatsAfter(currentSeat, aliveSeats, direction) {
+    if (!aliveSeats.length) return [];
 
-    const clockwise = publicState.speakerDirection === 'clockwise';
-    const movement = clockwise ? step : -step;
-    const current = Number(publicState.speakerSeat);
+    const ascending = direction === 'clockwise';
+    const current = Number(currentSeat);
 
-    if (aliveSeats.includes(current)) {
-      const currentIndex = aliveSeats.indexOf(current);
-      return aliveSeats[
-        (currentIndex + movement + aliveSeats.length) % aliveSeats.length
+    if (ascending) {
+      return [
+        ...aliveSeats.filter(seat => seat > current),
+        ...aliveSeats.filter(seat => seat <= current)
       ];
     }
 
-    // If the current speaker was eliminated, continue from the closest
-    // living seat in the selected direction instead of restarting randomly.
-    if (Number.isFinite(current) && current > 0) {
-      if (movement > 0) {
-        return aliveSeats.find(seat => seat > current) || aliveSeats[0];
-      }
+    const descendingSeats = [...aliveSeats].sort((a, b) => b - a);
+    return [
+      ...descendingSeats.filter(seat => seat < current),
+      ...descendingSeats.filter(seat => seat >= current)
+    ];
+  }
 
-      return [...aliveSeats].reverse().find(seat => seat < current)
-        || aliveSeats[aliveSeats.length - 1];
-    }
+  function getFirstSpeakerForDirection(aliveSeats) {
+    if (!aliveSeats.length) return null;
 
-    return movement > 0
+    return publicState.speakerDirection === 'clockwise'
       ? aliveSeats[0]
       : aliveSeats[aliveSeats.length - 1];
   }
 
-  function moveSpeaker(step = 1) {
-    const target = getSpeakerTarget(step);
-    if (target == null) return false;
+  function ensureSpeakerCycle() {
+    const aliveSeats = getAliveSeatNumbers();
+    if (!aliveSeats.length) return null;
 
-    return selectSpeakerSeat(target, { startTimer:true });
-  }
+    const current = Number(publicState.speakerSeat);
 
-  function advanceSpeakerAndRestartTimer() {
-    // getSpeakerTarget() reads the live DOM every time, so a player
-    // eliminated moments ago is skipped immediately.
-    const target = getSpeakerTarget(1);
-
-    if (target != null) {
-      publicState.speakerSeat = target;
-      publicState.speakerVisible = true;
-      publicState.speakerChangeId += 1;
+    if (
+      publicState.speakerCycleActive &&
+      Number(publicState.speakerCycleStartSeat) > 0 &&
+      publicState.speakerVisitedSeats.length
+    ) {
+      return current > 0 ? current : publicState.speakerCycleStartSeat;
     }
 
-    // The large "التالي" button always restarts the selected duration,
-    // even when automatic timer mode is disabled.
-    startFullSpeakerTimer();
+    if (aliveSeats.includes(current)) {
+      beginSpeakerCycle(current);
+      return current;
+    }
+
+    const first = getFirstSpeakerForDirection(aliveSeats);
+    if (first != null) {
+      publicState.speakerSeat = first;
+      publicState.speakerVisible = true;
+      publicState.speakerChangeId += 1;
+      beginSpeakerCycle(first);
+    }
+
+    return first;
+  }
+
+  function getNextUnvisitedSpeaker() {
+    const aliveSeats = getAliveSeatNumbers();
+    if (!aliveSeats.length) return null;
+
+    const current = ensureSpeakerCycle();
+    if (!(Number(current) > 0)) return null;
+
+    const visited = new Set(
+      publicState.speakerVisitedSeats.map(Number)
+    );
+
+    const candidates = getCircularSeatsAfter(
+      current,
+      aliveSeats,
+      publicState.speakerDirection
+    );
+
+    return candidates.find(seat => !visited.has(seat)) ?? null;
+  }
+
+  function finishDiscussionAndStartVoting() {
+    publicState.speakerCycleActive = false;
+    publicState.speakerVisible = false;
+    publicState.speakerChangeId += 1;
+
+    // setPublicPhase also stops/resets the timer because voting has no timer.
+    setPublicPhase('voting', { syncRound:true });
+    vibrate([45, 45, 80]);
+  }
+
+  function advanceSpeakerOneLap(options = {}) {
+    const aliveSeats = getAliveSeatNumbers();
+
+    if (!aliveSeats.length) {
+      finishDiscussionAndStartVoting();
+      return null;
+    }
+
+    const current = ensureSpeakerCycle();
+
+    // When no speaker existed, ensureSpeakerCycle selected the first player.
+    // This is the first turn, not the end of the lap.
+    if (
+      Number(current) > 0 &&
+      publicState.speakerVisitedSeats.length === 1 &&
+      Number(publicState.speakerChangeId) > 0 &&
+      options.initializedOnly
+    ) {
+      if (options.forceTimer) startFullSpeakerTimer();
+      saveState();
+      return current;
+    }
+
+    const target = getNextUnvisitedSpeaker();
+
+    if (target == null) {
+      finishDiscussionAndStartVoting();
+      return null;
+    }
+
+    publicState.speakerSeat = target;
+    publicState.speakerVisible = true;
+    publicState.speakerChangeId += 1;
+
+    if (!publicState.speakerVisitedSeats.includes(target)) {
+      publicState.speakerVisitedSeats.push(target);
+    }
+
+    if (options.forceTimer || publicState.speakerAutoTimer) {
+      startFullSpeakerTimer();
+    }
 
     vibrate([35, 35, 55]);
     saveState();
-
     return target;
+  }
+
+  function moveSpeaker(step = 1) {
+    if (step >= 0) {
+      const hadActiveCycle =
+        publicState.speakerCycleActive &&
+        publicState.speakerVisitedSeats.length > 0;
+
+      if (!hadActiveCycle) {
+        const first = ensureSpeakerCycle();
+        if (first == null) return false;
+
+        if (publicState.speakerAutoTimer) {
+          startFullSpeakerTimer();
+        }
+
+        vibrate(28);
+        saveState();
+        return true;
+      }
+
+      return advanceSpeakerOneLap({ forceTimer:false }) != null;
+    }
+
+    // "السابق" يرجع خطوة داخل نفس اللفة، ويتيح المرور عليها من جديد.
+    if (
+      !publicState.speakerCycleActive ||
+      publicState.speakerVisitedSeats.length <= 1
+    ) {
+      return false;
+    }
+
+    publicState.speakerVisitedSeats.pop();
+    const previous =
+      publicState.speakerVisitedSeats[
+        publicState.speakerVisitedSeats.length - 1
+      ];
+
+    publicState.speakerSeat = previous;
+    publicState.speakerVisible = true;
+    publicState.speakerChangeId += 1;
+
+    if (publicState.speakerAutoTimer) {
+      startFullSpeakerTimer();
+    }
+
+    vibrate(24);
+    saveState();
+    return true;
+  }
+
+  function advanceSpeakerAndRestartTimer() {
+    const hadActiveCycle =
+      publicState.speakerCycleActive &&
+      publicState.speakerVisitedSeats.length > 0;
+
+    if (!hadActiveCycle) {
+      const first = ensureSpeakerCycle();
+
+      if (first == null) {
+        // No player list yet: preserve the old timer-only behavior.
+        startFullSpeakerTimer();
+        vibrate([35, 35, 55]);
+        saveState();
+        return null;
+      }
+
+      startFullSpeakerTimer();
+      vibrate([35, 35, 55]);
+      saveState();
+      return first;
+    }
+
+    return advanceSpeakerOneLap({ forceTimer:true });
   }
 
   function getSpeakerOrderPreview() {
     const aliveSeats = getAliveSeatNumbers();
     if (!aliveSeats.length) return [];
 
-    const first = Number(publicState.speakerSeat);
-    const startSeat = aliveSeats.includes(first)
-      ? first
-      : (
-          publicState.speakerDirection === 'clockwise'
-            ? aliveSeats[0]
-            : aliveSeats[aliveSeats.length - 1]
-        );
+    const current = Number(publicState.speakerSeat);
+    const visited = new Set(
+      publicState.speakerVisitedSeats.map(Number)
+    );
 
-    const order = [];
-    let current = startSeat;
+    if (
+      publicState.speakerCycleActive &&
+      Number(current) > 0
+    ) {
+      const remaining = getCircularSeatsAfter(
+        current,
+        aliveSeats,
+        publicState.speakerDirection
+      ).filter(seat => !visited.has(seat));
 
-    for (let index = 0; index < Math.min(aliveSeats.length, 6); index++) {
-      order.push(current);
-
-      const currentIndex = aliveSeats.indexOf(current);
-      const movement = publicState.speakerDirection === 'clockwise' ? 1 : -1;
-      current = aliveSeats[
-        (currentIndex + movement + aliveSeats.length) % aliveSeats.length
-      ];
+      return [current, ...remaining];
     }
 
-    return order;
+    const first = aliveSeats.includes(current)
+      ? current
+      : getFirstSpeakerForDirection(aliveSeats);
+
+    if (first == null) return [];
+
+    const rest = getCircularSeatsAfter(
+      first,
+      aliveSeats,
+      publicState.speakerDirection
+    ).filter(seat => seat !== first);
+
+    return [first, ...rest];
   }
 
   function renderSpeakerControls() {
@@ -368,7 +562,9 @@
       currentSeat || '',
       publicState.speakerVisible ? '1' : '0',
       publicState.speakerDirection,
-      publicState.speakerAutoTimer ? '1' : '0'
+      publicState.speakerAutoTimer ? '1' : '0',
+      publicState.speakerCycleActive ? '1' : '0',
+      publicState.speakerVisitedSeats.join(',')
     ].join('|');
 
     if (grid.dataset.signature !== signature) {
@@ -401,6 +597,11 @@
         status.textContent = 'المتحدث الحالي مقصي — اضغط التالي للتخطي';
       } else if (!publicState.speakerVisible) {
         status.textContent = 'المتحدث مخفي من شاشة التلفزيون';
+      } else if (publicState.speakerCycleActive) {
+        const spokenCount = publicState.speakerVisitedSeats.length;
+        const totalCount = aliveSeats.length;
+        status.textContent =
+          `لاعب ${currentSeat} يتحدث الآن — ${spokenCount} من ${totalCount}`;
       } else {
         status.textContent = `لاعب ${currentSeat} يتحدث الآن`;
       }
@@ -430,11 +631,12 @@
     const preview = getSpeakerOrderPreview();
     const previewElement = document.getElementById('tvSpeakerPreview');
     previewElement.textContent = preview.length
-      ? `الترتيب القادم: ${preview.join(' ← ')}`
+      ? `اللفة الحالية: ${preview.join(' ← ')} ← ثم جولة التصويت`
       : 'لا يوجد لاعبون أحياء متاحون حاليًا.';
 
     document.getElementById('tvSpeakerPrevious').disabled =
-      aliveSeats.length === 0;
+      !publicState.speakerCycleActive ||
+      publicState.speakerVisitedSeats.length <= 1;
 
     document.getElementById('tvSpeakerNext').disabled =
       aliveSeats.length === 0;
@@ -447,8 +649,8 @@
     const aliveSeats = getAliveSeatNumbers();
     if (aliveSeats.includes(currentSeat)) return false;
 
-    // Keep the seat number so "next" continues correctly around the table,
-    // but hide an eliminated speaker from the public screen.
+    // Keep the player number and the visited list so "التالي" skips the
+    // eliminated player and continues the same single lap.
     publicState.speakerVisible = false;
     publicState.updatedAt = Date.now();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(publicState));
@@ -602,6 +804,21 @@
 
     publicState.phase = phase;
 
+    if (phase === 'discussion' && options.resetTimer) {
+      // Each discussion phase starts with a fresh one-lap speaker order.
+      resetSpeakerCycle({ clearSpeaker:true });
+    }
+
+    if (phase === 'voting') {
+      publicState.speakerCycleActive = false;
+      publicState.speakerVisible = false;
+    }
+
+    if (phase === 'night') {
+      publicState.speakerCycleActive = false;
+      publicState.speakerVisible = false;
+    }
+
     if (phase === 'night') {
       if (publicState.timerStatus === 'running') {
         publicState.timerRemainingMs = getRemainingMs();
@@ -722,12 +939,28 @@
 
     document.getElementById('tvSpeakerClockwise').addEventListener('click', () => {
       publicState.speakerDirection = 'clockwise';
+
+      const current = Number(publicState.speakerSeat);
+      if (getAliveSeatNumbers().includes(current)) {
+        beginSpeakerCycle(current);
+      } else {
+        resetSpeakerCycle();
+      }
+
       vibrate(18);
       saveState();
     });
 
     document.getElementById('tvSpeakerCounterclockwise').addEventListener('click', () => {
       publicState.speakerDirection = 'counterclockwise';
+
+      const current = Number(publicState.speakerSeat);
+      if (getAliveSeatNumbers().includes(current)) {
+        beginSpeakerCycle(current);
+      } else {
+        resetSpeakerCycle();
+      }
+
       vibrate(18);
       saveState();
     });
