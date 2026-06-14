@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v46</title>
+  <title>Amman Mafia — شاشة العرض v47</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -922,6 +922,349 @@ to{opacity:1}}
       .live-stat strong{font-size:1.12rem !important}
     }
 
+  
+    /* ===== v47: Large and readable television layout ===== */
+
+    html,
+    body{
+      width:100%;
+      height:100%;
+      min-height:0;
+      overflow:hidden;
+    }
+
+    #displayScreen.display{
+      width:100%;
+      height:100dvh;
+      min-height:0;
+      overflow:hidden;
+      transform:none !important;
+      zoom:1 !important;
+    }
+
+    #displayScreen.display.active{
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr);
+      gap:clamp(8px,1.2vh,14px);
+      padding:clamp(14px,2vh,24px) clamp(28px,2.7vw,52px);
+    }
+
+    #displayScreen .top{
+      flex:0 0 auto;
+      min-height:clamp(54px,7.5vh,78px);
+      padding-bottom:clamp(8px,1.1vh,13px);
+    }
+
+    #displayScreen .brand-logo{
+      width:clamp(50px,6.5vh,70px);
+      height:clamp(50px,6.5vh,70px);
+      border-radius:15px;
+    }
+
+    #displayScreen .top-brand{
+      font-size:clamp(1.05rem,2.35vh,1.55rem);
+      letter-spacing:clamp(2px,.32vw,5px);
+    }
+
+    #displayScreen .top-subtitle{
+      font-size:clamp(.64rem,1.35vh,.9rem);
+    }
+
+    #displayScreen .connection{
+      font-size:clamp(.72rem,1.55vh,1rem);
+      font-weight:850;
+    }
+
+    #displayScreen .main{
+      width:100%;
+      height:100%;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(8px,1.3vh,15px);
+      padding:0;
+      overflow:hidden;
+    }
+
+    #displayScreen .round{
+      flex:0 0 auto;
+      padding:clamp(6px,.85vh,10px) clamp(18px,1.8vw,30px);
+      font-size:clamp(.9rem,1.9vh,1.25rem);
+    }
+
+    #displayScreen .phase-shell{
+      flex:0 0 clamp(76px,11vh,118px);
+      min-height:0;
+      gap:clamp(12px,1.7vw,24px);
+    }
+
+    #displayScreen .phase-icon{
+      font-size:clamp(3rem,6.8vh,5.2rem);
+    }
+
+    #displayScreen .phase{
+      font-size:clamp(3rem,7.5vh,6rem);
+      line-height:.98;
+    }
+
+    #displayScreen .phase-subtitle{
+      margin-top:clamp(1px,.3vh,5px);
+      font-size:clamp(.85rem,1.75vh,1.2rem);
+    }
+
+    #displayScreen .speaker-card{
+      flex:0 0 clamp(92px,13vh,136px);
+      width:min(1180px,88vw);
+      min-height:0;
+      margin:0;
+      padding:clamp(12px,1.8vh,20px) clamp(25px,3vw,48px);
+      gap:clamp(18px,2.3vw,34px);
+      border-radius:clamp(20px,2.3vw,30px);
+    }
+
+    #displayScreen .speaker-mic{
+      width:clamp(68px,9vh,98px);
+      height:clamp(68px,9vh,98px);
+      font-size:clamp(2.4rem,5.4vh,4rem);
+    }
+
+    #displayScreen .speaker-copy span{
+      font-size:clamp(.82rem,1.65vh,1.1rem);
+    }
+
+    #displayScreen .speaker-copy strong{
+      font-size:clamp(3rem,7vh,5.4rem);
+      line-height:.95;
+    }
+
+    #displayScreen .timer-frame{
+      flex:1 1 220px;
+      width:min(1180px,88vw);
+      min-height:clamp(170px,25vh,290px);
+      max-height:clamp(250px,36vh,390px);
+      padding:clamp(8px,1.2vh,17px) clamp(28px,3vw,52px);
+      border-radius:clamp(22px,2.6vw,36px);
+    }
+
+    #displayScreen .timer{
+      font-size:clamp(8rem,22vh,15rem);
+      line-height:.78;
+      letter-spacing:-.045em;
+    }
+
+    #displayScreen .timer-label{
+      margin-top:clamp(5px,.7vh,10px);
+      font-size:clamp(.82rem,1.65vh,1.1rem);
+    }
+
+    #displayScreen .live-stats,
+    #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){
+      flex:0 0 clamp(88px,12vh,126px);
+      width:min(1180px,88vw);
+      min-height:0;
+      margin:0;
+      gap:clamp(10px,1.15vw,18px);
+    }
+
+    #displayScreen .live-stat{
+      min-height:0;
+      height:100%;
+      border-radius:clamp(15px,1.7vw,23px);
+      gap:clamp(4px,.55vh,8px);
+    }
+
+    #displayScreen .live-stat strong{
+      font-size:clamp(2.5rem,5.8vh,4.3rem);
+    }
+
+    #displayScreen .live-stat-label{
+      font-size:clamp(.82rem,1.55vh,1.05rem);
+    }
+
+    #displayScreen .bottom.bottom-actions-only{
+      position:fixed;
+      left:14px;
+      bottom:12px;
+      width:auto;
+      z-index:50;
+      pointer-events:none;
+    }
+
+    #displayScreen .bottom.bottom-actions-only .fullscreen-btn{
+      pointer-events:auto;
+      opacity:.38;
+      padding:8px 12px;
+      font-size:.68rem;
+    }
+
+    #displayScreen .bottom.bottom-actions-only .fullscreen-btn:hover{
+      opacity:1;
+    }
+
+    /* Voting keeps the title large and centered; no timer or speaker. */
+    body.phase-voting #displayScreen .main{
+      justify-content:space-between;
+    }
+
+    body.phase-voting #displayScreen .phase-shell{
+      flex:1 1 auto;
+      min-height:260px;
+    }
+
+    body.phase-voting #displayScreen .phase-icon{
+      font-size:clamp(6rem,15vh,11rem);
+    }
+
+    body.phase-voting #displayScreen .phase{
+      font-size:clamp(5rem,13vh,10rem);
+    }
+
+    /* Night uses the complete central area. */
+    body.phase-night #displayScreen .main{
+      justify-content:space-between;
+    }
+
+    body.phase-night #displayScreen .night-scene{
+      flex:1 1 auto;
+      min-height:0;
+      width:min(1000px,86vw);
+    }
+
+    body.phase-night #displayScreen .night-moon{
+      width:clamp(160px,25vh,270px);
+      height:clamp(160px,25vh,270px);
+    }
+
+    body.phase-night #displayScreen .night-title{
+      font-size:clamp(4rem,10vh,8rem);
+    }
+
+    /* Browser bars visible: keep the page large, only reduce enough to fit. */
+    @media (min-width:900px) and (max-height:760px){
+      #displayScreen.display.active{
+        padding:10px 26px;
+        gap:6px;
+      }
+
+      #displayScreen .top{
+        min-height:48px;
+        padding-bottom:6px;
+      }
+
+      #displayScreen .brand-logo{
+        width:44px;
+        height:44px;
+      }
+
+      #displayScreen .top-subtitle{
+        display:none;
+      }
+
+      #displayScreen .main{
+        gap:6px;
+      }
+
+      #displayScreen .round{
+        padding:4px 14px;
+        font-size:.78rem;
+      }
+
+      #displayScreen .phase-shell{
+        flex-basis:64px;
+      }
+
+      #displayScreen .phase-icon{
+        font-size:2.65rem;
+      }
+
+      #displayScreen .phase{
+        font-size:clamp(2.45rem,6.5vh,3.8rem);
+      }
+
+      #displayScreen .phase-subtitle{
+        font-size:.72rem;
+      }
+
+      #displayScreen .speaker-card{
+        flex-basis:76px;
+        width:min(1040px,86vw);
+        padding:7px 24px;
+      }
+
+      #displayScreen .speaker-mic{
+        width:55px;
+        height:55px;
+        font-size:1.9rem;
+      }
+
+      #displayScreen .speaker-copy strong{
+        font-size:clamp(2.35rem,5.8vh,3.4rem);
+      }
+
+      #displayScreen .timer-frame{
+        width:min(1040px,86vw);
+        min-height:150px;
+        max-height:230px;
+        padding:5px 28px 8px;
+      }
+
+      #displayScreen .timer{
+        font-size:clamp(7rem,18vh,10rem);
+      }
+
+      #displayScreen .timer-label{
+        font-size:.74rem;
+      }
+
+      #displayScreen .live-stats,
+      #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){
+        flex-basis:75px;
+        width:min(1040px,86vw);
+      }
+
+      #displayScreen .live-stat strong{
+        font-size:clamp(2rem,4.7vh,2.9rem);
+      }
+
+      #displayScreen .live-stat-label{
+        font-size:.72rem;
+      }
+    }
+
+    @media (min-width:900px) and (max-height:620px){
+      #displayScreen .phase-shell{
+        flex-basis:52px;
+      }
+
+      #displayScreen .phase{
+        font-size:2.2rem;
+      }
+
+      #displayScreen .speaker-card{
+        flex-basis:64px;
+      }
+
+      #displayScreen .timer-frame{
+        min-height:125px;
+        max-height:180px;
+      }
+
+      #displayScreen .timer{
+        font-size:6rem;
+      }
+
+      #displayScreen .live-stats,
+      #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){
+        flex-basis:62px;
+      }
+
+      #displayScreen .live-stat strong{
+        font-size:1.8rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1029,7 +1372,7 @@ to{opacity:1}}
             keys
               .filter(key =>
                 key.startsWith('amman-mafia-tv-') &&
-                key !== 'amman-mafia-tv-v46-cache-v1'
+                key !== 'amman-mafia-tv-v47-cache-v1'
               )
               .forEach(key => caches.delete(key));
           });
@@ -1037,7 +1380,7 @@ to{opacity:1}}
       } catch (_) {}
     })();
   </script>
-  <script src="realtime-config.js?v=46"></script>
+  <script src="realtime-config.js?v=47"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -1273,7 +1616,6 @@ to{opacity:1}}
       $('mafiaCount').textContent=String(Math.max(0,Number(state.mafiaAlive)||0));
       $('killerCount').textContent=String(Math.max(0,Number(state.killerAlive)||0));
       $('killerStat').hidden=!Boolean(state.showKiller);
-      scheduleRuntimeTvFit();
 
     }
     function status(){const online=Date.now()-lastStateAt<18000;$('connection').className='connection '+(online?'online':'');$('connection').querySelector('span').textContent=online?'متصل بلوحة المنظم':(mode==='supabase'?'بانتظار لوحة المنظم':'تجربة محلية')}
@@ -1414,69 +1756,6 @@ to{opacity:1}}
     $('roomInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
     $('fullscreenBtn').addEventListener('click',()=>{const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
     window.addEventListener('storage',handleStorageEvent);
-    function resetRuntimeTvFit(){
-      const displayRoot=document.getElementById('display');
-      if(!displayRoot)return;
-
-      displayRoot.style.zoom='1';
-      displayRoot.style.transform='';
-      displayRoot.style.width='100%';
-      displayRoot.style.height='100dvh';
-    }
-
-    function applyRuntimeTvFit(){
-      const displayRoot=document.getElementById('display');
-      if(!displayRoot||!displayRoot.classList.contains('active'))return;
-
-      resetRuntimeTvFit();
-
-      requestAnimationFrame(()=>{
-        const top=document.querySelector('#display .top');
-        const main=document.querySelector('#display .main');
-        const viewportHeight=Math.max(
-          320,
-          window.innerHeight||document.documentElement.clientHeight||720
-        );
-
-        const neededHeight=
-          (top?.scrollHeight||0)+
-          (main?.scrollHeight||0)+
-          18;
-
-        let scale=Math.min(
-          1,
-          (viewportHeight-4)/Math.max(viewportHeight,neededHeight)
-        );
-
-        if(viewportHeight<850)scale=Math.min(scale,.88);
-        if(viewportHeight<720)scale=Math.min(scale,.80);
-        if(viewportHeight<620)scale=Math.min(scale,.72);
-
-        scale=Math.max(.60,scale);
-
-        if(scale<.995){
-          if('zoom' in displayRoot.style){
-            displayRoot.style.zoom=String(scale);
-          }else{
-            displayRoot.style.transform=`scale(${scale})`;
-            displayRoot.style.transformOrigin='top center';
-          }
-
-          displayRoot.style.width=`${100/scale}%`;
-          displayRoot.style.height=`${viewportHeight/scale}px`;
-        }
-      });
-    }
-
-    let tvFitTimer=null;
-    function scheduleRuntimeTvFit(){
-      clearTimeout(tvFitTimer);
-      tvFitTimer=setTimeout(applyRuntimeTvFit,50);
-    }
-
-    window.addEventListener('resize',scheduleRuntimeTvFit);
-    window.addEventListener('orientationchange',scheduleRuntimeTvFit);
-
     const params=new URLSearchParams(location.search),initial=(params.get('room')||localStorage.getItem('ammanMafiaDisplayLastRoom')||'').toUpperCase();
     $('roomInput').value=initial;
     if(params.get('room'))connect();
