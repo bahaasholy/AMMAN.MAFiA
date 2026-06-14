@@ -1,4 +1,4 @@
-const CACHE_NAME = 'amman-mafia-tv-v42-cache-v1';
+const CACHE_NAME = 'amman-mafia-tv-v43-cache-v1';
 
 const STATIC_ASSETS = [
   './manifest.json',
@@ -10,6 +10,9 @@ const NETWORK_FIRST_PATHS = [
   '/',
   '/index.html',
   '/display.html',
+  '/tv/',
+  '/tv/index.html',
+  '/tv.html',
   '/realtime-config.js',
   '/tv-control.css',
   '/tv-control.js'
