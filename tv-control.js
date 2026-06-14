@@ -610,6 +610,14 @@
       publicState.timerStatus = 'paused';
     }
 
+    if (phase === 'voting') {
+      // جولة التصويت لا تستخدم مؤقتًا.
+      publicState.timerRemainingMs = publicState.timerDurationMs;
+      publicState.timerEndsAt = 0;
+      publicState.timerStatus = 'idle';
+      hasBroadcastFinished = false;
+    }
+
     if (phase === 'discussion' && options.resetTimer) {
       publicState.timerRemainingMs = publicState.timerDurationMs;
       publicState.timerEndsAt = 0;
