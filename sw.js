@@ -1,9 +1,10 @@
-const CACHE_NAME = 'amman-mafia-tv-v52-cache-v1';
+const CACHE_NAME = 'amman-mafia-tv-v53-cache-v1';
 
 const STATIC_ASSETS = [
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './mafia-city-bg.jpg'
 ];
 
 const NETWORK_FIRST_PATHS = [
