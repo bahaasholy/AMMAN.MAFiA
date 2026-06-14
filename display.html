@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v33</title>
+  <title>Amman Mafia — شاشة العرض v34</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -625,9 +625,8 @@ to{opacity:1}}
       <section id="speakerCard" class="speaker-card" hidden>
         <div class="speaker-mic">🎙️</div>
         <div class="speaker-copy">
-          <span>المتحدث الحالي</span>
-          <strong id="speakerSeatText">المقعد —</strong>
-          <small id="speakerDirectionText">مع عقارب الساعة</small>
+          <span>اللاعب الحالي</span>
+          <strong id="speakerSeatText">اللاعب —</strong>
         </div>
       </section>
 
@@ -671,8 +670,8 @@ to{opacity:1}}
   <section id="speakerTransition" class="speaker-transition" aria-hidden="true">
     <div class="speaker-transition-card">
       <div class="speaker-transition-icon">🎙️</div>
-      <div class="speaker-transition-label">المتحدث الآن</div>
-      <div id="speakerTransitionSeat" class="speaker-transition-seat">المقعد 1</div>
+      <div class="speaker-transition-label">اللاعب الآن</div>
+      <div id="speakerTransitionSeat" class="speaker-transition-seat">اللاعب 1</div>
     </div>
   </section>
 
@@ -684,7 +683,7 @@ to{opacity:1}}
     </div>
   </section>
 
-  <script src="realtime-config.js?v=33"></script>
+  <script src="realtime-config.js?v=34"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -838,7 +837,7 @@ to{opacity:1}}
 
       clearTimeout(speakerTransitionTimer);
 
-      $('speakerTransitionSeat').textContent=`المقعد ${Number(seat)}`;
+      $('speakerTransitionSeat').textContent=`اللاعب ${Number(seat)}`;
       overlay.classList.remove('show');
       void overlay.offsetWidth;
       overlay.classList.add('show');
@@ -881,11 +880,7 @@ to{opacity:1}}
       speakerCard.hidden=!speakerVisible;
 
       if(speakerVisible){
-        $('speakerSeatText').textContent=`المقعد ${speakerSeat}`;
-        $('speakerDirectionText').textContent=
-          state.speakerDirection==='counterclockwise'
-            ? 'الاتجاه: عكس عقارب الساعة'
-            : 'الاتجاه: مع عقارب الساعة';
+        $('speakerSeatText').textContent=`اللاعب ${speakerSeat}`;
       }
 
       const changeId=Math.max(0,Number(state.speakerChangeId)||0);

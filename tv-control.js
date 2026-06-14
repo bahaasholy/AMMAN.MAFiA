@@ -372,21 +372,21 @@
     const status = document.getElementById('tvSpeakerStatus');
 
     if (currentSeat > 0) {
-      currentStrong.textContent = `المقعد ${currentSeat}`;
+      currentStrong.textContent = `اللاعب ${currentSeat}`;
       currentBox.classList.toggle('hidden-on-tv', !publicState.speakerVisible);
       currentBox.classList.toggle('not-alive', !currentAlive);
 
       if (!currentAlive) {
-        status.textContent = 'المقعد الحالي مقصي — اضغط التالي للتخطي';
+        status.textContent = 'اللاعب الحالي مقصي — اضغط التالي للتخطي';
       } else if (!publicState.speakerVisible) {
-        status.textContent = 'مخفي من شاشة التلفزيون';
+        status.textContent = 'اللاعب مخفي من شاشة التلفزيون';
       } else {
-        status.textContent = `المقعد ${currentSeat} يتحدث الآن`;
+        status.textContent = `اللاعب ${currentSeat} يتحدث الآن`;
       }
     } else {
       currentStrong.textContent = '—';
       currentBox.classList.remove('hidden-on-tv', 'not-alive');
-      status.textContent = 'لم يتم اختيار متحدث';
+      status.textContent = 'لم يتم اختيار لاعب';
     }
 
     document
@@ -403,14 +403,14 @@
     const visibilityButton = document.getElementById('tvSpeakerVisibility');
     visibilityButton.disabled = !(currentSeat > 0);
     visibilityButton.textContent = publicState.speakerVisible
-      ? 'إخفاء المتحدث من التلفزيون'
-      : 'إظهار المتحدث على التلفزيون';
+      ? 'إخفاء اللاعب من التلفزيون'
+      : 'إظهار اللاعب على التلفزيون';
 
     const preview = getSpeakerOrderPreview();
     const previewElement = document.getElementById('tvSpeakerPreview');
     previewElement.textContent = preview.length
       ? `الترتيب القادم: ${preview.join(' ← ')}`
-      : 'لا توجد مقاعد حية متاحة حاليًا.';
+      : 'لا يوجد لاعبون أحياء متاحون حاليًا.';
 
     document.getElementById('tvSpeakerPrevious').disabled =
       aliveSeats.length === 0;
@@ -463,8 +463,8 @@
             <button class="tv-btn tv-preset" type="button" data-seconds="60">60 ثانية</button>
           </div>
           <button id="tvTimerNext" class="tv-btn tv-next-btn" type="button">
-            إعادة الوقت والبدء
-            <span>يشغّل نفس المدة المختارة من البداية</span>
+            التالي
+            <span>ابدأ الوقت من جديد مباشرة</span>
           </button>
           <div class="tv-timer-actions">
             <button id="tvTimerStart" class="tv-btn gold" type="button">بدء</button>
@@ -476,7 +476,7 @@
         <section class="tv-control-card full tv-speaker-card">
           <div class="tv-control-title">
             <h3>دور المتحدث 🎙️</h3>
-            <span id="tvSpeakerStatus" class="tv-muted">لم يتم اختيار متحدث</span>
+            <span id="tvSpeakerStatus" class="tv-muted">لم يتم اختيار لاعب</span>
           </div>
 
           <div class="tv-speaker-direction-label">اتجاه الكلام</div>
@@ -492,14 +492,14 @@
           </div>
 
           <div id="tvSpeakerCurrent" class="tv-speaker-current">
-            <span>المتحدث الحالي</span>
+            <span>اللاعب الحالي</span>
             <strong>—</strong>
           </div>
 
-          <div class="tv-speaker-direction-label">اختر أول متحدث من المقاعد الحية</div>
+          <div class="tv-speaker-direction-label">اختر أول لاعب من اللاعبين الأحياء</div>
           <div id="tvSpeakerSeats" class="tv-speaker-seats"></div>
           <div id="tvSpeakerEmpty" class="tv-speaker-empty" hidden>
-            ابدأ اللعبة وحدد أدوار المقاعد حتى تظهر المقاعد الحية هنا.
+            ابدأ اللعبة وحدد الأدوار حتى يظهر اللاعبون الأحياء هنا.
           </div>
 
           <div id="tvSpeakerPreview" class="tv-speaker-preview"></div>
@@ -520,7 +520,7 @@
           </label>
 
           <button id="tvSpeakerVisibility" class="tv-btn red tv-speaker-visibility" type="button">
-            إخفاء المتحدث من التلفزيون
+            إخفاء اللاعب من التلفزيون
           </button>
         </section>
 
