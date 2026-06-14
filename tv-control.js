@@ -301,9 +301,30 @@
 
   function moveSpeaker(step = 1) {
     const target = getSpeakerTarget(step);
-    if (target == null) return;
+    if (target == null) return false;
 
-    selectSpeakerSeat(target, { startTimer:true });
+    return selectSpeakerSeat(target, { startTimer:true });
+  }
+
+  function advanceSpeakerAndRestartTimer() {
+    // getSpeakerTarget() reads the live DOM every time, so a player
+    // eliminated moments ago is skipped immediately.
+    const target = getSpeakerTarget(1);
+
+    if (target != null) {
+      publicState.speakerSeat = target;
+      publicState.speakerVisible = true;
+      publicState.speakerChangeId += 1;
+    }
+
+    // The large "التالي" button always restarts the selected duration,
+    // even when automatic timer mode is disabled.
+    startFullSpeakerTimer();
+
+    vibrate([35, 35, 55]);
+    saveState();
+
+    return target;
   }
 
   function getSpeakerOrderPreview() {
@@ -372,16 +393,16 @@
     const status = document.getElementById('tvSpeakerStatus');
 
     if (currentSeat > 0) {
-      currentStrong.textContent = `اللاعب ${currentSeat}`;
+      currentStrong.textContent = `لاعب ${currentSeat}`;
       currentBox.classList.toggle('hidden-on-tv', !publicState.speakerVisible);
       currentBox.classList.toggle('not-alive', !currentAlive);
 
       if (!currentAlive) {
-        status.textContent = 'اللاعب الحالي مقصي — اضغط التالي للتخطي';
+        status.textContent = 'المتحدث الحالي مقصي — اضغط التالي للتخطي';
       } else if (!publicState.speakerVisible) {
-        status.textContent = 'اللاعب مخفي من شاشة التلفزيون';
+        status.textContent = 'المتحدث مخفي من شاشة التلفزيون';
       } else {
-        status.textContent = `اللاعب ${currentSeat} يتحدث الآن`;
+        status.textContent = `لاعب ${currentSeat} يتحدث الآن`;
       }
     } else {
       currentStrong.textContent = '—';
@@ -464,7 +485,7 @@
           </div>
           <button id="tvTimerNext" class="tv-btn tv-next-btn" type="button">
             التالي
-            <span>ابدأ الوقت من جديد مباشرة</span>
+            <span>انتقل للاعب التالي وابدأ الوقت</span>
           </button>
           <div class="tv-timer-actions">
             <button id="tvTimerStart" class="tv-btn gold" type="button">بدء</button>
@@ -479,20 +500,18 @@
             <span id="tvSpeakerStatus" class="tv-muted">لم يتم اختيار لاعب</span>
           </div>
 
-          <div class="tv-speaker-direction-label">اتجاه الكلام</div>
+          <div class="tv-speaker-direction-label">ترتيب الكلام</div>
           <div class="tv-speaker-direction">
             <button id="tvSpeakerClockwise" class="tv-btn tv-direction-btn" type="button">
-              ↻ مع عقارب الساعة
-              <small>ترتيب تصاعدي</small>
+              ترتيب تصاعدي
             </button>
             <button id="tvSpeakerCounterclockwise" class="tv-btn tv-direction-btn" type="button">
-              ↺ عكس عقارب الساعة
-              <small>ترتيب تنازلي</small>
+              ترتيب تنازلي
             </button>
           </div>
 
           <div id="tvSpeakerCurrent" class="tv-speaker-current">
-            <span>اللاعب الحالي</span>
+            <span>دور الكلام الحالي</span>
             <strong>—</strong>
           </div>
 
@@ -643,13 +662,7 @@
 
 
     document.getElementById('tvTimerNext').addEventListener('click', () => {
-      const duration = Math.max(1000, Number(publicState.timerDurationMs) || DEFAULT_SECONDS * 1000);
-      publicState.timerRemainingMs = duration;
-      publicState.timerEndsAt = Date.now() + duration;
-      publicState.timerStatus = 'running';
-      hasBroadcastFinished = false;
-      vibrate([35, 35, 55]);
-      saveState();
+      advanceSpeakerAndRestartTimer();
     });
 
     document.getElementById('tvTimerStart').addEventListener('click', () => {
