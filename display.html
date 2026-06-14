@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v24</title>
+  <title>Amman Mafia — شاشة العرض v26</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -31,8 +31,7 @@
     .footer-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
     .sound-btn{background:rgba(201,168,76,.07);color:var(--gold);border:1px solid rgba(201,168,76,.25);font-size:.75rem;border-radius:12px;font-weight:900;padding:12px 16px;cursor:pointer}
     .sound-btn.enabled{color:#72df93;border-color:rgba(114,223,147,.35);background:rgba(114,223,147,.08)}
-    body.time-up-flash::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;border:clamp(8px,1.2vw,18px) solid rgba(216,77,82,.95);box-shadow:inset 0 0 90px rgba(216,77,82,.35);animation:timeUpFlash .42s ease-in-out 3 alternate}
-    @keyframes timeUpFlash{from{opacity:.25}to{opacity:1}}
+to{opacity:1}}
     @media(max-width:700px){.footer-actions{justify-self:end;flex-wrap:wrap}.sound-btn{padding:10px 12px}}
 
   
@@ -186,7 +185,6 @@
   </style>
 </head>
 <body>
-  <audio id="alarmAudio" preload="auto" src="time-up.mp3"></audio>
   <audio id="countdownAudio30" preload="auto" src="countdown-5.mp3"></audio>
   <audio id="countdownAudio45" preload="auto" src="countdown-10.mp3"></audio>
   <audio id="countdownAudio60" preload="auto" src="countdown-15.mp3"></audio>
@@ -196,7 +194,7 @@
       <div class="sound-gate-icon">🔊</div>
       <div class="sound-gate-title">تفعيل صوت شاشة العرض</div>
       <div class="sound-gate-text">
-        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها يشتغل صوت العد التنازلي من بداية الملف في الثواني الأخيرة، ثم يبدأ صوت نهاية الوقت فقط بعد وصول المؤقت إلى صفر.
+        اضغط الزر مرة واحدة. ستسمع عينة قصيرة من صوت العد التنازلي، وبعدها يشتغل الصوت فقط في الثواني الأخيرة ويتوقف عند الصفر.
       </div>
       <button id="soundGateBtn" class="sound-gate-btn" type="button">تفعيل الصوت وتجربته</button>
       <div id="soundGateError" class="sound-error"></div>
@@ -260,8 +258,7 @@
     'use strict';
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
     let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
-    let audioContext=null,soundEnabled=false,lastRemainingMs=null,lastTimerStatus='idle',activeTimerCycle='',playedTimerCycle='';
-    let alarmAudio=null;
+    let audioContext=null,soundEnabled=false;
     let countdownAudios={30:null,45:null,60:null};
     let activeCountdownAudio=null,countdownCycle='',countdownPlaying=false;
     const $=id=>document.getElementById(id);
@@ -284,91 +281,18 @@
       }
     }
 
-    function scheduleFallbackTone(ctx,frequency,start,duration,volume){
-      const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.type='sine';
-      osc.frequency.setValueAtTime(frequency,start);
-      gain.gain.setValueAtTime(0.0001,start);
-      gain.gain.exponentialRampToValueAtTime(volume,start+0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.start(start);osc.stop(start+duration+0.04);
-    }
-
-    async function playFallbackAlarm(isTest=false){
-      const ready=await ensureAudioContext();
-      if(!ready||!audioContext)return false;
-      try{
-        const now=audioContext.currentTime+0.03;
-        if(isTest){
-          scheduleFallbackTone(audioContext,740,now,0.18,0.16);
-          scheduleFallbackTone(audioContext,988,now+0.18,0.25,0.15);
-        }else{
-          scheduleFallbackTone(audioContext,660,now,0.28,0.25);
-          scheduleFallbackTone(audioContext,880,now+0.24,0.32,0.27);
-          scheduleFallbackTone(audioContext,660,now+0.55,0.28,0.25);
-          scheduleFallbackTone(audioContext,440,now+0.83,0.45,0.28);
-        }
-        return true;
-      }catch(_){
-        return false;
-      }
-    }
-
-    async function playAlarm(isTest=false){
-      let played=false;
-      try{
-        if(!alarmAudio)alarmAudio=$('alarmAudio');
-        if(alarmAudio){
-          alarmAudio.pause();
-          alarmAudio.currentTime=0;
-          alarmAudio.volume=isTest?0.55:1;
-          await alarmAudio.play();
-          played=true;
-        }
-      }catch(_){
-        played=false;
-      }
-
-      if(!played)played=await playFallbackAlarm(isTest);
-
-      if(!isTest&&played){
-        document.body.classList.remove('time-up-flash');
-        void document.body.offsetWidth;
-        document.body.classList.add('time-up-flash');
-        setTimeout(()=>document.body.classList.remove('time-up-flash'),1800);
-      }
-      return played;
-    }
-
     async function activateSound(showTest=true){
       const error=$('soundGateError');
       if(error)error.textContent='';
 
-      alarmAudio=$('alarmAudio');
       countdownAudios={
         30:$('countdownAudio30'),
         45:$('countdownAudio45'),
         60:$('countdownAudio60')
       };
-      const contextReady=await ensureAudioContext();
 
+      const contextReady=await ensureAudioContext();
       let audioReady=false;
-      if(showTest){
-        audioReady=await playAlarm(true);
-      }else{
-        try{
-          if(alarmAudio){
-            alarmAudio.volume=0;
-            await alarmAudio.play();
-            alarmAudio.pause();
-            alarmAudio.currentTime=0;
-            alarmAudio.volume=1;
-            audioReady=true;
-          }
-        }catch(_){}
-        audioReady=audioReady||contextReady;
-      }
 
       for(const audio of Object.values(countdownAudios)){
         if(!audio)continue;
@@ -378,7 +302,29 @@
           audio.pause();
           audio.currentTime=0;
           audio.volume=0.86;
+          audioReady=true;
         }catch(_){}
+      }
+
+      if(showTest){
+        const testAudio=countdownAudios[30];
+        if(testAudio){
+          try{
+            testAudio.pause();
+            testAudio.currentTime=0;
+            testAudio.volume=0.55;
+            await testAudio.play();
+            audioReady=true;
+
+            setTimeout(()=>{
+              try{
+                testAudio.pause();
+                testAudio.currentTime=0;
+                testAudio.volume=0.86;
+              }catch(_){}
+            },900);
+          }catch(_){}
+        }
       }
 
       soundEnabled=Boolean(audioReady||contextReady);
@@ -393,7 +339,6 @@
       if(error)error.textContent='لم يشتغل الصوت. ارفع صوت التلفزيون وجرب مرة ثانية.';
       return false;
     }
-
 
     function getSelectedDurationSec(){
       return Math.round(Math.max(0,Number(state?.timerDurationMs)||0)/1000);
@@ -482,50 +427,7 @@
       }
     }
 
-    function checkTimerAlarm(rem){
-      if(!state)return;
-      const status=state.timerStatus||'idle';
 
-      if(status==='running'&&Number(state.timerEndsAt)>0){
-        const cycle=String(state.timerEndsAt);
-        if(activeTimerCycle!==cycle){
-          activeTimerCycle=cycle;
-          playedTimerCycle='';
-        }
-      }
-
-      const reachedZero=
-        lastRemainingMs!==null &&
-        lastRemainingMs>0 &&
-        rem<=0 &&
-        lastTimerStatus==='running';
-
-      const becameFinished=
-        lastTimerStatus!=='finished' &&
-        status==='finished';
-
-      if(reachedZero||becameFinished){
-        const cycle=activeTimerCycle||`finished-${Number(state.updatedAt)||Date.now()}`;
-        if(playedTimerCycle!==cycle){
-          playedTimerCycle=cycle;
-          stopCountdownSound(true);
-
-          if(soundEnabled){
-            setTimeout(() => {
-              playAlarm(false);
-            }, 80);
-          }
-        }
-      }
-
-      if(status==='idle'){
-        activeTimerCycle='';
-        playedTimerCycle='';
-      }
-
-      lastRemainingMs=rem;
-      lastTimerStatus=status;
-    }
 
     function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||'').trim())&&String(c.supabaseAnonKey||'').trim().length>40&&!String(c.supabaseAnonKey).includes('PUT_YOUR_')}
     function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -545,7 +447,6 @@
       document.body.classList.toggle('countdown-warning',warning);
 
       syncCountdownSound(rem);
-      checkTimerAlarm(rem);
 
       const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};
       const timerLabel=$('timerLabel');
@@ -574,7 +475,6 @@
     $('roomInput').addEventListener('keydown',async e=>{if(e.key==='Enter'){await activateSound(false);connect()}});
     $('fullscreenBtn').addEventListener('click',async()=>{await activateSound(false);const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
     $('soundGateBtn').addEventListener('click',()=>activateSound(true));
-    alarmAudio=$('alarmAudio');
     countdownAudios={
       30:$('countdownAudio30'),
       45:$('countdownAudio45'),
