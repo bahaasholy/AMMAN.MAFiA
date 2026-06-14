@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v22</title>
+  <title>Amman Mafia — شاشة العرض v23</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -196,7 +196,7 @@
       <div class="sound-gate-icon">🔊</div>
       <div class="sound-gate-title">تفعيل صوت شاشة العرض</div>
       <div class="sound-gate-text">
-        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها يشتغل صوت العد التنازلي في الثواني الأخيرة، ثم صوت نهاية الوقت عند الصفر.
+        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها يشتغل صوت العد التنازلي من بداية الملف في الثواني الأخيرة، ثم يبدأ صوت نهاية الوقت فقط بعد وصول المؤقت إلى صفر.
       </div>
       <button id="soundGateBtn" class="sound-gate-btn" type="button">تفعيل الصوت وتجربته</button>
       <div id="soundGateError" class="sound-error"></div>
@@ -509,7 +509,12 @@
         if(playedTimerCycle!==cycle){
           playedTimerCycle=cycle;
           stopCountdownSound(true);
-          if(soundEnabled)playAlarm(false);
+
+          if(soundEnabled){
+            setTimeout(() => {
+              playAlarm(false);
+            }, 80);
+          }
         }
       }
 
