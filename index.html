@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v39</title>
+    <title>Amman Mafia — TV Control v40</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v39">
+    <meta name="app-version" content="tv-v40">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -853,7 +853,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=39">
+    <link rel="stylesheet" href="tv-control.css?v=40">
 </head>
 <body>
 
@@ -2269,17 +2269,54 @@
                 `;
             }
 
-            const results = [];
+            const resultBuckets = {
+                protection: [],
+                mafia: [],
+                killer: [],
+                sniper: [],
+                vanguard: [],
+                spy: [],
+                mute: [],
+                other: []
+            };
 
-            // نتيجة الطبيب: لا نكشف رقم المقعد المحمي نهائيًا.
+            function pushNightResult(category, result) {
+                const bucket = resultBuckets[category] || resultBuckets.other;
+                bucket.push(result);
+            }
+
+            function actualRoleValueForSeat(seatNum) {
+                const select = document.getElementById(`select-${seatNum}`);
+                if (!select) return 'unassigned';
+
+                if (select.value === 'heir') {
+                    const inherited = document.getElementById(`heir-select-${seatNum}`);
+                    if (inherited && inherited.value !== 'none') {
+                        return inherited.value;
+                    }
+                }
+
+                return select.value;
+            }
+
+            // 1) حماية الطبيب الصحيحة — بدون كشف رقم المقعد المحمي.
             if (doctorTarget !== 'none') {
                 const protectionSources = [];
+                const protectedRole = actualRoleValueForSeat(doctorTarget);
+                const protectedIsSerialKiller = protectedRole === 'serial_killer';
 
-                if (String(bossTarget) === String(doctorTarget)) {
+                // السفاح لا يموت من اغتيال المافيا، لذلك لا ننسب النجاة للطبيب.
+                if (
+                    String(bossTarget) === String(doctorTarget) &&
+                    !protectedIsSerialKiller
+                ) {
                     protectionSources.push('اغتيال المافيا');
                 }
 
-                if (String(heirTarget) === String(doctorTarget)) {
+                if (
+                    String(heirTarget) === String(doctorTarget) &&
+                    !protectedIsSerialKiller
+                ) {
                     protectionSources.push('اغتيال الوارث');
                 }
 
@@ -2288,9 +2325,9 @@
                 }
 
                 if (protectionSources.length) {
-                    results.push({
+                    pushNightResult('protection', {
                         seat:null,
-                        title:`حماية من ${protectionSources.join(' و')}`,
+                        title:`حماية ناجحة ضد ${protectionSources.join(' و')}`,
                         icon:'🩺',
                         color:'#378ed1',
                         showRole:false,
@@ -2301,9 +2338,9 @@
                 }
             }
 
-            // نتيجة الجاسوس: نعرض المقعد والكرت الذي تم كشفه.
+            // 6) كشف الجاسوس — يظهر المقعد والكرت الذي تم كشفه.
             if (spyTarget !== 'none') {
-                results.push({
+                pushNightResult('spy', {
                     seat:spyTarget,
                     title:'كشف الجاسوس',
                     icon:'👁️',
@@ -2330,7 +2367,7 @@
                 }
 
                 const isSerialKiller = actualRoleForDefense === 'serial_killer';
-                const isSavedByDoctor = doctorTarget === seatNum;
+                const isSavedByDoctor = String(doctorTarget) === String(seatNum);
                 const attackers = rawAttacks.filter(
                     attack => String(attack.seat) === String(seatNum)
                 );
@@ -2355,121 +2392,141 @@
                 const hasBlockableAttack =
                     hasMafiaAttack || hasHeirAttack || hasKillerAttack;
 
-                const tags = [];
-
-                if (String(silenceTarget) === String(seatNum)) {
-                    tags.push(makeTag('🔇 MUTE', '#ff9500'));
-                }
-
                 let primaryResult = null;
+                let primaryCategory = 'other';
 
+                // 5) نتائج الفدائي.
                 if (String(seatNum) === String(vanguardSuicideSeat)) {
                     wizardFinalKills.push(seatNum);
+                    primaryCategory = 'vanguard';
                     primaryResult = {
                         seat:seatNum,
                         title:'تفجير الفدائي لنفسه',
                         icon:'💥',
-                        color:'#f97316',
+                        color:'#cbd5e1',
                         showRole:true,
-                        tags
+                        tags:[]
                     };
                 } else if (
                     String(seatNum) === String(vanguardBossExplosionSeat) ||
                     String(seatNum) === String(vanguardKillerExplosionSeat)
                 ) {
                     wizardFinalKills.push(seatNum);
+                    primaryCategory = 'vanguard';
                     primaryResult = {
                         seat:seatNum,
                         title:'قُتل بانفجار الفدائي',
                         icon:'💥',
-                        color:'#f97316',
+                        color:'#cbd5e1',
                         showRole:true,
-                        tags
+                        tags:[]
                     };
+                // 4) نتائج القناص.
                 } else if (String(seatNum) === String(sniperSuicideSeat)) {
                     wizardFinalKills.push(seatNum);
+                    primaryCategory = 'sniper';
                     primaryResult = {
                         seat:seatNum,
                         title:'نيران صديقة — القناص',
                         icon:'🎯',
-                        color:'#e6b93f',
+                        color:'#22c55e',
                         showRole:true,
-                        tags
+                        tags:[]
                     };
                 } else if (attackers.length > 0) {
                     if (hasSniperAttack) {
                         wizardFinalKills.push(seatNum);
+                        primaryCategory = 'sniper';
                         primaryResult = {
                             seat:seatNum,
                             title:'قنص من القناص',
                             icon:'🎯',
-                            color:'#e6b93f',
+                            color:'#22c55e',
                             showRole:true,
-                            tags
+                            tags:[]
                         };
+                    // 2) اغتيال المافيا الفاشل على السفاح.
                     } else if (isSerialKiller && hasMafiaTypeAttack) {
+                        primaryCategory = 'mafia';
                         primaryResult = {
                             seat:seatNum,
-                            title:'اغتيال فاشل',
+                            title:'اغتيال فاشل من المافيا',
                             icon:'🛡️',
-                            color:'#c9a84c',
+                            color:'#e50914',
                             showRole:false,
                             actionOnly:true,
-                            tags
+                            tags:[]
                         };
+                    // حماية الطبيب أضيفت في أول الترتيب بدون كشف المقعد.
                     } else if (hasBlockableAttack && isSavedByDoctor) {
-                        // نتيجة الحماية أضيفت كبطاقة عامة بدون رقم مقعد.
-                        // نترك primaryResult فارغًا حتى لا ينكشف المقعد المحمي.
                         primaryResult = null;
+                    // 3) ذبح السفاح.
                     } else if (hasKillerAttack) {
                         wizardFinalKills.push(seatNum);
+                        primaryCategory = 'killer';
                         primaryResult = {
                             seat:seatNum,
                             title:'ذبح من السفاح',
                             icon:'🔪',
                             color:'#ff8a00',
                             showRole:true,
-                            tags
+                            tags:[]
                         };
+                    // 2) اغتيالات فريق المافيا.
                     } else if (hasHeirAttack) {
                         wizardFinalKills.push(seatNum);
+                        primaryCategory = 'mafia';
                         primaryResult = {
                             seat:seatNum,
                             title:'اغتيال من الوارث',
                             icon:'🎯',
-                            color:'#3b82f6',
+                            color:'#e50914',
                             showRole:true,
-                            tags
+                            tags:[]
                         };
                     } else {
                         wizardFinalKills.push(seatNum);
+                        primaryCategory = 'mafia';
                         primaryResult = {
                             seat:seatNum,
                             title:'اغتيال من المافيا',
                             icon:'🩸',
                             color:'#e50914',
                             showRole:true,
-                            tags
+                            tags:[]
                         };
                     }
                 }
 
-                if (!primaryResult && String(silenceTarget) === String(seatNum)) {
-                    primaryResult = {
-                        seat:seatNum,
-                        title:'MUTE',
-                        icon:'🔇',
-                        color:'#ff9500',
-                        showRole:false,
-                        actionOnly:true,
-                        tags:[]
-                    };
-                }
-
                 if (primaryResult) {
-                    results.push(primaryResult);
+                    pushNightResult(primaryCategory, primaryResult);
                 }
             });
+
+            // 7) تسكيتة المافيا دائمًا في آخر النتائج وبدون كشف الكرت.
+            if (silenceTarget !== 'none') {
+                pushNightResult('mute', {
+                    seat:silenceTarget,
+                    title:'MUTE',
+                    icon:'🔇',
+                    color:'#facc15',
+                    showRole:false,
+                    actionOnly:true,
+                    tags:[]
+                });
+            }
+
+            // الترتيب الثابت المطلوب مهما كانت أرقام المقاعد.
+            const results = [
+                ...resultBuckets.protection,
+                ...resultBuckets.mafia,
+                ...resultBuckets.killer,
+                ...resultBuckets.sniper,
+                ...resultBuckets.vanguard,
+                ...resultBuckets.spy,
+                ...resultBuckets.mute,
+                ...resultBuckets.other
+            ];
 
             wizardFinalKills = [
                 ...new Set(
@@ -2656,8 +2713,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=39"></script>
+    <script src="realtime-config.js?v=40"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=39"></script>
+    <script src="tv-control.js?v=40"></script>
 </body>
 </html>
