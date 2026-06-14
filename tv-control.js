@@ -362,6 +362,19 @@
     return first;
   }
 
+  function isSpeakerLapComplete() {
+    const aliveSeats = getAliveSeatNumbers();
+
+    if (!aliveSeats.length) return true;
+    if (!publicState.speakerCycleActive) return false;
+
+    const visited = new Set(
+      publicState.speakerVisitedSeats.map(Number)
+    );
+
+    return aliveSeats.every(seat => visited.has(seat));
+  }
+
   function getNextUnvisitedSpeaker() {
     const aliveSeats = getAliveSeatNumbers();
     if (!aliveSeats.length) return null;
@@ -383,19 +396,42 @@
   }
 
   function finishDiscussionAndStartVoting() {
+    // Update everything directly so the transition does not depend on
+    // another helper or on the timer state.
+    publicState.phase = 'voting';
     publicState.speakerCycleActive = false;
     publicState.speakerVisible = false;
     publicState.speakerChangeId += 1;
 
-    // setPublicPhase also stops/resets the timer because voting has no timer.
-    setPublicPhase('voting', { syncRound:true });
+    publicState.timerRemainingMs = publicState.timerDurationMs;
+    publicState.timerEndsAt = 0;
+    publicState.timerStatus = 'idle';
+    hasBroadcastFinished = false;
+
+    try {
+      if (typeof nightRoundCounter !== 'undefined') {
+        publicState.roundNumber = Math.max(
+          1,
+          Number(nightRoundCounter) || 1
+        );
+      }
+    } catch (_) {}
+
     vibrate([45, 45, 80]);
+    saveState();
+
+    // Force a second render/broadcast on the next frame for TVs or
+    // browsers that received the last speaker update at the same moment.
+    requestAnimationFrame(() => {
+      renderAll();
+      broadcastState();
+    });
   }
 
   function advanceSpeakerOneLap(options = {}) {
     const aliveSeats = getAliveSeatNumbers();
 
-    if (!aliveSeats.length) {
+    if (!aliveSeats.length || isSpeakerLapComplete()) {
       finishDiscussionAndStartVoting();
       return null;
     }
@@ -413,6 +449,11 @@
       if (options.forceTimer) startFullSpeakerTimer();
       saveState();
       return current;
+    }
+
+    if (isSpeakerLapComplete()) {
+      finishDiscussionAndStartVoting();
+      return null;
     }
 
     const target = getNextUnvisitedSpeaker();
@@ -441,24 +482,7 @@
 
   function moveSpeaker(step = 1) {
     if (step >= 0) {
-      const hadActiveCycle =
-        publicState.speakerCycleActive &&
-        publicState.speakerVisitedSeats.length > 0;
-
-      if (!hadActiveCycle) {
-        const first = ensureSpeakerCycle();
-        if (first == null) return false;
-
-        if (publicState.speakerAutoTimer) {
-          startFullSpeakerTimer();
-        }
-
-        vibrate(28);
-        saveState();
-        return true;
-      }
-
-      return advanceSpeakerOneLap({ forceTimer:false }) != null;
+      return handleSpeakerNext(false);
     }
 
     // "السابق" يرجع خطوة داخل نفس اللفة، ويتيح المرور عليها من جديد.
@@ -488,29 +512,43 @@
     return true;
   }
 
-  function advanceSpeakerAndRestartTimer() {
+  function handleSpeakerNext(forceTimer) {
     const hadActiveCycle =
       publicState.speakerCycleActive &&
       publicState.speakerVisitedSeats.length > 0;
+
+    if (hadActiveCycle && isSpeakerLapComplete()) {
+      finishDiscussionAndStartVoting();
+      return null;
+    }
 
     if (!hadActiveCycle) {
       const first = ensureSpeakerCycle();
 
       if (first == null) {
-        // No player list yet: preserve the old timer-only behavior.
-        startFullSpeakerTimer();
-        vibrate([35, 35, 55]);
-        saveState();
+        // If the game seats are not ready yet, retain timer-only behavior.
+        if (forceTimer) {
+          startFullSpeakerTimer();
+          vibrate([35, 35, 55]);
+          saveState();
+        }
         return null;
       }
 
-      startFullSpeakerTimer();
-      vibrate([35, 35, 55]);
+      if (forceTimer || publicState.speakerAutoTimer) {
+        startFullSpeakerTimer();
+      }
+
+      vibrate(28);
       saveState();
       return first;
     }
 
-    return advanceSpeakerOneLap({ forceTimer:true });
+    return advanceSpeakerOneLap({ forceTimer });
+  }
+
+  function advanceSpeakerAndRestartTimer() {
+    return handleSpeakerNext(true);
   }
 
   function getSpeakerOrderPreview() {
@@ -630,16 +668,21 @@
 
     const preview = getSpeakerOrderPreview();
     const previewElement = document.getElementById('tvSpeakerPreview');
-    previewElement.textContent = preview.length
-      ? `اللفة الحالية: ${preview.join(' ← ')} ← ثم جولة التصويت`
-      : 'لا يوجد لاعبون أحياء متاحون حاليًا.';
+    if (isSpeakerLapComplete()) {
+      previewElement.textContent =
+        'انتهت اللفة — اضغط التالي للانتقال إلى جولة التصويت';
+    } else {
+      previewElement.textContent = preview.length
+        ? `اللفة الحالية: ${preview.join(' ← ')} ← ثم جولة التصويت`
+        : 'لا يوجد لاعبون أحياء متاحون حاليًا.';
+    }
 
     document.getElementById('tvSpeakerPrevious').disabled =
       !publicState.speakerCycleActive ||
       publicState.speakerVisitedSeats.length <= 1;
 
     document.getElementById('tvSpeakerNext').disabled =
-      aliveSeats.length === 0;
+      aliveSeats.length === 0 && !publicState.speakerCycleActive;
   }
 
   function syncSpeakerAvailability() {
