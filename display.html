@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#05070b">
-  <title>Amman Mafia — شاشة العرض v51</title>
+  <meta name="theme-color" content="#030717">
+  <title>Amman Mafia — شاشة العرض v52</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,16 +12,22 @@
 
   <style>
     :root{
-      --gold:#dcc166;
-      --cream:#f6eedc;
-      --blue:#54bdff;
-      --red:#ff5963;
-      --purple:#b29aff;
-      --orange:#ff9f52;
-      --panel:rgba(7,15,28,.72);
-      --safe-x:clamp(44px,4.7vw,96px);
-      --safe-y:clamp(18px,2.4vh,34px);
-      --gap:clamp(8px,1.15vh,16px);
+      --bg:#030717;
+      --panel:#07133a;
+      --panel-2:#081847;
+      --white:#f8fbff;
+      --cyan:#05d8f4;
+      --blue:#1688ff;
+      --lime:#cfff24;
+      --pink:#ff3ca6;
+      --purple:#a65cff;
+      --red:#ff395f;
+      --yellow:#ffd83d;
+      --green:#2bed72;
+      --muted:#9da8c6;
+      --safe-x:clamp(42px,4.2vw,88px);
+      --safe-y:clamp(20px,2.4vh,36px);
+      --gap:clamp(10px,1.35vh,18px);
     }
 
     *{box-sizing:border-box}
@@ -32,27 +38,39 @@
       min-height:0;
       margin:0;
       overflow:hidden;
-      background:#05070b;
-      color:var(--cream);
+      background:var(--bg);
+      color:var(--white);
       font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;
     }
 
     body{
       background:
-        radial-gradient(circle at 50% 12%,rgba(38,125,211,.34),transparent 44%),
-        linear-gradient(180deg,#071a31 0%,#04070d 78%);
+        radial-gradient(circle at 50% 8%,rgba(14,59,177,.35),transparent 42%),
+        linear-gradient(180deg,#020617 0%,#020410 100%);
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,rgba(24,90,255,.05) 1px,transparent 1px),
+        linear-gradient(rgba(24,90,255,.04) 1px,transparent 1px);
+      background-size:70px 70px;
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.35),transparent 85%);
     }
 
     body.phase-voting{
       background:
-        radial-gradient(circle at 50% 16%,rgba(202,163,59,.28),transparent 46%),
-        linear-gradient(180deg,#181205 0%,#070602 80%);
+        radial-gradient(circle at 50% 12%,rgba(222,178,45,.30),transparent 46%),
+        linear-gradient(180deg,#120d02 0%,#050401 100%);
     }
 
     body.phase-night{
       background:
-        radial-gradient(circle at 50% 18%,rgba(98,72,167,.32),transparent 46%),
-        linear-gradient(180deg,#080617 0%,#020204 82%);
+        radial-gradient(circle at 50% 16%,rgba(101,72,190,.34),transparent 48%),
+        linear-gradient(180deg,#08051a 0%,#020205 100%);
     }
 
     button,input{font:inherit}
@@ -70,9 +88,9 @@
       padding:34px;
       text-align:center;
       border-radius:26px;
-      border:1px solid rgba(220,193,102,.32);
-      background:rgba(9,10,16,.96);
-      box-shadow:0 30px 90px rgba(0,0,0,.55);
+      border:1px solid rgba(30,139,255,.34);
+      background:rgba(4,8,22,.96);
+      box-shadow:0 30px 90px rgba(0,0,0,.60);
     }
 
     .pair-logo{
@@ -80,12 +98,12 @@
       height:116px;
       object-fit:cover;
       border-radius:24px;
-      border:1px solid rgba(220,193,102,.46);
+      border:1px solid rgba(22,136,255,.55);
     }
 
     .pair-brand{
       margin-top:16px;
-      color:var(--gold);
+      color:var(--cyan);
       font-size:clamp(1.8rem,4vw,2.5rem);
       font-weight:900;
       letter-spacing:4px;
@@ -93,7 +111,7 @@
 
     .pair-sub{
       margin:8px 0 24px;
-      color:#9ba0aa;
+      color:var(--muted);
       font-weight:700;
     }
 
@@ -110,19 +128,19 @@
       text-align:center;
       text-transform:uppercase;
       letter-spacing:4px;
-      color:var(--cream);
+      color:var(--white);
       font-weight:900;
       border-radius:13px;
       border:1px solid rgba(255,255,255,.12);
-      background:#07090e;
+      background:#04091c;
     }
 
     .pair-row button{
       padding:13px 22px;
       border:0;
       border-radius:13px;
-      background:var(--gold);
-      color:#08080a;
+      background:var(--blue);
+      color:white;
       font-weight:900;
       cursor:pointer;
     }
@@ -130,13 +148,13 @@
     .pair-msg{
       min-height:24px;
       margin-top:14px;
-      color:#c9bf9a;
+      color:#c5cde2;
       font-size:.88rem;
     }
 
     .debug-status{
       margin-top:8px;
-      color:#777d89;
+      color:#7884a5;
       direction:ltr;
       text-align:center;
       font-size:.72rem;
@@ -166,91 +184,144 @@
       display:grid;
       grid-template-rows:auto auto minmax(0,1fr) auto;
       gap:var(--gap);
-      align-items:stretch;
       overflow:hidden;
     }
 
-    .phase-area{
-      display:flex;
-      flex-direction:column;
+    .top-bar{
+      min-height:clamp(78px,10.5vh,124px);
+      display:grid;
+      grid-template-columns:minmax(150px,1fr) auto minmax(150px,1fr);
       align-items:center;
-      justify-content:center;
-      gap:clamp(5px,.65vh,9px);
-      min-height:0;
-      padding-top:2px;
+      gap:20px;
     }
 
-    .round{
-      padding:clamp(5px,.7vh,9px) clamp(18px,1.8vw,30px);
-      color:var(--gold);
-      font-size:clamp(.9rem,1.75vh,1.2rem);
-      font-weight:900;
+    .connection-pill{
+      justify-self:start;
+      min-width:clamp(150px,13vw,220px);
+      min-height:clamp(52px,6.8vh,72px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      padding:8px 22px;
       border-radius:999px;
-      border:1px solid rgba(220,193,102,.42);
-      background:rgba(220,193,102,.09);
+      color:#eaf0ff;
+      font-size:clamp(1.15rem,2.4vh,1.65rem);
+      font-weight:800;
+      border:2px solid rgba(22,136,255,.78);
+      background:rgba(4,15,47,.78);
+      box-shadow:inset 0 0 26px rgba(12,83,222,.14);
+    }
+
+    .connection-dot{
+      width:clamp(16px,2vh,22px);
+      height:clamp(16px,2vh,22px);
+      border-radius:50%;
+      background:#ff4a59;
+      box-shadow:0 0 18px rgba(255,74,89,.85);
+    }
+
+    .connection-pill.online{
+      border-color:rgba(22,136,255,.95);
+    }
+
+    .connection-pill.online .connection-dot{
+      background:var(--green);
+      box-shadow:0 0 20px rgba(43,237,114,.95);
+    }
+
+    .phase-heading{
+      justify-self:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(20px,2.5vw,44px);
       white-space:nowrap;
     }
 
-    .phase-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:clamp(14px,1.7vw,28px);
-    }
-
-    .phase-icon{
-      font-size:clamp(3.2rem,7.5vh,5.8rem);
-      line-height:1;
-      filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));
-    }
-
-    .phase{
-      font-size:clamp(3.6rem,8.8vh,6.8rem);
-      line-height:.92;
+    .phase-title{
+      color:var(--white);
+      font-size:clamp(4rem,9.8vh,7.5rem);
+      line-height:.9;
       font-weight:900;
-      letter-spacing:-.025em;
-      text-shadow:0 10px 34px rgba(0,0,0,.35);
+      letter-spacing:-.035em;
+      text-shadow:0 0 34px rgba(255,255,255,.13);
     }
 
-    .phase.discussion{color:var(--blue)}
-    .phase.voting{color:var(--gold)}
-    .phase.night{color:var(--purple)}
-
-    .speaker-card{
-      min-height:clamp(92px,13.5vh,148px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:clamp(20px,2.2vw,38px);
-      padding:clamp(10px,1.45vh,20px) clamp(28px,3vw,54px);
-      border-radius:clamp(22px,2.1vw,34px);
-      border:2px solid rgba(84,189,255,.58);
-      background:
-        radial-gradient(circle at 20% 0%,rgba(40,160,241,.19),transparent 38%),
-        linear-gradient(145deg,rgba(12,45,75,.78),rgba(6,14,26,.84));
-      box-shadow:0 18px 58px rgba(0,0,0,.28);
-    }
-
-    .speaker-card[hidden]{display:none!important}
-
-    .speaker-mic{
-      width:clamp(68px,8.8vh,104px);
-      height:clamp(68px,8.8vh,104px);
+    .round-circle{
+      width:clamp(104px,10vh,146px);
+      height:clamp(104px,10vh,146px);
       display:grid;
       place-items:center;
       flex:0 0 auto;
       border-radius:50%;
-      font-size:clamp(2.3rem,5.2vh,4.1rem);
-      background:rgba(84,189,255,.13);
-      border:1px solid rgba(84,189,255,.46);
+      color:var(--white);
+      font-size:clamp(1.65rem,3.4vh,2.4rem);
+      font-weight:900;
+      line-height:1.15;
+      text-align:center;
+      border:3px solid var(--cyan);
+      background:rgba(3,15,49,.82);
+      box-shadow:
+        0 0 22px rgba(0,216,244,.65),
+        inset 0 0 28px rgba(0,216,244,.08);
     }
 
-    .speaker-seat{
-      color:#91d5ff;
-      font-size:clamp(3.4rem,8.2vh,6.3rem);
-      line-height:.88;
+    .top-spacer{justify-self:end}
+
+    .speaker-card{
+      min-height:clamp(122px,16vh,180px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(24px,2.7vw,48px);
+      padding:clamp(14px,1.8vh,24px) clamp(28px,3vw,56px);
+      border-radius:clamp(24px,2.2vw,36px);
+      border:2px solid rgba(40,114,255,.90);
+      background:
+        radial-gradient(circle at 50% 0%,rgba(16,100,255,.14),transparent 48%),
+        linear-gradient(145deg,rgba(4,15,57,.92),rgba(3,10,36,.94));
+      box-shadow:
+        inset 0 0 42px rgba(22,80,218,.12),
+        0 18px 60px rgba(0,0,0,.32);
+    }
+
+    .speaker-card[hidden]{display:none!important}
+
+    .speaker-text{
+      display:flex;
+      align-items:baseline;
+      justify-content:center;
+      gap:clamp(16px,1.6vw,28px);
+      white-space:nowrap;
+      line-height:.95;
+      font-size:clamp(3.3rem,7.5vh,6rem);
       font-weight:900;
-      text-shadow:0 0 30px rgba(67,175,245,.20);
+    }
+
+    .speaker-prefix{
+      color:var(--white);
+    }
+
+    .speaker-player{
+      color:var(--cyan);
+      text-shadow:0 0 30px rgba(0,216,244,.28);
+    }
+
+    .speaker-mic{
+      width:clamp(82px,9.7vh,118px);
+      height:clamp(82px,9.7vh,118px);
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      border-radius:50%;
+      color:var(--cyan);
+      font-size:clamp(2.8rem,6vh,4.7rem);
+      border:2px solid var(--cyan);
+      background:rgba(0,216,244,.08);
+      box-shadow:
+        0 0 24px rgba(0,216,244,.45),
+        inset 0 0 20px rgba(0,216,244,.10);
     }
 
     .timer-panel{
@@ -258,36 +329,40 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:clamp(8px,1vh,16px) clamp(22px,2.7vw,48px);
-      border-radius:clamp(24px,2.4vw,38px);
-      border:2px solid rgba(82,151,219,.44);
+      padding:clamp(10px,1.2vh,18px) clamp(20px,2.6vw,46px);
+      border-radius:clamp(26px,2.4vw,40px);
+      border:2px solid rgba(40,114,255,.86);
       background:
-        radial-gradient(circle at 50% 8%,rgba(64,132,205,.13),transparent 56%),
-        rgba(7,15,29,.68);
-      box-shadow:0 22px 64px rgba(0,0,0,.24);
+        radial-gradient(circle at 50% 15%,rgba(28,90,255,.13),transparent 60%),
+        linear-gradient(145deg,rgba(3,13,49,.93),rgba(2,8,29,.95));
+      box-shadow:
+        inset 0 0 50px rgba(14,66,209,.10),
+        0 22px 66px rgba(0,0,0,.32);
     }
 
     .timer{
       direction:ltr;
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
       font-variant-numeric:tabular-nums;
-      color:var(--cream);
-      font-size:clamp(12rem,34vh,25rem);
-      line-height:.72;
+      color:var(--white);
+      font-size:clamp(13rem,34vh,26rem);
+      line-height:.70;
       font-weight:950;
-      letter-spacing:-.06em;
-      text-shadow:0 0 48px rgba(220,193,102,.10);
+      letter-spacing:-.065em;
+      text-shadow:
+        0 0 16px rgba(255,255,255,.18),
+        0 0 54px rgba(28,89,255,.15);
       white-space:nowrap;
     }
 
-    .timer.running{color:var(--gold)}
+    .timer.running{color:var(--white)}
     .timer.finished{color:var(--red)}
 
     .timer.warning{
-      color:#ff515b;
+      color:var(--red);
       text-shadow:
-        0 0 18px rgba(255,81,91,.72),
-        0 0 60px rgba(255,42,59,.35);
+        0 0 18px rgba(255,57,95,.78),
+        0 0 64px rgba(255,57,95,.38);
       animation:warningPulse .72s ease-in-out infinite;
     }
 
@@ -297,189 +372,214 @@
     }
 
     .stats{
-      min-height:clamp(92px,13vh,138px);
+      min-height:clamp(150px,19vh,220px);
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:clamp(9px,1vw,16px);
-    }
-
-    .stats:has(.stat.killer:not([hidden])){
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:clamp(10px,1.1vw,18px);
     }
 
     .stat{
+      --accent:var(--blue);
       min-width:0;
+      position:relative;
+      overflow:hidden;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:clamp(3px,.5vh,7px);
-      padding:8px 10px;
-      border-radius:clamp(16px,1.7vw,25px);
-      background:rgba(9,18,32,.78);
-      border:2px solid rgba(255,255,255,.12);
+      gap:clamp(4px,.45vh,7px);
+      padding:10px 10px 16px;
+      border-radius:clamp(22px,2vw,32px);
+      background:
+        radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 45%),
+        linear-gradient(150deg,rgba(5,15,54,.95),rgba(3,8,30,.97));
+      border:2px solid var(--accent);
+      box-shadow:
+        inset 0 0 28px color-mix(in srgb,var(--accent) 7%,transparent),
+        0 16px 45px rgba(0,0,0,.25);
+    }
+
+    .stat::after{
+      content:"";
+      position:absolute;
+      left:9%;
+      right:9%;
+      bottom:7px;
+      height:5px;
+      border-radius:999px;
+      background:linear-gradient(
+        90deg,
+        var(--accent) 0 72%,
+        rgba(145,165,224,.20) 72% 100%
+      );
+      box-shadow:0 0 14px color-mix(in srgb,var(--accent) 50%,transparent);
+    }
+
+    .stat-icon{
+      color:var(--accent);
+      font-size:clamp(1.9rem,3.7vh,3rem);
+      line-height:1;
+      filter:drop-shadow(0 0 10px color-mix(in srgb,var(--accent) 35%,transparent));
     }
 
     .stat-label{
-      color:#a7abb4;
-      font-size:clamp(.85rem,1.55vh,1.08rem);
+      color:var(--white);
+      font-size:clamp(1.25rem,2.6vh,1.9rem);
       font-weight:800;
+      white-space:nowrap;
     }
 
     .stat strong{
+      color:var(--accent);
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
-      font-size:clamp(3.1rem,7.2vh,5.4rem);
-      line-height:.86;
+      font-size:clamp(3.6rem,7.9vh,6.1rem);
+      line-height:.85;
       font-weight:950;
     }
 
-    .stat.total{border-color:rgba(220,193,102,.58)}
-    .stat.total strong{color:#e5cc70}
-    .stat.citizen{border-color:rgba(84,189,255,.58)}
-    .stat.citizen strong{color:#6bc6ff}
-    .stat.mafia{border-color:rgba(255,89,99,.58)}
-    .stat.mafia strong{color:#ff6871}
-    .stat.killer{border-color:rgba(255,159,82,.65)}
-    .stat.killer strong{color:#ffad68}
+    .stat-killer{--accent:var(--red)}
+    .stat-mafia{--accent:var(--pink)}
+    .stat-citizen{--accent:var(--cyan)}
+    .stat-neutral{--accent:var(--purple)}
+    .stat-total{--accent:var(--lime)}
 
-    .night-panel{
+    .night-panel,
+    .voting-panel,
+    .idle-panel{
       display:none;
       min-height:0;
       align-items:center;
       justify-content:center;
       flex-direction:column;
-      gap:clamp(18px,2.4vh,34px);
+      gap:clamp(20px,2.6vh,38px);
       text-align:center;
     }
 
-    .night-moon{
-      width:clamp(210px,31vh,360px);
-      height:clamp(210px,31vh,360px);
-      border-radius:50%;
-      background:
-        radial-gradient(circle at 35% 30%,#f0ebff 0 7%,#b7a8ec 29%,#7461b8 60%,#3b2c68 100%);
-      box-shadow:
-        0 0 70px rgba(143,115,221,.42),
-        0 0 180px rgba(91,68,159,.20);
+    .large-phase-icon{
+      font-size:clamp(9rem,20vh,15rem);
+      line-height:1;
+      filter:drop-shadow(0 0 40px rgba(255,255,255,.18));
     }
 
-    .night-title{
-      color:#c9b9f6;
-      font-size:clamp(5.4rem,13vh,10rem);
+    .large-phase-title{
+      font-size:clamp(7rem,16vh,12rem);
       line-height:.88;
       font-weight:900;
-      text-shadow:0 0 45px rgba(143,115,221,.24);
     }
+
+    .night-panel .large-phase-title{color:var(--purple)}
+    .voting-panel .large-phase-title{color:var(--yellow)}
+    .idle-panel .large-phase-title{color:var(--blue)}
 
     .fullscreen-btn{
       position:fixed;
       left:var(--safe-x);
-      bottom:max(10px,calc(var(--safe-y) - 6px));
+      bottom:max(10px,calc(var(--safe-y) - 8px));
       z-index:20;
-      padding:8px 12px;
-      color:#b3b6bd;
-      font-size:.72rem;
+      padding:7px 11px;
+      color:#b2bfdc;
+      font-size:.68rem;
       font-weight:800;
       border-radius:11px;
       border:1px solid rgba(255,255,255,.14);
-      background:rgba(9,12,18,.64);
-      opacity:.35;
+      background:rgba(4,8,22,.68);
+      opacity:.25;
       cursor:pointer;
     }
 
     .fullscreen-btn:hover{opacity:1}
 
-    body.phase-voting .stage{
-      grid-template-rows:minmax(0,1fr) auto;
-    }
-
-    body.phase-voting .phase-area{
-      min-height:0;
-      justify-content:center;
+    body.phase-voting .stage,
+    body.phase-night .stage,
+    body.phase-idle .stage{
+      grid-template-rows:auto minmax(0,1fr) auto;
     }
 
     body.phase-voting .speaker-card,
-    body.phase-voting .timer-panel{
-      display:none!important;
-    }
-
-    body.phase-voting .phase-icon{
-      font-size:clamp(8rem,18vh,13rem);
-    }
-
-    body.phase-voting .phase{
-      font-size:clamp(7rem,16vh,12rem);
-    }
-
-    body.phase-night .stage{
-      display:flex;
-      align-items:stretch;
-    }
-
-    body.phase-night .phase-area,
+    body.phase-voting .timer-panel,
     body.phase-night .speaker-card,
     body.phase-night .timer-panel,
-    body.phase-night .stats{
+    body.phase-idle .speaker-card,
+    body.phase-idle .timer-panel{
       display:none!important;
     }
 
-    body.phase-night .night-panel{
-      display:flex;
-      flex:1 1 auto;
+    body.phase-voting .voting-panel{display:flex}
+    body.phase-night .night-panel{display:flex}
+    body.phase-idle .idle-panel{display:flex}
+
+    body.phase-voting .phase-heading,
+    body.phase-night .phase-heading,
+    body.phase-idle .phase-heading{
+      display:none;
     }
 
-    @media (min-width:900px) and (max-height:720px){
+    @media (min-width:900px) and (max-height:730px){
       :root{
-        --safe-x:clamp(42px,4.3vw,82px);
+        --safe-x:clamp(36px,3.8vw,72px);
         --safe-y:9px;
-        --gap:6px;
+        --gap:7px;
       }
 
-      .stage{
-        grid-template-rows:auto auto minmax(0,1fr) auto;
+      .top-bar{min-height:64px}
+      .connection-pill{
+        min-height:44px;
+        min-width:132px;
+        font-size:1rem;
       }
 
-      .round{
-        padding:4px 14px;
-        font-size:.78rem;
+      .phase-title{font-size:3.8rem}
+      .round-circle{
+        width:84px;
+        height:84px;
+        font-size:1.35rem;
       }
-
-      .phase-icon{font-size:2.8rem}
-      .phase{font-size:3.3rem}
 
       .speaker-card{
-        min-height:76px;
-        padding:7px 24px;
+        min-height:96px;
+        padding:8px 24px;
       }
 
+      .speaker-text{font-size:3rem}
       .speaker-mic{
-        width:54px;
-        height:54px;
-        font-size:1.9rem;
+        width:66px;
+        height:66px;
+        font-size:2.2rem;
       }
 
-      .speaker-seat{font-size:2.9rem}
+      .timer{font-size:clamp(10rem,28vh,16rem)}
+      .stats{min-height:118px}
+      .stat-icon{font-size:1.65rem}
+      .stat-label{font-size:1.05rem}
+      .stat strong{font-size:3.2rem}
+    }
 
-      .timer{font-size:clamp(9rem,26vh,14rem)}
-
-      .stats{min-height:76px}
-      .stat-label{font-size:.72rem}
-      .stat strong{font-size:2.35rem}
-
-      .night-moon{
-        width:170px;
-        height:170px;
+    @media (max-width:950px){
+      .top-bar{
+        grid-template-columns:auto 1fr;
       }
 
-      .night-title{font-size:4.7rem}
+      .top-spacer{display:none}
+
+      .phase-heading{
+        justify-self:end;
+      }
+
+      .stats{
+        grid-template-columns:repeat(5,minmax(115px,1fr));
+      }
     }
 
     @media (max-width:800px){
       :root{--safe-x:14px}
-      .phase{font-size:clamp(2.4rem,9vw,4.2rem)}
-      .timer{font-size:clamp(6.5rem,27vw,11rem)}
-      .stats,.stats:has(.stat.killer:not([hidden])){
-        grid-template-columns:repeat(2,minmax(0,1fr));
+      .connection-pill{min-width:112px}
+      .phase-title{font-size:clamp(2.8rem,9vw,4.2rem)}
+      .round-circle{width:76px;height:76px}
+      .speaker-text{font-size:clamp(2rem,6vw,3.2rem)}
+      .timer{font-size:clamp(7rem,27vw,12rem)}
+      .stats{
+        grid-template-columns:repeat(5,minmax(100px,1fr));
+        overflow:hidden;
       }
     }
 
@@ -488,7 +588,7 @@
     }
   </style>
 </head>
-<body>
+<body class="phase-idle">
   <section id="pairScreen" class="pair-screen">
     <div class="pair-card">
       <img class="pair-logo" src="app-icon-master.png" alt="Amman Mafia">
@@ -507,48 +607,76 @@
 
   <main id="displayScreen" class="display">
     <section class="stage">
-      <section class="phase-area">
-        <div id="round" class="round">الجولة 1</div>
-
-        <div class="phase-row">
-          <div id="phaseIcon" class="phase-icon">⌛</div>
-          <div id="phase" class="phase">بانتظار بدء الجولة</div>
+      <header class="top-bar">
+        <div id="connectionPill" class="connection-pill">
+          <span class="connection-dot"></span>
+          <span id="connectionText">غير متصل</span>
         </div>
-      </section>
 
-      <section id="speakerCard" class="speaker-card" hidden>
+        <div class="phase-heading">
+          <div id="phaseTitle" class="phase-title">جولة النقاش</div>
+          <div id="roundCircle" class="round-circle">الجولة<br>1</div>
+        </div>
+
+        <div class="top-spacer"></div>
+      </header>
+
+      <section id="speakerCard" class="speaker-card">
+        <div class="speaker-text">
+          <span class="speaker-prefix">جولة الكلام</span>
+          <span id="speakerPlayerText" class="speaker-player">للاعب رقم —</span>
+        </div>
         <div class="speaker-mic">🎙️</div>
-        <div id="speakerSeatText" class="speaker-seat">لاعب —</div>
       </section>
 
       <section class="timer-panel">
-        <div id="timer" class="timer">01:00</div>
+        <div id="timer" class="timer">00:30</div>
       </section>
 
-      <section class="night-panel" aria-label="جولة الليل">
-        <div class="night-moon"></div>
-        <div class="night-title">جولة الليل</div>
+      <section class="night-panel">
+        <div class="large-phase-icon">🌙</div>
+        <div class="large-phase-title">جولة الليل</div>
       </section>
 
-      <section class="stats" aria-label="أعداد اللاعبين الأحياء">
-        <div class="stat total">
-          <span class="stat-label">الأحياء</span>
-          <strong id="aliveCount">0</strong>
+      <section class="voting-panel">
+        <div class="large-phase-icon">🗳️</div>
+        <div class="large-phase-title">جولة التصويت</div>
+      </section>
+
+      <section class="idle-panel">
+        <div class="large-phase-icon">⌛</div>
+        <div class="large-phase-title">بانتظار الجولة</div>
+      </section>
+
+      <section class="stats">
+        <div class="stat stat-killer">
+          <div class="stat-icon">🔪</div>
+          <span class="stat-label">سفاح</span>
+          <strong id="killerCount">0</strong>
         </div>
 
-        <div class="stat citizen">
-          <span class="stat-label">مواطن</span>
-          <strong id="citizenCount">0</strong>
-        </div>
-
-        <div class="stat mafia">
+        <div class="stat stat-mafia">
+          <div class="stat-icon">🥷</div>
           <span class="stat-label">مافيا</span>
           <strong id="mafiaCount">0</strong>
         </div>
 
-        <div id="killerStat" class="stat killer" hidden>
-          <span class="stat-label">سفاح</span>
-          <strong id="killerCount">0</strong>
+        <div class="stat stat-citizen">
+          <div class="stat-icon">👤</div>
+          <span class="stat-label">مواطن</span>
+          <strong id="citizenCount">0</strong>
+        </div>
+
+        <div class="stat stat-neutral">
+          <div class="stat-icon">⚖️</div>
+          <span class="stat-label">محايد</span>
+          <strong id="neutralCount">0</strong>
+        </div>
+
+        <div class="stat stat-total">
+          <div class="stat-icon">👥</div>
+          <span class="stat-label">الأحياء</span>
+          <strong id="aliveCount">0</strong>
         </div>
       </section>
     </section>
@@ -564,7 +692,7 @@
             keys
               .filter(key =>
                 key.startsWith("amman-mafia-tv-") &&
-                key !== "amman-mafia-tv-v51-cache-v1"
+                key !== "amman-mafia-tv-v52-cache-v1"
               )
               .forEach(key => caches.delete(key));
           });
@@ -573,7 +701,7 @@
     })();
   </script>
 
-  <script src="realtime-config.js?v=51"></script>
+  <script src="realtime-config.js?v=52"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
 
   <script>
@@ -581,17 +709,10 @@
     "use strict";
 
     const PHASE_LABELS = {
-      idle: "بانتظار بدء الجولة",
+      idle: "بانتظار الجولة",
       discussion: "جولة النقاش",
       voting: "جولة التصويت",
       night: "جولة الليل"
-    };
-
-    const PHASE_ICONS = {
-      idle: "⌛",
-      discussion: "💬",
-      voting: "🗳️",
-      night: "🌙"
     };
 
     let room = "";
@@ -600,6 +721,7 @@
     let channel = null;
     let localChannel = null;
     let mode = "local";
+    let transportConnected = false;
     let lastStateAt = 0;
     let tick = null;
     let ping = null;
@@ -729,6 +851,17 @@
       pullLocalState(true);
     }
 
+    function setConnection(isOnline){
+      const pill = $("connectionPill");
+      pill.classList.toggle("online", Boolean(isOnline));
+      $("connectionText").textContent = isOnline ? "متصل" : "غير متصل";
+    }
+
+    function updateConnection(){
+      const stateFresh = !state || Date.now() - lastStateAt < 22000;
+      setConnection(transportConnected && stateFresh);
+    }
+
     function render(){
       if(!state) return;
 
@@ -736,15 +869,11 @@
         ? state.phase
         : "idle";
 
-      document.body.classList.toggle("phase-voting", phase === "voting");
-      document.body.classList.toggle("phase-night", phase === "night");
+      document.body.className = `phase-${phase}`;
 
-      $("round").textContent =
-        `الجولة ${Math.max(1, Number(state.roundNumber) || 1)}`;
-
-      $("phase").textContent = PHASE_LABELS[phase];
-      $("phase").className = `phase ${phase}`;
-      $("phaseIcon").textContent = PHASE_ICONS[phase] || PHASE_ICONS.idle;
+      $("phaseTitle").textContent = PHASE_LABELS[phase];
+      $("roundCircle").innerHTML =
+        `الجولة<br>${Math.max(1, Number(state.roundNumber) || 1)}`;
 
       const speakerSeat = Math.max(0, Number(state.speakerSeat) || 0);
       const speakerVisible =
@@ -753,10 +882,10 @@
         phase === "discussion";
 
       $("speakerCard").hidden = !speakerVisible;
-
-      if(speakerVisible){
-        $("speakerSeatText").textContent = `لاعب ${speakerSeat}`;
-      }
+      $("speakerPlayerText").textContent =
+        speakerVisible
+          ? `للاعب رقم ${speakerSeat}`
+          : "بانتظار تحديد اللاعب";
 
       const rem = remaining();
       const rawTimerStatus = state.timerStatus || "idle";
@@ -775,19 +904,29 @@
       timer.className =
         `timer ${timerStatus}${warning ? " warning" : ""}`;
 
-      $("aliveCount").textContent =
-        String(Math.max(0, Number(state.totalAlive) || 0));
+      const totalAlive = Math.max(0, Number(state.totalAlive) || 0);
+      const citizenAlive = Math.max(0, Number(state.citizenAlive) || 0);
+      const mafiaAlive = Math.max(0, Number(state.mafiaAlive) || 0);
+      const killerAlive = Math.max(0, Number(state.killerAlive) || 0);
 
-      $("citizenCount").textContent =
-        String(Math.max(0, Number(state.citizenAlive) || 0));
+      const suppliedNeutral =
+        Number.isFinite(Number(state.neutralAlive))
+          ? Math.max(0, Number(state.neutralAlive))
+          : null;
 
-      $("mafiaCount").textContent =
-        String(Math.max(0, Number(state.mafiaAlive) || 0));
+      const neutralAlive =
+        suppliedNeutral !== null
+          ? suppliedNeutral
+          : Math.max(
+              0,
+              totalAlive - citizenAlive - mafiaAlive - killerAlive
+            );
 
-      $("killerCount").textContent =
-        String(Math.max(0, Number(state.killerAlive) || 0));
-
-      $("killerStat").hidden = !Boolean(state.showKiller);
+      $("aliveCount").textContent = String(totalAlive);
+      $("citizenCount").textContent = String(citizenAlive);
+      $("mafiaCount").textContent = String(mafiaAlive);
+      $("killerCount").textContent = String(killerAlive);
+      $("neutralCount").textContent = String(neutralAlive);
     }
 
     function send(event,payload={}){
@@ -853,6 +992,8 @@
 
       localStorage.setItem("ammanMafiaDisplayLastRoom",room);
       $("pairMessage").textContent = "جاري الاتصال...";
+      transportConnected = false;
+      setConnection(false);
 
       try{
         if(localChannel) localChannel.close();
@@ -911,6 +1052,9 @@
 
             if(status === "SUBSCRIBED"){
               clearTimeout(retryTimer);
+              transportConnected = true;
+              lastStateAt = Date.now();
+              setConnection(true);
               setDebug("Realtime connected","ok");
               showDisplay();
               send("display_request",{at:Date.now()});
@@ -919,6 +1063,8 @@
               status === "TIMED_OUT" ||
               status === "CLOSED"
             ){
+              transportConnected = false;
+              setConnection(false);
               setDebug(
                 readableRealtimeError(status,error),
                 "error"
@@ -944,8 +1090,11 @@
           };
         }
 
+        transportConnected = true;
+        lastStateAt = Date.now();
         pullLocalState(true);
         showDisplay();
+        setConnection(true);
         announcePresence();
         requestLocalState();
         send("display_request",{at:Date.now()});
@@ -998,7 +1147,10 @@
 
     if(params.get("room")) connect();
 
-    tick = setInterval(render,250);
+    tick = setInterval(() => {
+      render();
+      updateConnection();
+    },250);
   })();
   </script>
 </body>
