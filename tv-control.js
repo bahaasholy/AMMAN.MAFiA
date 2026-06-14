@@ -23,6 +23,8 @@
   let tvPresenceTimer = null;
   let timerTicker = null;
   let hasBroadcastFinished = false;
+  let realtimeStatus = 'idle';
+  let realtimeErrorText = '';
 
   function generateRoomCode() {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -465,11 +467,29 @@
   function updateConnectionStatus() {
     const el = document.getElementById('tvConnectionStatus');
     if (!el) return;
+
+    if (
+      connectionMode === 'supabase' &&
+      ['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(realtimeStatus)
+    ) {
+      el.className = 'tv-status-pill error';
+      el.textContent = 'خطأ Realtime';
+      el.title = realtimeErrorText || 'تحقق من إعدادات Realtime في Supabase';
+      return;
+    }
+
     const tvOnline = Date.now() - tvLastSeenAt < 18000;
     el.className = 'tv-status-pill ' + (tvOnline ? 'online' : 'waiting');
+    el.title = '';
+
     if (tvOnline) el.textContent = 'التلفزيون متصل';
-    else if (connectionMode === 'supabase') el.textContent = 'بانتظار التلفزيون';
-    else el.textContent = 'تجربة محلية';
+    else if (connectionMode === 'supabase' && realtimeStatus === 'SUBSCRIBED') {
+      el.textContent = 'بانتظار التلفزيون';
+    } else if (connectionMode === 'supabase') {
+      el.textContent = 'جاري ربط Realtime';
+    } else {
+      el.textContent = 'تجربة محلية';
+    }
   }
 
   function messageReceived(event, payload) {
@@ -512,12 +532,36 @@
         auth: { persistSession:false, autoRefreshToken:false, detectSessionInUrl:false },
         realtime: { params: { eventsPerSecond: 10 } }
       });
-      channel = supabaseClient.channel(`amman-mafia-display-${roomCode}`, { config:{ broadcast:{ self:false } } });
+      channel = supabaseClient.channel(
+        `amman-mafia-display-${roomCode}`,
+        {
+          config:{
+            private:false,
+            broadcast:{self:false,ack:true}
+          }
+        }
+      );
+
+      realtimeStatus='connecting';
+      realtimeErrorText='';
+
       channel
         .on('broadcast', { event:'display_request' }, ({ payload }) => messageReceived('display_request', payload))
         .on('broadcast', { event:'display_ping' }, ({ payload }) => messageReceived('display_ping', payload))
-        .subscribe(status => {
-          if (status === 'SUBSCRIBED') broadcastState();
+        .subscribe((status,err) => {
+          realtimeStatus=status;
+
+          if (status === 'SUBSCRIBED') {
+            realtimeErrorText='';
+            broadcastState();
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            realtimeErrorText=[
+              err?.message||'',
+              err?.name||'',
+              err?.cause?.message||''
+            ].filter(Boolean).join(' — ');
+          }
+
           updateConnectionStatus();
         });
     } else if ('BroadcastChannel' in window) {

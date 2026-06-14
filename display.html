@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v30</title>
+  <title>Amman Mafia — شاشة العرض v31</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -119,7 +119,19 @@ to{opacity:1}}
       50%{opacity:1}
     }
 
-  </style>
+  
+    .debug-status{
+      margin-top:12px;
+      color:#8d8d98;
+      font-size:.78rem;
+      line-height:1.7;
+      direction:ltr;
+      text-align:left;
+      overflow-wrap:anywhere;
+    }
+    .debug-status.error{color:#ef777c}
+    .debug-status.ok{color:#77d996}
+    </style>
 </head>
 <body>
 <section id="pairScreen" class="pair-screen">
@@ -171,13 +183,13 @@ to{opacity:1}}
     </footer>
   </main>
 
-  <script src="realtime-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="realtime-config.js?v=31"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
     'use strict';
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
-    let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null,syncPoll=null;
+    let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null,syncPoll=null,retryTimer=null;
     let lastLocalWrittenAt=0;
     const LOCAL_STATE_PREFIX='ammanMafiaLocalDisplayStateV2:';
     const LOCAL_REQUEST_PREFIX='ammanMafiaLocalDisplayRequestV2:';
@@ -309,6 +321,29 @@ to{opacity:1}}
       if(event==='display_request')requestLocalState();
       if(event==='display_ping')announcePresence();
     }
+    function setDebug(text,type=''){
+      const el=$('debugStatus');
+      if(!el)return;
+      el.textContent=text||'';
+      el.className='debug-status'+(type?' '+type:'');
+    }
+
+    function readableRealtimeError(status,err){
+      return [
+        status||'UNKNOWN',
+        err?.message||'',
+        err?.name||'',
+        err?.cause?.message||''
+      ].filter(Boolean).join(' — ') || 'Realtime connection failed';
+    }
+
+    function scheduleReconnect(){
+      clearTimeout(retryTimer);
+      retryTimer=setTimeout(()=>{
+        if(room)connect();
+      },3000);
+    }
+
     function connect(){
       room=$('roomInput').value.trim().toUpperCase().replace(/[^A-Z2-9]/g,'');
       if(room.length<6){
@@ -323,6 +358,7 @@ to{opacity:1}}
       localChannel=null;
       clearInterval(ping);
       clearInterval(syncPoll);
+      clearTimeout(retryTimer);
 
       if(configured()&&window.supabase&&typeof window.supabase.createClient==='function'){
         mode='supabase';
@@ -338,17 +374,34 @@ to{opacity:1}}
 
         channel=client.channel(
           `amman-mafia-display-${room}`,
-          {config:{broadcast:{self:false}}}
+          {
+            config:{
+              private:false,
+              broadcast:{self:false,ack:true}
+            }
+          }
         );
 
+        setDebug('Connecting to Supabase Realtime…');
+
         channel
-          .on('broadcast',{event:'state'},({payload})=>apply(payload))
-          .subscribe(st=>{
+          .on('broadcast',{event:'state'},({payload})=>{
+            setDebug('Realtime state received','ok');
+            apply(payload);
+          })
+          .subscribe((st,err)=>{
+            setDebug(`Realtime status: ${st}`);
+
             if(st==='SUBSCRIBED'){
+              clearTimeout(retryTimer);
+              setDebug('Realtime connected','ok');
               show();
               send('display_request',{at:Date.now()});
-            }else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){
-              $('pairMessage').textContent='تعذر الاتصال. تأكد من الإنترنت والإعدادات.';
+            }else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){
+              setDebug(readableRealtimeError(st,err),'error');
+              $('pairMessage').textContent=
+                'تعذر ربط شاشة العرض. فعّل Realtime واسمح بالقنوات العامة داخل Supabase.';
+              scheduleReconnect();
             }
           });
       }else{
