@@ -4,26 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070b">
-  <title>Amman Mafia — شاشة العرض v50</title>
+  <title>Amman Mafia — شاشة العرض v51</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --gold:#d4b65c;
-      --cream:#f5ecd8;
-      --muted:#8f94a1;
-      --blue:#4db7ff;
-      --red:#ff515b;
-      --purple:#a98cff;
-      --orange:#ff9b45;
-      --panel:rgba(10,18,31,.72);
-      --line:rgba(115,191,255,.30);
-      --header-h:clamp(58px,8.5vh,92px);
-      --page-pad-x:clamp(18px,2.4vw,48px);
-      --page-pad-y:clamp(10px,1.5vh,20px);
-      --gap:clamp(7px,1.15vh,15px);
+      --gold:#dcc166;
+      --cream:#f6eedc;
+      --blue:#54bdff;
+      --red:#ff5963;
+      --purple:#b29aff;
+      --orange:#ff9f52;
+      --panel:rgba(7,15,28,.72);
+      --safe-x:clamp(44px,4.7vw,96px);
+      --safe-y:clamp(18px,2.4vh,34px);
+      --gap:clamp(8px,1.15vh,16px);
     }
 
     *{box-sizing:border-box}
+
     html,body{
       width:100%;
       height:100%;
@@ -32,36 +34,29 @@
       overflow:hidden;
       background:#05070b;
       color:var(--cream);
-      font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+      font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;
     }
 
     body{
       background:
-        radial-gradient(circle at 50% 5%,rgba(39,121,202,.28),transparent 38%),
-        linear-gradient(180deg,#071324 0%,#04070d 72%);
-    }
-
-    body.phase-discussion{
-      background:
-        radial-gradient(circle at 50% 8%,rgba(35,139,229,.36),transparent 43%),
-        linear-gradient(180deg,#071a31 0%,#04070e 76%);
+        radial-gradient(circle at 50% 12%,rgba(38,125,211,.34),transparent 44%),
+        linear-gradient(180deg,#071a31 0%,#04070d 78%);
     }
 
     body.phase-voting{
       background:
-        radial-gradient(circle at 50% 12%,rgba(203,164,59,.25),transparent 42%),
-        linear-gradient(180deg,#191407 0%,#070602 78%);
+        radial-gradient(circle at 50% 16%,rgba(202,163,59,.28),transparent 46%),
+        linear-gradient(180deg,#181205 0%,#070602 80%);
     }
 
     body.phase-night{
       background:
-        radial-gradient(circle at 50% 15%,rgba(92,67,158,.30),transparent 42%),
-        linear-gradient(180deg,#080616 0%,#020204 78%);
+        radial-gradient(circle at 50% 18%,rgba(98,72,167,.32),transparent 46%),
+        linear-gradient(180deg,#080617 0%,#020204 82%);
     }
 
     button,input{font:inherit}
 
-    /* Pairing */
     .pair-screen{
       min-height:100dvh;
       display:flex;
@@ -72,35 +67,34 @@
 
     .pair-card{
       width:min(94vw,620px);
-      padding:32px;
+      padding:34px;
       text-align:center;
       border-radius:26px;
-      border:1px solid rgba(212,182,92,.30);
-      background:rgba(10,11,17,.96);
+      border:1px solid rgba(220,193,102,.32);
+      background:rgba(9,10,16,.96);
       box-shadow:0 30px 90px rgba(0,0,0,.55);
     }
 
     .pair-logo{
-      width:118px;
-      height:118px;
+      width:116px;
+      height:116px;
       object-fit:cover;
-      border-radius:25px;
-      border:1px solid rgba(212,182,92,.45);
-      box-shadow:0 16px 50px rgba(0,0,0,.38);
+      border-radius:24px;
+      border:1px solid rgba(220,193,102,.46);
     }
 
     .pair-brand{
-      margin-top:15px;
+      margin-top:16px;
       color:var(--gold);
-      font-size:clamp(1.6rem,4vw,2.4rem);
-      font-weight:950;
-      letter-spacing:5px;
+      font-size:clamp(1.8rem,4vw,2.5rem);
+      font-weight:900;
+      letter-spacing:4px;
     }
 
     .pair-sub{
       margin:8px 0 24px;
-      color:var(--muted);
-      font-weight:800;
+      color:#9ba0aa;
+      font-weight:700;
     }
 
     .pair-row{
@@ -117,19 +111,19 @@
       text-transform:uppercase;
       letter-spacing:4px;
       color:var(--cream);
-      font-weight:950;
+      font-weight:900;
       border-radius:13px;
       border:1px solid rgba(255,255,255,.12);
       background:#07090e;
     }
 
     .pair-row button{
-      padding:13px 21px;
+      padding:13px 22px;
       border:0;
       border-radius:13px;
       background:var(--gold);
       color:#08080a;
-      font-weight:950;
+      font-weight:900;
       cursor:pointer;
     }
 
@@ -137,7 +131,7 @@
       min-height:24px;
       margin-top:14px;
       color:#c9bf9a;
-      font-size:.86rem;
+      font-size:.88rem;
     }
 
     .debug-status{
@@ -152,7 +146,6 @@
     .debug-status.error{color:#ff747a}
     .debug-status.ok{color:#68dc8a}
 
-    /* Display shell */
     .display{
       display:none;
       width:100%;
@@ -162,127 +155,59 @@
     }
 
     .display.active{
-      display:grid;
-      grid-template-rows:var(--header-h) minmax(0,1fr);
-      gap:var(--gap);
-      padding:var(--page-pad-y) var(--page-pad-x);
+      display:block;
+      padding:var(--safe-y) var(--safe-x);
     }
 
-    .tv-header{
-      height:100%;
-      min-height:0;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-      padding-bottom:clamp(7px,1vh,13px);
-      border-bottom:1px solid rgba(103,169,232,.22);
-    }
-
-    .brand-wrap{
-      display:flex;
-      align-items:center;
-      gap:clamp(10px,1.2vw,18px);
-    }
-
-    .brand-logo{
-      width:clamp(48px,6.3vh,72px);
-      height:clamp(48px,6.3vh,72px);
-      object-fit:cover;
-      border-radius:clamp(12px,1.3vw,18px);
-      border:1px solid rgba(212,182,92,.42);
-    }
-
-    .top-brand{
-      color:var(--gold);
-      font-size:clamp(1.05rem,2.2vh,1.55rem);
-      font-weight:950;
-      letter-spacing:clamp(2px,.3vw,5px);
-      line-height:1;
-    }
-
-    .top-subtitle{
-      margin-top:5px;
-      color:#7d8491;
-      font-size:clamp(.62rem,1.15vh,.86rem);
-      font-weight:850;
-      letter-spacing:.6px;
-    }
-
-    .connection{
-      display:flex;
-      align-items:center;
-      gap:9px;
-      color:#a5a9b3;
-      font-size:clamp(.78rem,1.45vh,1.02rem);
-      font-weight:850;
-    }
-
-    .connection i{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:#c99b39;
-      flex:0 0 auto;
-    }
-
-    .connection.online{
-      color:#76df95;
-    }
-
-    .connection.online i{
-      background:#68e18e;
-      box-shadow:0 0 14px rgba(104,225,142,.85);
-    }
-
-    /* Responsive stage: sizes are based on the TV viewport height. */
     .stage{
-      min-height:0;
-      height:100%;
       width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
+      height:100%;
+      min-height:0;
+      display:grid;
+      grid-template-rows:auto auto minmax(0,1fr) auto;
       gap:var(--gap);
+      align-items:stretch;
       overflow:hidden;
     }
 
-    .phase-panel{
-      flex:0 0 clamp(92px,13.2vh,145px);
-      min-height:0;
+    .phase-area{
       display:flex;
+      flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:clamp(12px,1.6vw,25px);
-      text-align:center;
+      gap:clamp(5px,.65vh,9px);
+      min-height:0;
+      padding-top:2px;
     }
 
     .round{
-      position:absolute;
-      top:calc(var(--header-h) + var(--page-pad-y) + var(--gap) + 3px);
-      left:50%;
-      transform:translateX(-50%);
-      z-index:2;
-      padding:clamp(5px,.75vh,9px) clamp(17px,1.6vw,28px);
+      padding:clamp(5px,.7vh,9px) clamp(18px,1.8vw,30px);
       color:var(--gold);
-      font-size:clamp(.84rem,1.65vh,1.15rem);
-      font-weight:950;
+      font-size:clamp(.9rem,1.75vh,1.2rem);
+      font-weight:900;
       border-radius:999px;
-      border:1px solid rgba(212,182,92,.40);
-      background:rgba(212,182,92,.09);
+      border:1px solid rgba(220,193,102,.42);
+      background:rgba(220,193,102,.09);
       white-space:nowrap;
     }
 
+    .phase-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(14px,1.7vw,28px);
+    }
+
     .phase-icon{
-      font-size:clamp(3.1rem,7.2vh,5.5rem);
+      font-size:clamp(3.2rem,7.5vh,5.8rem);
       line-height:1;
       filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));
     }
 
     .phase{
-      font-size:clamp(3.2rem,8.2vh,6.4rem);
-      line-height:.95;
-      font-weight:950;
+      font-size:clamp(3.6rem,8.8vh,6.8rem);
+      line-height:.92;
+      font-weight:900;
       letter-spacing:-.025em;
       text-shadow:0 10px 34px rgba(0,0,0,.35);
     }
@@ -291,91 +216,67 @@
     .phase.voting{color:var(--gold)}
     .phase.night{color:var(--purple)}
 
-    .phase-subtitle{
-      margin-top:clamp(5px,.7vh,10px);
-      color:#a2a6b0;
-      font-size:clamp(.82rem,1.6vh,1.15rem);
-      font-weight:850;
-    }
-
     .speaker-card{
-      flex:0 0 clamp(90px,13.5vh,145px);
-      width:min(96vw,1540px);
-      min-height:0;
+      min-height:clamp(92px,13.5vh,148px);
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:clamp(18px,2.2vw,36px);
-      padding:clamp(10px,1.5vh,20px) clamp(26px,3vw,52px);
-      border-radius:clamp(20px,2vw,32px);
-      border:2px solid rgba(71,179,255,.56);
+      gap:clamp(20px,2.2vw,38px);
+      padding:clamp(10px,1.45vh,20px) clamp(28px,3vw,54px);
+      border-radius:clamp(22px,2.1vw,34px);
+      border:2px solid rgba(84,189,255,.58);
       background:
-        radial-gradient(circle at 20% 0%,rgba(38,159,240,.20),transparent 38%),
-        linear-gradient(145deg,rgba(13,47,78,.76),rgba(6,14,26,.82));
+        radial-gradient(circle at 20% 0%,rgba(40,160,241,.19),transparent 38%),
+        linear-gradient(145deg,rgba(12,45,75,.78),rgba(6,14,26,.84));
       box-shadow:0 18px 58px rgba(0,0,0,.28);
     }
 
     .speaker-card[hidden]{display:none!important}
 
     .speaker-mic{
-      width:clamp(64px,8.7vh,100px);
-      height:clamp(64px,8.7vh,100px);
+      width:clamp(68px,8.8vh,104px);
+      height:clamp(68px,8.8vh,104px);
       display:grid;
       place-items:center;
       flex:0 0 auto;
       border-radius:50%;
-      font-size:clamp(2.2rem,5vh,4rem);
-      background:rgba(76,183,255,.13);
-      border:1px solid rgba(76,183,255,.45);
+      font-size:clamp(2.3rem,5.2vh,4.1rem);
+      background:rgba(84,189,255,.13);
+      border:1px solid rgba(84,189,255,.46);
     }
 
-    .speaker-copy{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:clamp(3px,.45vh,7px);
-    }
-
-    .speaker-copy span{
-      color:#a7b0ba;
-      font-size:clamp(.82rem,1.55vh,1.08rem);
+    .speaker-seat{
+      color:#91d5ff;
+      font-size:clamp(3.4rem,8.2vh,6.3rem);
+      line-height:.88;
       font-weight:900;
-    }
-
-    .speaker-copy strong{
-      color:#8cd2ff;
-      font-size:clamp(3.1rem,7.4vh,5.8rem);
-      line-height:.9;
-      font-weight:950;
       text-shadow:0 0 30px rgba(67,175,245,.20);
     }
 
     .timer-panel{
-      flex:1 1 auto;
-      width:min(96vw,1540px);
       min-height:0;
       display:flex;
-      flex-direction:column;
       align-items:center;
       justify-content:center;
-      padding:clamp(9px,1.25vh,18px) clamp(22px,2.7vw,48px);
-      border-radius:clamp(22px,2.3vw,36px);
-      border:2px solid rgba(82,151,219,.42);
+      padding:clamp(8px,1vh,16px) clamp(22px,2.7vw,48px);
+      border-radius:clamp(24px,2.4vw,38px);
+      border:2px solid rgba(82,151,219,.44);
       background:
-        radial-gradient(circle at 50% 10%,rgba(64,132,205,.13),transparent 55%),
-        rgba(7,15,29,.67);
+        radial-gradient(circle at 50% 8%,rgba(64,132,205,.13),transparent 56%),
+        rgba(7,15,29,.68);
       box-shadow:0 22px 64px rgba(0,0,0,.24);
     }
 
     .timer{
       direction:ltr;
+      font-family:"Arial Black","Segoe UI",Arial,sans-serif;
       font-variant-numeric:tabular-nums;
       color:var(--cream);
-      font-size:clamp(9rem,25vh,19rem);
-      line-height:.74;
+      font-size:clamp(12rem,34vh,25rem);
+      line-height:.72;
       font-weight:950;
-      letter-spacing:-.055em;
-      text-shadow:0 0 48px rgba(212,182,92,.10);
+      letter-spacing:-.06em;
+      text-shadow:0 0 48px rgba(220,193,102,.10);
       white-space:nowrap;
     }
 
@@ -395,25 +296,11 @@
       50%{transform:scale(1.035)}
     }
 
-    .timer-label{
-      margin-top:clamp(6px,.8vh,11px);
-      color:#9fa4ae;
-      font-size:clamp(.84rem,1.55vh,1.08rem);
-      font-weight:850;
-    }
-
-    .timer-label.warning-label{
-      color:#ff757c;
-      font-weight:950;
-    }
-
     .stats{
-      flex:0 0 clamp(86px,12.2vh,132px);
-      width:min(96vw,1540px);
-      min-height:0;
+      min-height:clamp(92px,13vh,138px);
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:clamp(8px,1vw,16px);
+      gap:clamp(9px,1vw,16px);
     }
 
     .stats:has(.stat.killer:not([hidden])){
@@ -422,122 +309,114 @@
 
     .stat{
       min-width:0;
-      height:100%;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
       gap:clamp(3px,.5vh,7px);
-      padding:7px 10px;
-      border-radius:clamp(15px,1.6vw,24px);
-      background:rgba(9,18,32,.76);
+      padding:8px 10px;
+      border-radius:clamp(16px,1.7vw,25px);
+      background:rgba(9,18,32,.78);
       border:2px solid rgba(255,255,255,.12);
     }
 
     .stat-label{
-      color:#a0a5af;
-      font-size:clamp(.76rem,1.45vh,1rem);
-      font-weight:900;
+      color:#a7abb4;
+      font-size:clamp(.85rem,1.55vh,1.08rem);
+      font-weight:800;
     }
 
     .stat strong{
-      font-size:clamp(2.6rem,6.2vh,4.8rem);
-      line-height:.9;
+      font-family:"Arial Black","Segoe UI",Arial,sans-serif;
+      font-size:clamp(3.1rem,7.2vh,5.4rem);
+      line-height:.86;
       font-weight:950;
     }
 
-    .stat.total{border-color:rgba(212,182,92,.55)}
-    .stat.total strong{color:#e4c96e}
-    .stat.citizen{border-color:rgba(76,183,255,.55)}
-    .stat.citizen strong{color:#65c1fb}
-    .stat.mafia{border-color:rgba(255,81,91,.55)}
-    .stat.mafia strong{color:#ff6570}
-    .stat.killer{border-color:rgba(255,155,69,.62)}
-    .stat.killer strong{color:#ffac62}
+    .stat.total{border-color:rgba(220,193,102,.58)}
+    .stat.total strong{color:#e5cc70}
+    .stat.citizen{border-color:rgba(84,189,255,.58)}
+    .stat.citizen strong{color:#6bc6ff}
+    .stat.mafia{border-color:rgba(255,89,99,.58)}
+    .stat.mafia strong{color:#ff6871}
+    .stat.killer{border-color:rgba(255,159,82,.65)}
+    .stat.killer strong{color:#ffad68}
 
     .night-panel{
       display:none;
-      flex:1 1 auto;
       min-height:0;
-      width:min(94vw,1300px);
       align-items:center;
       justify-content:center;
       flex-direction:column;
-      gap:clamp(15px,2.2vh,30px);
+      gap:clamp(18px,2.4vh,34px);
       text-align:center;
     }
 
     .night-moon{
-      width:clamp(180px,27vh,320px);
-      height:clamp(180px,27vh,320px);
+      width:clamp(210px,31vh,360px);
+      height:clamp(210px,31vh,360px);
       border-radius:50%;
       background:
         radial-gradient(circle at 35% 30%,#f0ebff 0 7%,#b7a8ec 29%,#7461b8 60%,#3b2c68 100%);
       box-shadow:
-        0 0 65px rgba(143,115,221,.42),
-        0 0 160px rgba(91,68,159,.20);
+        0 0 70px rgba(143,115,221,.42),
+        0 0 180px rgba(91,68,159,.20);
     }
 
     .night-title{
-      color:#c4b4f4;
-      font-size:clamp(4.6rem,11vh,8.8rem);
-      line-height:.9;
-      font-weight:950;
+      color:#c9b9f6;
+      font-size:clamp(5.4rem,13vh,10rem);
+      line-height:.88;
+      font-weight:900;
       text-shadow:0 0 45px rgba(143,115,221,.24);
-    }
-
-    .night-copy{
-      color:#9b96ad;
-      font-size:clamp(1rem,2vh,1.45rem);
-      font-weight:850;
     }
 
     .fullscreen-btn{
       position:fixed;
-      left:14px;
-      bottom:12px;
+      left:var(--safe-x);
+      bottom:max(10px,calc(var(--safe-y) - 6px));
       z-index:20;
       padding:8px 12px;
       color:#b3b6bd;
       font-size:.72rem;
-      font-weight:850;
+      font-weight:800;
       border-radius:11px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(9,12,18,.64);
-      opacity:.45;
+      opacity:.35;
       cursor:pointer;
     }
 
     .fullscreen-btn:hover{opacity:1}
 
-    /* Phase-specific layout */
+    body.phase-voting .stage{
+      grid-template-rows:minmax(0,1fr) auto;
+    }
+
+    body.phase-voting .phase-area{
+      min-height:0;
+      justify-content:center;
+    }
+
     body.phase-voting .speaker-card,
     body.phase-voting .timer-panel{
       display:none!important;
     }
 
-    body.phase-voting .stage{
-      justify-content:space-between;
-    }
-
-    body.phase-voting .phase-panel{
-      flex:1 1 auto;
-      width:100%;
-    }
-
     body.phase-voting .phase-icon{
-      font-size:clamp(7rem,16vh,12rem);
+      font-size:clamp(8rem,18vh,13rem);
     }
 
     body.phase-voting .phase{
-      font-size:clamp(6rem,14vh,11rem);
+      font-size:clamp(7rem,16vh,12rem);
     }
 
-    body.phase-voting .phase-subtitle{
-      font-size:clamp(1rem,2.2vh,1.55rem);
+    body.phase-night .stage{
+      display:flex;
+      align-items:stretch;
     }
 
-    body.phase-night .phase-panel,
+    body.phase-night .phase-area,
     body.phase-night .speaker-card,
     body.phase-night .timer-panel,
     body.phase-night .stats{
@@ -546,211 +425,67 @@
 
     body.phase-night .night-panel{
       display:flex;
+      flex:1 1 auto;
     }
 
-    /* Short TV browser viewport: reduce only enough to fit, never zoom whole page. */
     @media (min-width:900px) and (max-height:720px){
       :root{
-        --header-h:52px;
-        --page-pad-y:7px;
+        --safe-x:clamp(42px,4.3vw,82px);
+        --safe-y:9px;
         --gap:6px;
       }
 
-      .brand-logo{width:42px;height:42px}
-      .top-brand{font-size:1.02rem}
-      .top-subtitle{display:none}
-      .connection{font-size:.76rem}
+      .stage{
+        grid-template-rows:auto auto minmax(0,1fr) auto;
+      }
 
-      .phase-panel{flex-basis:76px}
-      .phase-icon{font-size:2.9rem}
-      .phase{font-size:3.15rem}
-      .phase-subtitle{font-size:.76rem;margin-top:3px}
+      .round{
+        padding:4px 14px;
+        font-size:.78rem;
+      }
+
+      .phase-icon{font-size:2.8rem}
+      .phase{font-size:3.3rem}
 
       .speaker-card{
-        flex-basis:76px;
+        min-height:76px;
         padding:7px 24px;
       }
 
       .speaker-mic{
-        width:52px;
-        height:52px;
-        font-size:1.85rem;
+        width:54px;
+        height:54px;
+        font-size:1.9rem;
       }
 
-      .speaker-copy strong{font-size:2.7rem}
-      .speaker-copy span{font-size:.76rem}
+      .speaker-seat{font-size:2.9rem}
 
-      .timer{font-size:clamp(7.6rem,21vh,11.2rem)}
-      .timer-label{font-size:.76rem}
+      .timer{font-size:clamp(9rem,26vh,14rem)}
 
-      .stats{flex-basis:72px}
-      .stat strong{font-size:2.1rem}
-      .stat-label{font-size:.7rem}
-
-      .round{
-        font-size:.76rem;
-        padding:4px 13px;
-      }
+      .stats{min-height:76px}
+      .stat-label{font-size:.72rem}
+      .stat strong{font-size:2.35rem}
 
       .night-moon{
-        width:155px;
-        height:155px;
+        width:170px;
+        height:170px;
       }
 
-      .night-title{font-size:4.2rem}
+      .night-title{font-size:4.7rem}
     }
 
     @media (max-width:800px){
-      :root{--page-pad-x:12px}
-      .top-subtitle{display:none}
-      .phase{font-size:clamp(2.2rem,8vw,4rem)}
-      .timer{font-size:clamp(5.4rem,24vw,10rem)}
+      :root{--safe-x:14px}
+      .phase{font-size:clamp(2.4rem,9vw,4.2rem)}
+      .timer{font-size:clamp(6.5rem,27vw,11rem)}
       .stats,.stats:has(.stat.killer:not([hidden])){
         grid-template-columns:repeat(2,minmax(0,1fr));
-        flex-basis:auto;
       }
     }
 
     @media (prefers-reduced-motion:reduce){
       .timer.warning{animation:none}
     }
-  
-    /* ===== v50: Television safe area + no title overlap ===== */
-
-    :root{
-      /*
-       * تلفزيونات كثيرة تقص 2–4% من الصورة بسبب Overscan.
-       * لذلك كل المحتوى الرئيسي يبقى داخل هذه المنطقة الآمنة.
-       */
-      --tv-safe-x:clamp(42px,4.5vw,92px);
-      --tv-safe-top:clamp(16px,2.2vh,30px);
-      --tv-safe-bottom:clamp(28px,4vh,56px);
-      --content-max:1500px;
-    }
-
-    .display.active{
-      padding:
-        var(--tv-safe-top)
-        var(--tv-safe-x)
-        var(--tv-safe-bottom);
-    }
-
-    .tv-header,
-    .stage{
-      width:min(100%,var(--content-max));
-      max-width:100%;
-      margin-inline:auto;
-    }
-
-    .stage{
-      position:relative;
-    }
-
-    .phase-panel{
-      width:100%;
-      flex-basis:clamp(118px,17vh,184px);
-      padding-top:0;
-    }
-
-    .phase-content{
-      width:100%;
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:clamp(6px,.9vh,12px);
-      text-align:center;
-    }
-
-    .phase-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:clamp(12px,1.6vw,25px);
-    }
-
-    .round{
-      position:static;
-      inset:auto;
-      transform:none;
-      z-index:auto;
-      flex:0 0 auto;
-      margin:0;
-    }
-
-    .speaker-card,
-    .timer-panel,
-    .stats{
-      width:100%;
-      max-width:100%;
-      min-width:0;
-    }
-
-    .stat{
-      min-width:0;
-    }
-
-    /*
-     * كانت المشكلة السابقة: 96vw + padding خارجي.
-     * الآن العرض 100% من المنطقة الداخلية الآمنة فقط.
-     */
-    .speaker-card{
-      width:100%;
-    }
-
-    .timer-panel{
-      width:100%;
-    }
-
-    .stats,
-    .stats:has(.stat.killer:not([hidden])){
-      width:100%;
-    }
-
-    .fullscreen-btn{
-      left:var(--tv-safe-x);
-      bottom:max(10px,calc(var(--tv-safe-bottom) - 24px));
-    }
-
-    body.phase-voting .phase-panel{
-      width:100%;
-    }
-
-    body.phase-night .night-panel{
-      width:100%;
-      max-width:var(--content-max);
-    }
-
-    /* مساحة آمنة أكبر قليلًا في الشاشات ذات القص الواضح. */
-    @media (min-width:1200px){
-      :root{
-        --tv-safe-x:clamp(58px,5vw,104px);
-      }
-    }
-
-    /* متصفح تلفزيون بارتفاع قصير: نحافظ على الحجم مع تقليل الفراغ فقط. */
-    @media (min-width:900px) and (max-height:720px){
-      :root{
-        --tv-safe-x:clamp(42px,4.2vw,78px);
-        --tv-safe-top:9px;
-        --tv-safe-bottom:24px;
-      }
-
-      .phase-panel{
-        flex-basis:96px;
-      }
-
-      .phase-content{
-        gap:4px;
-      }
-
-      .round{
-        font-size:.72rem;
-        padding:3px 12px;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -771,53 +506,28 @@
   </section>
 
   <main id="displayScreen" class="display">
-    <header class="tv-header">
-      <div class="brand-wrap">
-        <img class="brand-logo" src="app-icon-master.png" alt="Amman Mafia">
-        <div>
-          <div class="top-brand">AMMAN MAFIA</div>
-          <div class="top-subtitle">LIVE GAME DISPLAY</div>
-        </div>
-      </div>
-
-      <div id="connection" class="connection">
-        <i></i>
-        <span>جاري الاتصال</span>
-      </div>
-    </header>
-
     <section class="stage">
-      <section class="phase-panel">
-        <div class="phase-content">
-          <div id="round" class="round">الجولة 1</div>
+      <section class="phase-area">
+        <div id="round" class="round">الجولة 1</div>
 
-          <div class="phase-row">
-            <div id="phaseIcon" class="phase-icon">⌛</div>
-            <div>
-              <div id="phase" class="phase">بانتظار بدء الجولة</div>
-              <div id="phaseSubtitle" class="phase-subtitle">بانتظار إشارة المنظّم</div>
-            </div>
-          </div>
+        <div class="phase-row">
+          <div id="phaseIcon" class="phase-icon">⌛</div>
+          <div id="phase" class="phase">بانتظار بدء الجولة</div>
         </div>
       </section>
 
       <section id="speakerCard" class="speaker-card" hidden>
         <div class="speaker-mic">🎙️</div>
-        <div class="speaker-copy">
-          <span>دور الكلام الحالي</span>
-          <strong id="speakerSeatText">لاعب —</strong>
-        </div>
+        <div id="speakerSeatText" class="speaker-seat">لاعب —</div>
       </section>
 
       <section class="timer-panel">
         <div id="timer" class="timer">01:00</div>
-        <div id="timerLabel" class="timer-label">المؤقت جاهز</div>
       </section>
 
       <section class="night-panel" aria-label="جولة الليل">
         <div class="night-moon"></div>
         <div class="night-title">جولة الليل</div>
-        <div class="night-copy">أغمضوا أعينكم… المنظّم يدير أحداث الليل</div>
       </section>
 
       <section class="stats" aria-label="أعداد اللاعبين الأحياء">
@@ -854,7 +564,7 @@
             keys
               .filter(key =>
                 key.startsWith("amman-mafia-tv-") &&
-                key !== "amman-mafia-tv-v50-cache-v1"
+                key !== "amman-mafia-tv-v51-cache-v1"
               )
               .forEach(key => caches.delete(key));
           });
@@ -863,7 +573,7 @@
     })();
   </script>
 
-  <script src="realtime-config.js?v=50"></script>
+  <script src="realtime-config.js?v=51"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
 
   <script>
@@ -877,23 +587,11 @@
       night: "جولة الليل"
     };
 
-    const PHASE_UI = {
-      idle: {
-        icon: "⌛",
-        subtitle: "بانتظار إشارة المنظّم"
-      },
-      discussion: {
-        icon: "💬",
-        subtitle: "تحدثوا، ناقشوا، واكشفوا المافيا"
-      },
-      voting: {
-        icon: "🗳️",
-        subtitle: "اختاروا اللاعب الذي تشكون به"
-      },
-      night: {
-        icon: "🌙",
-        subtitle: "أغمضوا أعينكم"
-      }
+    const PHASE_ICONS = {
+      idle: "⌛",
+      discussion: "💬",
+      voting: "🗳️",
+      night: "🌙"
     };
 
     let room = "";
@@ -1038,9 +736,6 @@
         ? state.phase
         : "idle";
 
-      const phaseInfo = PHASE_UI[phase] || PHASE_UI.idle;
-
-      document.body.classList.toggle("phase-discussion", phase === "discussion");
       document.body.classList.toggle("phase-voting", phase === "voting");
       document.body.classList.toggle("phase-night", phase === "night");
 
@@ -1049,8 +744,7 @@
 
       $("phase").textContent = PHASE_LABELS[phase];
       $("phase").className = `phase ${phase}`;
-      $("phaseIcon").textContent = phaseInfo.icon;
-      $("phaseSubtitle").textContent = phaseInfo.subtitle;
+      $("phaseIcon").textContent = PHASE_ICONS[phase] || PHASE_ICONS.idle;
 
       const speakerSeat = Math.max(0, Number(state.speakerSeat) || 0);
       const speakerVisible =
@@ -1081,20 +775,6 @@
       timer.className =
         `timer ${timerStatus}${warning ? " warning" : ""}`;
 
-      const labels = {
-        idle: "المؤقت جاهز",
-        running: "الوقت المتبقي",
-        paused: "المؤقت متوقف مؤقتًا",
-        finished: "انتهى الوقت"
-      };
-
-      const timerLabel = $("timerLabel");
-      timerLabel.textContent = warning
-        ? "الوقت يوشك على الانتهاء"
-        : (labels[timerStatus] || "المؤقت جاهز");
-
-      timerLabel.classList.toggle("warning-label", warning);
-
       $("aliveCount").textContent =
         String(Math.max(0, Number(state.totalAlive) || 0));
 
@@ -1108,16 +788,6 @@
         String(Math.max(0, Number(state.killerAlive) || 0));
 
       $("killerStat").hidden = !Boolean(state.showKiller);
-    }
-
-    function updateConnectionStatus(){
-      const online = Date.now() - lastStateAt < 18000;
-      const element = $("connection");
-
-      element.className = `connection ${online ? "online" : ""}`;
-      element.querySelector("span").textContent = online
-        ? "متصل بلوحة المنظم"
-        : (mode === "supabase" ? "بانتظار لوحة المنظم" : "تجربة محلية");
     }
 
     function send(event,payload={}){
@@ -1328,10 +998,7 @@
 
     if(params.get("room")) connect();
 
-    tick = setInterval(() => {
-      render();
-      updateConnectionStatus();
-    },250);
+    tick = setInterval(render,250);
   })();
   </script>
 </body>
