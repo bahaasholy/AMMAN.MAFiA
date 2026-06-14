@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v27</title>
+  <title>Amman Mafia — شاشة العرض v28</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -182,6 +182,20 @@ to{opacity:1}}
     
     function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||'').trim())&&String(c.supabaseAnonKey||'').trim().length>40&&!String(c.supabaseAnonKey).includes('PUT_YOUR_')}
     function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function getTickThresholdMs(){
+      if(!state)return 5000;
+
+      const durationSec=Math.round(
+        Math.max(0,Number(state.timerDurationMs)||0)/1000
+      );
+
+      if(durationSec===60)return 15000;
+      if(durationSec===45)return 10000;
+      if(durationSec===30)return 5000;
+
+      return durationSec>=60?15000:(durationSec>30?10000:5000);
+    }
+
     function remaining(){if(!state)return 0;return state.timerStatus==='running'?Math.max(0,Number(state.timerEndsAt||0)-Date.now()):Math.max(0,Number(state.timerRemainingMs||0))}
     function fmt(ms){const t=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(t/60),s=t%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
     function apply(payload){if(!payload||typeof payload!=='object')return;state=payload;lastStateAt=Date.now();render();}
@@ -190,8 +204,15 @@ to{opacity:1}}
       $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
       const phase=PHASE_LABELS[state.phase]?state.phase:'idle';$('phase').textContent=PHASE_LABELS[phase];$('phase').className='phase '+phase;document.body.classList.toggle('night-view',phase==='night');
       const rem=remaining(),timer=$('timer');
-      const timerStatus=state.timerStatus||'idle';
-      const warning=timerStatus==='running'&&rem>0&&rem<=getTickThresholdMs();
+      const rawTimerStatus=state.timerStatus||'idle';
+      const timerStatus=
+        rawTimerStatus==='running'&&rem<=0
+          ? 'finished'
+          : rawTimerStatus;
+      const warning=
+        timerStatus==='running'&&
+        rem>0&&
+        rem<=getTickThresholdMs();
 
       timer.textContent=fmt(rem);
       timer.className='timer '+timerStatus+(warning?' warning':'');
