@@ -3,202 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07080d">
-  <title>Amman Mafia — شاشة العرض v55</title>
+  <meta name="theme-color" content="#05070c">
+  <title>Amman Mafia — شاشة العرض v56</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#05070c;
-      --panel:rgba(10,12,18,.82);
-      --panel-soft:rgba(14,17,24,.66);
-      --stroke:rgba(255,255,255,.08);
-      --text:#f6f3ea;
-      --muted:#b9bdc9;
-      --gold:#f4c35c;
-      --gold-strong:#ffcf67;
-      --red:#ff3b3b;
-      --green:#2fe38b;
-      --blue:#4aa7ff;
-      --purple:#b069ff;
-      --orange:#ff8d3b;
-      --safe-x:clamp(28px,3vw,56px);
-      --safe-y:clamp(24px,2.8vh,44px);
-      --radius:30px;
+      --gold:#f2c35b;
+      --red:#ff4c56;
+      --green:#2ce287;
+      --blue:#4ea9ff;
+      --purple:#b16eff;
+      --white:#f7f4ec;
+      --muted:#aeb3bf;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:"Tajawal","Segoe UI",Tahoma,sans-serif}
-    body::before{
-      content:"";position:fixed;inset:0;z-index:-3;
-      background:
-        linear-gradient(180deg,rgba(2,4,10,.48),rgba(1,1,4,.84)),
-        radial-gradient(circle at 50% 20%, rgba(255,199,85,.08), transparent 30%),
-        url("mafia-city-bg.jpg") center/cover no-repeat;
-      filter:saturate(.9) brightness(.75);
-      transform:scale(1.02);
-    }
-    body::after{
-      content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-      background:
-        radial-gradient(circle at 25% 25%,rgba(255,196,84,.10),transparent 20%),
-        radial-gradient(circle at 75% 68%,rgba(255,70,60,.08),transparent 24%),
-        linear-gradient(90deg,rgba(0,0,0,.28),transparent 15%,transparent 85%,rgba(0,0,0,.28));
-    }
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#020307;color:var(--white);font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif}
+    body::before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(rgba(1,3,8,.58),rgba(1,2,5,.82)),url("mafia-city-bg.jpg") center/cover no-repeat;filter:brightness(.72) saturate(.78);transform:scale(1.02)}
+    body::after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 32% 38%,rgba(240,190,72,.08),transparent 30%),linear-gradient(90deg,rgba(0,0,0,.35),transparent 20%,transparent 80%,rgba(0,0,0,.35));pointer-events:none}
     button,input{font:inherit}
 
-    .pair-screen{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.6);backdrop-filter:blur(10px)}
-    .pair-card{width:min(94vw,620px);padding:34px;text-align:center;border-radius:28px;border:1px solid rgba(244,195,92,.35);background:rgba(9,10,14,.96);box-shadow:0 28px 90px rgba(0,0,0,.55)}
-    .pair-logo{width:110px;height:110px;object-fit:cover;border-radius:24px;border:1px solid rgba(244,195,92,.42)}
-    .pair-brand{margin-top:16px;color:var(--gold);font-size:clamp(1.8rem,4vw,2.5rem);font-weight:900;letter-spacing:3px}
-    .pair-sub{margin:8px 0 24px;color:#a7acb8;font-weight:700}
-    .pair-row{display:flex;gap:10px;direction:ltr}
-    .pair-row input{flex:1;min-width:0;padding:15px;text-align:center;text-transform:uppercase;letter-spacing:4px;color:white;font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:#09090d}
-    .pair-row button{padding:13px 24px;border:0;border-radius:14px;color:#0a0906;background:var(--gold);font-weight:900;cursor:pointer}
-    .pair-msg{min-height:24px;margin-top:14px;color:#d8cfb5;font-size:.9rem}
-    .debug-status{margin-top:8px;color:#85858d;direction:ltr;text-align:center;font-size:.72rem;overflow-wrap:anywhere}
-    .debug-status.error{color:#ff7b7b}.debug-status.ok{color:#6be08d}
+    .pair-screen{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.64);backdrop-filter:blur(8px)}
+    .pair-card{width:min(94vw,620px);padding:34px;text-align:center;border-radius:26px;border:1px solid rgba(242,195,91,.36);background:rgba(7,8,12,.96);box-shadow:0 30px 90px rgba(0,0,0,.58)}
+    .pair-logo{width:112px;height:112px;object-fit:cover;border-radius:24px;border:1px solid rgba(242,195,91,.44)}
+    .pair-brand{margin-top:16px;color:var(--gold);font-size:2.25rem;font-weight:900;letter-spacing:3px}
+    .pair-sub{margin:8px 0 24px;color:#a6abb6;font-weight:700}
+    .pair-row{display:flex;gap:10px;direction:ltr}.pair-row input{flex:1;min-width:0;padding:15px;text-align:center;text-transform:uppercase;letter-spacing:4px;color:#fff;font-weight:900;border-radius:13px;border:1px solid rgba(255,255,255,.14);background:#080a0f}.pair-row button{padding:13px 22px;border:0;border-radius:13px;background:var(--gold);color:#090806;font-weight:900;cursor:pointer}
+    .pair-msg{min-height:24px;margin-top:14px;color:#d5ccb2}.debug-status{margin-top:8px;color:#7f8490;direction:ltr;font-size:.72rem}.debug-status.error{color:#ff777e}.debug-status.ok{color:#69dc8c}
 
-    .display{display:none;width:100%;height:100dvh}
-    .display.active{display:block;padding:var(--safe-y) var(--safe-x)}
-    .shell{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(16px,2vh,24px)}
+    .display{display:none;position:fixed;inset:0;overflow:hidden}
+    .display.active{display:block}
 
-    .topbar{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:16px}
-    .connection-pill{justify-self:start;display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(6,8,12,.68);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);backdrop-filter:blur(6px)}
-    .connection-dot{width:14px;height:14px;border-radius:50%;background:#ff5563;box-shadow:0 0 14px rgba(255,85,99,.9)}
-    .connection-pill.online .connection-dot{background:var(--green);box-shadow:0 0 16px rgba(47,227,139,.92)}
-    .connection-text{font-size:clamp(1rem,1.8vw,1.3rem);font-weight:800}
-    .phase-title{text-align:center;font-size:clamp(2rem,4.5vw,4rem);font-weight:900;letter-spacing:-.03em;color:#fbfbfd;text-shadow:0 3px 12px rgba(0,0,0,.4)}
+    /* لوحة تصميم ثابتة 1600×900. يتم تغيير حجمها كوحدة واحدة فقط. */
+    .fixed-stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center;will-change:transform}
 
-    .main-layout{min-height:0;display:grid;grid-template-columns:minmax(0,1.18fr) minmax(300px,.82fr);gap:clamp(20px,2.2vw,34px);align-items:stretch}
+    .connection-pill{position:absolute;left:42px;top:30px;height:58px;min-width:152px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 22px;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:rgba(5,7,11,.78);box-shadow:0 12px 32px rgba(0,0,0,.25)}
+    .connection-dot{width:15px;height:15px;border-radius:50%;background:#ff5563;box-shadow:0 0 15px rgba(255,85,99,.9)}
+    .connection-pill.online .connection-dot{background:var(--green);box-shadow:0 0 17px rgba(44,226,135,.95)}
+    .connection-text{font-size:25px;font-weight:800}
 
-    .timer-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;border-radius:36px;background:linear-gradient(180deg,rgba(8,10,17,.64),rgba(5,7,12,.34));border:1px solid rgba(255,255,255,.05);overflow:hidden}
-    .timer-wrap{
-      position:relative;
-      width:560px;
-      height:560px;
-      max-width:92%;
-      max-height:92%;
-      flex:0 0 auto;
-    }
-    .timer-svg{
-      position:absolute;
-      inset:0;
-      z-index:1;
-      width:100%;
-      height:100%;
-      overflow:visible;
-      pointer-events:none;
-      transform:rotate(-90deg);
-      transform-origin:50% 50%;
-      filter:drop-shadow(0 0 20px rgba(244,195,92,.12));
-    }
-    .ring-track{fill:rgba(0,0,0,.42);stroke:rgba(255,255,255,.12);stroke-width:18}
-    .ring-progress{fill:none;stroke:var(--gold);stroke-width:18;stroke-linecap:round;transition:stroke-dashoffset .22s linear, stroke .22s linear;filter:drop-shadow(0 0 14px rgba(244,195,92,.45))}
-    .ring-inner{fill:rgba(8,10,16,.92);stroke:rgba(255,255,255,.05);stroke-width:2}
-    .timer-content{
-      position:absolute;
-      inset:0;
-      z-index:5;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      text-align:center;
-      pointer-events:none;
-    }
-    .timer-readout{
-      position:relative;
-      z-index:10;
-      display:block !important;
-      visibility:visible !important;
-      opacity:1 !important;
-      direction:ltr;
-      unicode-bidi:isolate;
-      font-family:Arial,"Arial Black","Segoe UI",sans-serif;
-      font-variant-numeric:tabular-nums;
-      font-size:112px;
-      line-height:1;
-      font-weight:900;
-      letter-spacing:-5px;
-      color:#fff9ef;
-      text-shadow:0 0 10px rgba(0,0,0,.95),0 0 26px rgba(255,255,255,.18),0 0 38px rgba(255,191,89,.16);
-      white-space:nowrap;
-      transition:color .2s ease, text-shadow .2s ease;
-    }
-    .timer-caption{color:var(--muted);font-size:clamp(1rem,1.6vw,1.35rem);font-weight:800;display:none}
-    .timer-readout.warning{color:var(--red);text-shadow:0 0 14px rgba(255,59,59,.72),0 0 44px rgba(255,59,59,.26);animation:warnPulse .7s ease-in-out infinite}
-    .timer-stage.warning .ring-progress{stroke:var(--red);filter:drop-shadow(0 0 14px rgba(255,59,59,.58))}
-    @keyframes warnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+    .phase-title{position:absolute;left:410px;top:24px;width:780px;height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:54px;font-weight:900;line-height:1;color:#faf9f5;text-shadow:0 3px 15px rgba(0,0,0,.5)}
 
-    .speaker-stack{display:grid;grid-template-rows:auto 1fr;gap:clamp(16px,2vh,22px);min-height:0}
-    .round-badge{justify-self:end;display:grid;place-items:center;width:clamp(72px,9vw,108px);aspect-ratio:1/1;border-radius:50%;background:rgba(10,12,17,.88);border:3px solid rgba(244,195,92,.95);color:var(--gold-strong);font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:950;box-shadow:0 0 24px rgba(244,195,92,.16), inset 0 0 20px rgba(244,195,92,.05)}
-    .speaker-card{min-height:0;border-radius:32px;background:linear-gradient(180deg,rgba(10,11,16,.88),rgba(8,10,14,.78));border:1px solid rgba(255,255,255,.08);box-shadow:0 16px 40px rgba(0,0,0,.28);padding:clamp(24px,2.6vw,34px);display:grid;grid-template-rows:auto 1fr;gap:18px;position:relative;overflow:hidden}
-    .speaker-card::after{content:"";position:absolute;inset:auto 0 0 0;height:5px;background:linear-gradient(90deg,transparent,rgba(244,195,92,.1),var(--gold),rgba(244,195,92,.1),transparent)}
-    .speaker-label{font-size:clamp(1.9rem,3.2vw,3rem);font-weight:900;color:var(--gold);text-align:center;line-height:1}
-    .speaker-value{display:flex;align-items:center;justify-content:center;font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:clamp(7rem,15vw,14rem);line-height:.85;font-weight:950;color:#f8f4ea;text-shadow:0 0 28px rgba(255,255,255,.06)}
-    .speaker-meta{position:absolute;inset:auto auto 18px 22px;color:#8b93a8;font-size:.86rem;font-weight:700;display:none}
+    .timer-stage{position:absolute;left:70px;top:128px;width:790px;height:610px;display:flex;align-items:center;justify-content:center;border-radius:38px;background:rgba(5,7,12,.30)}
+    .timer-wrap{position:relative;width:590px;height:590px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .timer-svg{position:absolute;inset:0;width:590px;height:590px;z-index:1;transform:rotate(-90deg);overflow:visible;filter:drop-shadow(0 0 18px rgba(242,195,91,.14))}
+    .ring-track{fill:rgba(3,5,9,.86);stroke:rgba(255,255,255,.12);stroke-width:18}
+    .ring-progress{fill:none;stroke:var(--gold);stroke-width:18;stroke-linecap:round;transition:stroke-dashoffset .22s linear,stroke .2s linear;filter:drop-shadow(0 0 12px rgba(242,195,91,.48))}
+    .ring-inner{fill:rgba(7,9,14,.95);stroke:rgba(255,255,255,.04);stroke-width:2}
+    .timer-readout{position:absolute;z-index:5;left:0;right:0;top:50%;transform:translateY(-50%);direction:ltr;text-align:center;font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums;font-size:112px;line-height:1;font-weight:950;letter-spacing:-8px;color:#fff9ee;text-shadow:0 0 24px rgba(255,255,255,.12),0 0 38px rgba(242,195,91,.13);white-space:nowrap}
+    .timer-readout.warning{color:var(--red);text-shadow:0 0 15px rgba(255,76,86,.72),0 0 42px rgba(255,76,86,.28);animation:warnPulse .7s ease-in-out infinite}
+    .timer-stage.warning .ring-progress{stroke:var(--red);filter:drop-shadow(0 0 13px rgba(255,76,86,.62))}
+    @keyframes warnPulse{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.035)}}
 
-    .phase-panel{display:none;min-height:0;align-items:center;justify-content:center;flex-direction:column;gap:18px;border-radius:36px;background:rgba(7,9,14,.68);border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 48px rgba(0,0,0,.22);text-align:center}
-    .phase-icon{font-size:clamp(4.5rem,9vw,8rem);line-height:1}
-    .phase-name{font-size:clamp(3rem,8vw,6rem);font-weight:900;line-height:.92}
-    .phase-sub{font-size:clamp(1rem,2vw,1.5rem);color:var(--muted);font-weight:700;display:none}
-    .phase-panel.night .phase-name{color:var(--purple)}
-    .phase-panel.voting .phase-name{color:var(--gold)}
-    .phase-panel.idle .phase-name{color:var(--blue)}
+    .round-badge{position:absolute;right:258px;top:113px;width:100px;height:100px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(7,9,13,.92);border:3px solid var(--gold);color:var(--gold);font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:48px;font-weight:950;box-shadow:0 0 22px rgba(242,195,91,.18),inset 0 0 18px rgba(242,195,91,.05)}
+    .speaker-card{position:absolute;right:85px;top:235px;width:570px;height:475px;border-radius:30px;background:linear-gradient(180deg,rgba(10,12,17,.92),rgba(7,9,13,.86));border:1px solid rgba(255,255,255,.09);box-shadow:0 20px 55px rgba(0,0,0,.33);overflow:hidden}
+    .speaker-card::after{content:"";position:absolute;left:40px;right:40px;bottom:0;height:5px;border-radius:999px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .speaker-label{position:absolute;left:0;right:0;top:56px;text-align:center;color:var(--gold);font-size:46px;font-weight:900}
+    .speaker-value{position:absolute;left:0;right:0;top:148px;text-align:center;font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:202px;line-height:1;font-weight:950;color:#f8f5ed;text-shadow:0 0 25px rgba(255,255,255,.06)}
 
-    .stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.4vw,20px)}
-    .stat-card{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px 16px;border-radius:26px;background:linear-gradient(180deg,rgba(11,13,18,.88),rgba(9,11,16,.8));border:1px solid rgba(255,255,255,.08);box-shadow:0 12px 36px rgba(0,0,0,.24);overflow:hidden}
-    .stat-card::after{content:"";position:absolute;inset:auto 18px 0 18px;height:5px;border-radius:999px;background:var(--accent)}
-    .stat-title{font-size:clamp(1.35rem,2vw,1.85rem);font-weight:900;color:#f8f7f1;white-space:nowrap}
-    .stat-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:clamp(2.4rem,4.8vw,4.4rem);line-height:1;font-weight:950;color:var(--accent);white-space:nowrap}
-    .stat-alive{--accent:#59b4ff}
-    .stat-mafia{--accent:#ff5a5a}
-    .stat-citizen{--accent:#60a7ff}
-    .stat-killer{--accent:#bb7dff}
+    .phase-panel{position:absolute;left:70px;right:70px;top:130px;bottom:160px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:25px;border-radius:38px;background:rgba(6,8,13,.72);border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+    .phase-icon{font-size:130px;line-height:1}.phase-name{font-size:90px;line-height:.9;font-weight:900}.phase-panel.night .phase-name{color:var(--purple)}.phase-panel.voting .phase-name{color:var(--gold)}.phase-panel.idle .phase-name{color:var(--blue)}
 
-    .fullscreen-btn{position:fixed;left:var(--safe-x);bottom:14px;z-index:30;padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(6,8,12,.58);color:#d8d8de;font-size:.75rem;font-weight:800;opacity:.2;cursor:pointer}
-    .fullscreen-btn:hover{opacity:1}
+    .stats-row{position:absolute;left:55px;right:55px;bottom:30px;height:128px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;direction:rtl}
+    .stat-card{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 28px 16px;border-radius:25px;background:linear-gradient(180deg,rgba(11,13,18,.92),rgba(8,10,15,.86));border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 38px rgba(0,0,0,.28);overflow:hidden}
+    .stat-card::after{content:"";position:absolute;left:20px;right:20px;bottom:0;height:5px;border-radius:999px;background:var(--accent)}
+    .stat-title{font-size:31px;font-weight:900;color:#f7f6f2}.stat-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:68px;line-height:1;font-weight:950;color:var(--accent)}
+    .stat-alive{--accent:#52afff}.stat-mafia{--accent:#ff5962}.stat-citizen{--accent:#599fff}.stat-killer{--accent:#b873ff}
 
-    body.phase-discussion .discussion-view{display:grid}
-    body.phase-discussion .phase-panel{display:none !important}
-    body.phase-voting .discussion-view,
-    body.phase-night .discussion-view,
-    body.phase-idle .discussion-view{display:none !important}
-    body.phase-voting .phase-panel.voting,
-    body.phase-night .phase-panel.night,
-    body.phase-idle .phase-panel.idle{display:flex}
+    .fullscreen-btn{position:fixed;left:16px;bottom:12px;z-index:20;padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(5,7,11,.6);color:#d6d8de;font-size:.72rem;font-weight:800;opacity:.18;cursor:pointer}.fullscreen-btn:hover{opacity:1}
 
-    @media (max-width: 1100px){
-      .main-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
-      .speaker-stack{grid-template-columns:1fr;grid-template-rows:auto auto}
-      .round-badge{justify-self:center}
-      .speaker-card{min-height:220px}
-      .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
-    @media (max-height: 760px){
-      .shell{gap:12px}
-      .phase-title{font-size:clamp(1.6rem,3.5vw,2.7rem)}
-      .main-layout{gap:16px}
-      .timer-wrap{width:430px;height:430px;max-width:90%;max-height:90%}
-      .timer-readout{font-size:88px;letter-spacing:-4px}
-      .speaker-card{padding:18px 22px}
-      .speaker-label{font-size:clamp(1.4rem,2.5vw,2rem)}
-      .speaker-value{font-size:clamp(5.2rem,11vw,9rem)}
-      .stats-row{gap:10px}
-      .stat-card{padding:14px 18px 12px}
-      .stat-title{font-size:clamp(1.1rem,1.8vw,1.5rem)}
-      .stat-value{font-size:clamp(2rem,4vw,3.4rem)}
-    }
-
-    @media (min-width:1500px) and (min-height:850px){
-      .timer-wrap{width:650px;height:650px}
-      .timer-readout{font-size:132px;letter-spacing:-6px}
-    }
-    @media (min-width:1101px) and (max-height:650px){
-      .timer-wrap{width:365px;height:365px;max-width:88%;max-height:88%}
-      .timer-readout{font-size:74px;letter-spacing:-3px}
-    }
+    body.phase-discussion .timer-stage,body.phase-discussion .speaker-card,body.phase-discussion .round-badge{display:flex}
+    body.phase-voting .timer-stage,body.phase-voting .speaker-card,body.phase-voting .round-badge,
+    body.phase-night .timer-stage,body.phase-night .speaker-card,body.phase-night .round-badge,
+    body.phase-idle .timer-stage,body.phase-idle .speaker-card,body.phase-idle .round-badge{display:none}
+    body.phase-voting .phase-panel.voting,body.phase-night .phase-panel.night,body.phase-idle .phase-panel.idle{display:flex}
     @media (prefers-reduced-motion:reduce){.timer-readout.warning{animation:none}}
   </style>
 </head>
@@ -208,404 +87,96 @@
       <img class="pair-logo" src="app-icon-master.png" alt="Amman Mafia">
       <div class="pair-brand">AMMAN MAFIA</div>
       <div class="pair-sub">شاشة اللاعبين</div>
-      <div class="pair-row">
-        <input id="roomInput" maxlength="14" placeholder="رمز الجلسة" autocomplete="off">
-        <button id="connectBtn" type="button">اتصال</button>
-      </div>
-      <div id="pairMessage" class="pair-msg"></div>
-      <div id="debugStatus" class="debug-status"></div>
+      <div class="pair-row"><input id="roomInput" maxlength="14" placeholder="رمز الجلسة" autocomplete="off"><button id="connectBtn" type="button">اتصال</button></div>
+      <div id="pairMessage" class="pair-msg"></div><div id="debugStatus" class="debug-status"></div>
     </div>
   </section>
 
   <main id="displayScreen" class="display">
-    <div class="shell">
-      <header class="topbar">
-        <div id="connectionPill" class="connection-pill">
-          <span class="connection-dot"></span>
-          <span id="connectionText" class="connection-text">غير متصل</span>
+    <section id="fixedStage" class="fixed-stage">
+      <div id="connectionPill" class="connection-pill"><span class="connection-dot"></span><span id="connectionText" class="connection-text">غير متصل</span></div>
+      <div id="phaseTitle" class="phase-title">جولة النقاش</div>
+
+      <section id="timerStage" class="timer-stage">
+        <div class="timer-wrap">
+          <svg class="timer-svg" viewBox="0 0 640 640" aria-hidden="true">
+            <circle class="ring-track" cx="320" cy="320" r="270"></circle>
+            <circle id="ringProgress" class="ring-progress" cx="320" cy="320" r="270"></circle>
+            <circle class="ring-inner" cx="320" cy="320" r="234"></circle>
+          </svg>
+          <div id="timer" class="timer-readout">00:30</div>
         </div>
-        <div id="phaseTitle" class="phase-title">جولة النقاش</div>
-      </header>
-
-      <section class="discussion-view main-layout">
-        <section id="timerStage" class="timer-stage">
-          <div class="timer-wrap">
-            <svg class="timer-svg" viewBox="0 0 320 320" aria-hidden="true">
-              <circle class="ring-track" cx="160" cy="160" r="134"></circle>
-              <circle id="ringProgress" class="ring-progress" cx="160" cy="160" r="134"></circle>
-              <circle class="ring-inner" cx="160" cy="160" r="116"></circle>
-            </svg>
-            <div class="timer-content">
-              <div id="timer" class="timer-readout" aria-label="الوقت المتبقي">00:30</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="speaker-stack">
-          <div id="roundBadge" class="round-badge">1</div>
-          <div class="speaker-card">
-            <div class="speaker-label">لاعب رقم</div>
-            <div id="speakerValue" class="speaker-value">10</div>
-          </div>
-        </section>
       </section>
 
-      <section class="phase-panel night">
-        <div class="phase-icon">🌙</div>
-        <div class="phase-name">جولة الليل</div>
-      </section>
-      <section class="phase-panel voting">
-        <div class="phase-icon">🗳️</div>
-        <div class="phase-name">جولة التصويت</div>
-      </section>
-      <section class="phase-panel idle">
-        <div class="phase-icon">⌛</div>
-        <div class="phase-name">بانتظار الجولة</div>
-      </section>
+      <div id="roundBadge" class="round-badge">1</div>
+      <section class="speaker-card"><div class="speaker-label">لاعب رقم</div><div id="speakerValue" class="speaker-value">10</div></section>
+
+      <section class="phase-panel night"><div class="phase-icon">🌙</div><div class="phase-name">جولة الليل</div></section>
+      <section class="phase-panel voting"><div class="phase-icon">🗳️</div><div class="phase-name">جولة التصويت</div></section>
+      <section class="phase-panel idle"><div class="phase-icon">⌛</div><div class="phase-name">بانتظار الجولة</div></section>
 
       <section class="stats-row">
-        <div class="stat-card stat-alive">
-          <div class="stat-title">الأحياء</div>
-          <div id="aliveCount" class="stat-value">0</div>
-        </div>
-        <div class="stat-card stat-mafia">
-          <div class="stat-title">مافيا</div>
-          <div id="mafiaCount" class="stat-value">0</div>
-        </div>
-        <div class="stat-card stat-citizen">
-          <div class="stat-title">مواطن</div>
-          <div id="citizenCount" class="stat-value">0</div>
-        </div>
-        <div class="stat-card stat-killer">
-          <div class="stat-title">سفاح</div>
-          <div id="killerCount" class="stat-value">0</div>
-        </div>
+        <div class="stat-card stat-alive"><div class="stat-title">الأحياء</div><div id="aliveCount" class="stat-value">0</div></div>
+        <div class="stat-card stat-mafia"><div class="stat-title">مافيا</div><div id="mafiaCount" class="stat-value">0</div></div>
+        <div class="stat-card stat-citizen"><div class="stat-title">مواطن</div><div id="citizenCount" class="stat-value">0</div></div>
+        <div class="stat-card stat-killer"><div class="stat-title">سفاح</div><div id="killerCount" class="stat-value">0</div></div>
       </section>
-    </div>
-
+    </section>
     <button id="fullscreenBtn" class="fullscreen-btn" type="button">ملء الشاشة ⛶</button>
   </main>
 
   <script>
-    (() => {
-      try {
-        if ("caches" in window) {
-          caches.keys().then(keys => {
-            keys
-              .filter(key => key.startsWith("amman-mafia-tv-") && key !== "amman-mafia-tv-v55-cache-v1")
-              .forEach(key => caches.delete(key));
-          });
-        }
-      } catch (_) {}
-    })();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v56-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-
-  <script src="realtime-config.js?v=55"></script>
+  <script src="realtime-config.js?v=56"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
     "use strict";
+    const PHASE_LABELS={idle:"بانتظار الجولة",discussion:"جولة النقاش",voting:"جولة التصويت",night:"جولة الليل"};
+    const RING_RADIUS=270;const RING_CIRCUMFERENCE=2*Math.PI*RING_RADIUS;
+    let room="",state=null,client=null,channel=null,localChannel=null,mode="local",transportConnected=false,lastStateAt=0,tick=null,ping=null,syncPoll=null,retryTimer=null,lastLocalWrittenAt=0;
+    const LOCAL_STATE_PREFIX="ammanMafiaLocalDisplayStateV2:",LOCAL_REQUEST_PREFIX="ammanMafiaLocalDisplayRequestV2:",LOCAL_PRESENCE_PREFIX="ammanMafiaLocalDisplayPresenceV2:";
+    const $=id=>document.getElementById(id);
 
-    const PHASE_LABELS = {
-      idle: "بانتظار الجولة",
-      discussion: "جولة النقاش",
-      voting: "جولة التصويت",
-      night: "جولة الليل"
-    };
-
-    const RING_RADIUS = 134;
-    const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
-    let room = "";
-    let state = null;
-    let client = null;
-    let channel = null;
-    let localChannel = null;
-    let mode = "local";
-    let transportConnected = false;
-    let lastStateAt = 0;
-    let tick = null;
-    let ping = null;
-    let syncPoll = null;
-    let retryTimer = null;
-    let lastLocalWrittenAt = 0;
-
-    const LOCAL_STATE_PREFIX = "ammanMafiaLocalDisplayStateV2:";
-    const LOCAL_REQUEST_PREFIX = "ammanMafiaLocalDisplayRequestV2:";
-    const LOCAL_PRESENCE_PREFIX = "ammanMafiaLocalDisplayPresenceV2:";
-    const $ = id => document.getElementById(id);
-
-    function configured(){
-      const config = window.AMMAN_MAFIA_REALTIME || {};
-      return (
-        /^https:\/\/.+\.supabase\.co\/?$/i.test(String(config.supabaseUrl || "").trim()) &&
-        String(config.supabaseAnonKey || "").trim().length > 40 &&
-        !String(config.supabaseAnonKey).includes("PUT_YOUR_")
-      );
+    function fitStage(){
+      const stage=$("fixedStage");if(!stage)return;
+      const vw=Math.max(320,window.innerWidth||document.documentElement.clientWidth||1600);
+      const vh=Math.max(240,window.innerHeight||document.documentElement.clientHeight||900);
+      const scale=Math.min(vw/1600,vh/900);
+      stage.style.transform=`translate(-50%,-50%) scale(${scale})`;
     }
+    window.addEventListener("resize",fitStage);window.addEventListener("orientationchange",fitStage);
 
-    function getWarningThresholdMs(){
-      if(!state) return 5000;
-      const durationSec = Math.round(Math.max(0, Number(state.timerDurationMs) || 0) / 1000);
-      if(durationSec === 60) return 15000;
-      if(durationSec === 45) return 10000;
-      if(durationSec === 30) return 5000;
-      return durationSec >= 60 ? 15000 : (durationSec > 30 ? 10000 : 5000);
+    function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||"").trim())&&String(c.supabaseAnonKey||"").trim().length>40&&!String(c.supabaseAnonKey).includes("PUT_YOUR_")}
+    function warningThreshold(){if(!state)return 5000;const d=Math.round(Math.max(0,Number(state.timerDurationMs)||0)/1000);if(d===60)return 15000;if(d===45)return 10000;if(d===30)return 5000;return d>=60?15000:(d>30?10000:5000)}
+    function remaining(){if(!state)return 0;if(state.timerStatus==="running")return Math.max(0,Number(state.timerEndsAt||0)-Date.now());return Math.max(0,Number(state.timerRemainingMs||0))}
+    function formatTime(ms){const t=Math.max(0,Math.ceil(ms/1000));return `${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`}
+    function apply(payload){if(!payload||typeof payload!=="object")return;if(payload.roomCode&&room&&String(payload.roomCode)!==room)return;state={...payload,timerEndsAt:Number(payload.timerEndsAt)||0,timerRemainingMs:Math.max(0,Number(payload.timerRemainingMs)||0),timerDurationMs:Math.max(1000,Number(payload.timerDurationMs)||60000)};lastStateAt=Date.now();render()}
+    function localStateKey(){return LOCAL_STATE_PREFIX+room}function localRequestKey(){return LOCAL_REQUEST_PREFIX+room}function localPresenceKey(){return LOCAL_PRESENCE_PREFIX+room}
+    function writeLocalSignal(key,payload){try{localStorage.setItem(key,JSON.stringify({...payload,at:Date.now(),nonce:Math.random().toString(36).slice(2)}))}catch(_){}}
+    function announcePresence(){if(room)writeLocalSignal(localPresenceKey(),{type:"display-presence"})}function requestLocalState(){if(room)writeLocalSignal(localRequestKey(),{type:"display-request"})}
+    function pullLocalState(force=false){if(!room)return false;try{const e=JSON.parse(localStorage.getItem(localStateKey())||"null");if(!e||!e.payload)return false;const w=Number(e.writtenAt)||0;if(!force&&w<=lastLocalWrittenAt)return false;lastLocalWrittenAt=w;apply(e.payload);return true}catch(_){return false}}
+    function handleStorageEvent(e){if(room&&e&&e.key===localStateKey())pullLocalState(true)}
+    function setConnection(on){$("connectionPill").classList.toggle("online",!!on);$("connectionText").textContent=on?"متصل":"غير متصل"}
+    function updateConnection(){setConnection(transportConnected&&(!state||Date.now()-lastStateAt<22000))}
+    function updateRing(rem,duration,warning){const ratio=duration>0?Math.max(0,Math.min(1,rem/duration)):0;const ring=$("ringProgress");ring.style.strokeDasharray=String(RING_CIRCUMFERENCE);ring.style.strokeDashoffset=String(RING_CIRCUMFERENCE*(1-ratio));ring.style.stroke=warning?"var(--red)":"var(--gold)"}
+    function render(){if(!state)return;const phase=PHASE_LABELS[state.phase]?state.phase:"idle";document.body.className=`phase-${phase}`;$("phaseTitle").textContent=PHASE_LABELS[phase];$("roundBadge").textContent=String(Math.max(1,Number(state.roundNumber)||1));$("speakerValue").textContent=String(Math.max(0,Number(state.speakerSeat)||0)||"—");const rem=remaining();const raw=state.timerStatus||"idle";const status=raw==="running"&&rem<=0?"finished":raw;const warning=status==="running"&&rem>0&&rem<=warningThreshold();$("timer").textContent=formatTime(rem);$("timer").classList.toggle("warning",warning||status==="finished");$("timerStage").classList.toggle("warning",warning||status==="finished");updateRing(rem,state.timerDurationMs,warning||status==="finished");$("aliveCount").textContent=String(Math.max(0,Number(state.totalAlive)||0));$("mafiaCount").textContent=String(Math.max(0,Number(state.mafiaAlive)||0));$("citizenCount").textContent=String(Math.max(0,Number(state.citizenAlive)||0));$("killerCount").textContent=String(Math.max(0,Number(state.killerAlive)||0))}
+    function send(event,payload={}){if(mode==="supabase"&&channel){channel.send({type:"broadcast",event,payload}).catch(()=>{});return}if(localChannel){try{localChannel.postMessage({event,payload})}catch(_){}}if(event==="display_request")requestLocalState();if(event==="display_ping")announcePresence()}
+    function setDebug(text,type=""){const e=$("debugStatus");if(!e)return;e.textContent=text||"";e.className=`debug-status${type?` ${type}`:""}`}
+    function readableRealtimeError(status,error){return [status||"UNKNOWN",error?.message||"",error?.name||"",error?.cause?.message||""].filter(Boolean).join(" — ")||"Realtime connection failed"}
+    function scheduleReconnect(){clearTimeout(retryTimer);retryTimer=setTimeout(()=>{if(room)connect()},3000)}
+    function showDisplay(){$("pairScreen").style.display="none";$("displayScreen").classList.add("active");fitStage()}
+    function connect(){room=$("roomInput").value.trim().toUpperCase().replace(/[^A-Z2-9]/g,"");if(room.length<6){$("pairMessage").textContent="أدخل رمز الجلسة الظاهر في لوحة المنظم.";return}localStorage.setItem("ammanMafiaDisplayLastRoom",room);$("pairMessage").textContent="جاري الاتصال...";transportConnected=false;setConnection(false);try{if(localChannel)localChannel.close()}catch(_){}localChannel=null;clearInterval(ping);clearInterval(syncPoll);clearTimeout(retryTimer);
+      if(configured()&&window.supabase&&typeof window.supabase.createClient==="function"){
+        mode="supabase";const c=window.AMMAN_MAFIA_REALTIME;client=window.supabase.createClient(c.supabaseUrl.trim(),c.supabaseAnonKey.trim(),{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:10}}});channel=client.channel(`amman-mafia-display-${room}`,{config:{private:false,broadcast:{self:false,ack:true}}});setDebug("Connecting to Supabase Realtime…");channel.on("broadcast",{event:"state"},({payload})=>{setDebug("Realtime state received","ok");apply(payload)}).subscribe((status,error)=>{setDebug(`Realtime status: ${status}`);if(status==="SUBSCRIBED"){clearTimeout(retryTimer);transportConnected=true;lastStateAt=Date.now();setConnection(true);setDebug("Realtime connected","ok");showDisplay();send("display_request",{at:Date.now()})}else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED"){transportConnected=false;setConnection(false);setDebug(readableRealtimeError(status,error),"error");$("pairMessage").textContent="تعذر ربط شاشة العرض. تحقق من الإنترنت وإعدادات Supabase.";scheduleReconnect()}})
+      }else{mode="local";if("BroadcastChannel" in window){localChannel=new BroadcastChannel(`amman-mafia-display-${room}`);localChannel.onmessage=e=>{const d=e.data||{};if(d.event==="state")apply(d.payload)}}transportConnected=true;lastStateAt=Date.now();pullLocalState(true);showDisplay();setConnection(true);announcePresence();requestLocalState();send("display_request",{at:Date.now()});$("pairMessage").textContent="وضع محلي — متصل بلوحة المنظم في تبويب آخر.";syncPoll=setInterval(()=>{pullLocalState(false);announcePresence()},500)}
+      ping=setInterval(()=>{send("display_ping",{at:Date.now()});if(mode==="local"){pullLocalState(false);announcePresence()}},2000)
     }
-
-    function remaining(){
-      if(!state) return 0;
-      if(state.timerStatus === "running"){
-        return Math.max(0, Number(state.timerEndsAt || 0) - Date.now());
-      }
-      return Math.max(0, Number(state.timerRemainingMs || 0));
-    }
-
-    function formatTime(ms){
-      const total = Math.max(0, Math.ceil(ms / 1000));
-      const minutes = Math.floor(total / 60);
-      const seconds = total % 60;
-      return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
-    }
-
-    function apply(payload){
-      if(!payload || typeof payload !== "object") return;
-      if(payload.roomCode && room && String(payload.roomCode) !== room) return;
-      state = {
-        ...payload,
-        timerEndsAt: Number(payload.timerEndsAt) || 0,
-        timerRemainingMs: Math.max(0, Number(payload.timerRemainingMs) || 0),
-        timerDurationMs: Math.max(1000, Number(payload.timerDurationMs) || 60000)
-      };
-      lastStateAt = Date.now();
-      render();
-    }
-
-    function localStateKey(){ return LOCAL_STATE_PREFIX + room; }
-    function localRequestKey(){ return LOCAL_REQUEST_PREFIX + room; }
-    function localPresenceKey(){ return LOCAL_PRESENCE_PREFIX + room; }
-
-    function writeLocalSignal(key,payload){
-      try{
-        localStorage.setItem(key, JSON.stringify({ ...payload, at: Date.now(), nonce: Math.random().toString(36).slice(2) }));
-      }catch(_){}
-    }
-
-    function announcePresence(){ if(room) writeLocalSignal(localPresenceKey(), {type:"display-presence"}); }
-    function requestLocalState(){ if(room) writeLocalSignal(localRequestKey(), {type:"display-request"}); }
-
-    function pullLocalState(force=false){
-      if(!room) return false;
-      try{
-        const envelope = JSON.parse(localStorage.getItem(localStateKey()) || "null");
-        if(!envelope || !envelope.payload) return false;
-        const writtenAt = Number(envelope.writtenAt) || 0;
-        if(!force && writtenAt <= lastLocalWrittenAt) return false;
-        lastLocalWrittenAt = writtenAt;
-        apply(envelope.payload);
-        return true;
-      }catch(_){ return false; }
-    }
-
-    function handleStorageEvent(event){
-      if(!room || !event || event.key !== localStateKey()) return;
-      pullLocalState(true);
-    }
-
-    function setConnection(isOnline){
-      const pill = $("connectionPill");
-      pill.classList.toggle("online", Boolean(isOnline));
-      $("connectionText").textContent = isOnline ? "متصل" : "غير متصل";
-    }
-
-    function updateConnection(){
-      const stateFresh = !state || Date.now() - lastStateAt < 22000;
-      setConnection(transportConnected && stateFresh);
-    }
-
-    function updateRing(rem, duration, warning){
-      const ratio = duration > 0 ? Math.max(0, Math.min(1, rem / duration)) : 0;
-      const offset = RING_CIRCUMFERENCE * (1 - ratio);
-      const ring = $("ringProgress");
-      ring.style.strokeDasharray = String(RING_CIRCUMFERENCE);
-      ring.style.strokeDashoffset = String(offset);
-      ring.style.stroke = warning ? "var(--red)" : "var(--gold)";
-    }
-
-    function render(){
-      if(!state) return;
-
-      const phase = PHASE_LABELS[state.phase] ? state.phase : "idle";
-      document.body.className = `phase-${phase}`;
-      $("phaseTitle").textContent = PHASE_LABELS[phase];
-      $("roundBadge").textContent = String(Math.max(1, Number(state.roundNumber) || 1));
-
-      const speakerSeat = Math.max(0, Number(state.speakerSeat) || 0);
-      $("speakerValue").textContent = speakerSeat > 0 ? String(speakerSeat) : "—";
-
-      const rem = remaining();
-      const rawTimerStatus = state.timerStatus || "idle";
-      const timerStatus = rawTimerStatus === "running" && rem <= 0 ? "finished" : rawTimerStatus;
-      const warning = timerStatus === "running" && rem > 0 && rem <= getWarningThresholdMs();
-      const timerEl = $("timer");
-      timerEl.textContent = formatTime(rem);
-      timerEl.classList.toggle("warning", warning || timerStatus === "finished");
-      $("timerStage").classList.toggle("warning", warning || timerStatus === "finished");
-      updateRing(rem, state.timerDurationMs, warning || timerStatus === "finished");
-
-      $("aliveCount").textContent = String(Math.max(0, Number(state.totalAlive) || 0));
-      $("citizenCount").textContent = String(Math.max(0, Number(state.citizenAlive) || 0));
-      $("mafiaCount").textContent = String(Math.max(0, Number(state.mafiaAlive) || 0));
-      $("killerCount").textContent = String(Math.max(0, Number(state.killerAlive) || 0));
-    }
-
-    function send(event,payload={}){
-      if(mode === "supabase" && channel){
-        channel.send({type:"broadcast",event,payload}).catch(() => {});
-        return;
-      }
-      if(localChannel){
-        try{ localChannel.postMessage({event,payload}); }catch(_){}
-      }
-      if(event === "display_request") requestLocalState();
-      if(event === "display_ping") announcePresence();
-    }
-
-    function setDebug(text,type=""){
-      const element = $("debugStatus");
-      if(!element) return;
-      element.textContent = text || "";
-      element.className = `debug-status${type ? ` ${type}` : ""}`;
-    }
-
-    function readableRealtimeError(status,error){
-      return [status || "UNKNOWN", error?.message || "", error?.name || "", error?.cause?.message || ""].filter(Boolean).join(" — ") || "Realtime connection failed";
-    }
-
-    function scheduleReconnect(){
-      clearTimeout(retryTimer);
-      retryTimer = setTimeout(() => { if(room) connect(); }, 3000);
-    }
-
-    function showDisplay(){
-      $("pairScreen").style.display = "none";
-      $("displayScreen").classList.add("active");
-    }
-
-    function connect(){
-      room = $("roomInput").value.trim().toUpperCase().replace(/[^A-Z2-9]/g,"");
-      if(room.length < 6){
-        $("pairMessage").textContent = "أدخل رمز الجلسة الظاهر في لوحة المنظم.";
-        return;
-      }
-      localStorage.setItem("ammanMafiaDisplayLastRoom", room);
-      $("pairMessage").textContent = "جاري الاتصال...";
-      transportConnected = false;
-      setConnection(false);
-
-      try{ if(localChannel) localChannel.close(); }catch(_){}
-      localChannel = null;
-      clearInterval(ping); clearInterval(syncPoll); clearTimeout(retryTimer);
-
-      if(configured() && window.supabase && typeof window.supabase.createClient === "function"){
-        mode = "supabase";
-        const config = window.AMMAN_MAFIA_REALTIME;
-        client = window.supabase.createClient(config.supabaseUrl.trim(), config.supabaseAnonKey.trim(), {
-          auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
-          realtime:{params:{eventsPerSecond:10}}
-        });
-        channel = client.channel(`amman-mafia-display-${room}`, {
-          config:{ private:false, broadcast:{ self:false, ack:true } }
-        });
-        setDebug("Connecting to Supabase Realtime…");
-
-        channel.on("broadcast", {event:"state"}, ({payload}) => {
-          setDebug("Realtime state received", "ok");
-          apply(payload);
-        }).subscribe((status,error) => {
-          setDebug(`Realtime status: ${status}`);
-          if(status === "SUBSCRIBED"){
-            clearTimeout(retryTimer);
-            transportConnected = true;
-            lastStateAt = Date.now();
-            setConnection(true);
-            setDebug("Realtime connected", "ok");
-            showDisplay();
-            send("display_request", {at: Date.now()});
-          }else if(status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED"){
-            transportConnected = false;
-            setConnection(false);
-            setDebug(readableRealtimeError(status,error), "error");
-            $("pairMessage").textContent = "تعذر ربط شاشة العرض. تحقق من الإنترنت وإعدادات Supabase.";
-            scheduleReconnect();
-          }
-        });
-      }else{
-        mode = "local";
-        if("BroadcastChannel" in window){
-          localChannel = new BroadcastChannel(`amman-mafia-display-${room}`);
-          localChannel.onmessage = event => { const data = event.data || {}; if(data.event === "state") apply(data.payload); };
-        }
-        transportConnected = true;
-        lastStateAt = Date.now();
-        pullLocalState(true);
-        showDisplay();
-        setConnection(true);
-        announcePresence();
-        requestLocalState();
-        send("display_request", {at: Date.now()});
-        $("pairMessage").textContent = "وضع محلي — متصل بلوحة المنظم في تبويب آخر.";
-        syncPoll = setInterval(() => { pullLocalState(false); announcePresence(); }, 500);
-      }
-
-      ping = setInterval(() => {
-        send("display_ping", {at: Date.now()});
-        if(mode === "local"){
-          pullLocalState(false);
-          announcePresence();
-        }
-      }, 2000);
-    }
-
-    $("connectBtn").addEventListener("click", connect);
-    $("roomInput").addEventListener("keydown", event => { if(event.key === "Enter") connect(); });
-    $("fullscreenBtn").addEventListener("click", () => {
-      const element = document.documentElement;
-      if(!document.fullscreenElement){ element.requestFullscreen?.(); }
-      else{ document.exitFullscreen?.(); }
-    });
-    window.addEventListener("storage", handleStorageEvent);
-
-    const params = new URLSearchParams(location.search);
-    const initialRoom = (params.get("room") || localStorage.getItem("ammanMafiaDisplayLastRoom") || "").toUpperCase();
-    $("roomInput").value = initialRoom;
-
-    if(params.get("preview") === "1"){
-      room = "PREVIEW";
-      transportConnected = true;
-      lastStateAt = Date.now();
-      showDisplay();
-      setConnection(true);
-      apply({
-        roomCode:"PREVIEW",
-        phase:"discussion",
-        roundNumber:1,
-        speakerVisible:true,
-        speakerSeat:10,
-        timerDurationMs:30000,
-        timerRemainingMs:30000,
-        timerStatus:"paused",
-        timerEndsAt:0,
-        totalAlive:26,
-        citizenAlive:14,
-        mafiaAlive:11,
-        killerAlive:1
-      });
-    }else if(params.get("room")){
-      connect();
-    }
-
-    tick = setInterval(() => { render(); updateConnection(); }, 250);
+    $("connectBtn").addEventListener("click",connect);$("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")connect()});$("fullscreenBtn").addEventListener("click",()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});window.addEventListener("storage",handleStorageEvent);
+    const params=new URLSearchParams(location.search);const initialRoom=(params.get("room")||localStorage.getItem("ammanMafiaDisplayLastRoom")||"").toUpperCase();$("roomInput").value=initialRoom;
+    if(params.get("preview")==="1"){room="PREVIEW";transportConnected=true;lastStateAt=Date.now();showDisplay();setConnection(true);apply({roomCode:"PREVIEW",phase:"discussion",roundNumber:1,speakerVisible:true,speakerSeat:10,timerDurationMs:30000,timerRemainingMs:30000,timerStatus:"paused",timerEndsAt:0,totalAlive:26,citizenAlive:14,mafiaAlive:11,killerAlive:1})}else if(params.get("room")){connect()}
+    tick=setInterval(()=>{render();updateConnection()},250);fitStage();
   })();
   </script>
 </body>
