@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v47</title>
+  <title>Amman Mafia — شاشة العرض v48</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -1265,6 +1265,85 @@ to{opacity:1}}
       }
     }
 
+  
+    /* ===== v48: Bigger TV layout, clearer from distance ===== */
+    html,body{width:100%;height:100%;min-height:0;overflow:hidden}
+    #displayScreen.display{width:100%;height:100dvh;min-height:0;overflow:hidden}
+    #displayScreen.display.active{display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:12px 24px 14px}
+    #displayScreen .top{flex:0 0 auto;min-height:52px;padding-bottom:8px}
+    #displayScreen .brand-logo{width:52px;height:52px;border-radius:14px}
+    #displayScreen .top-brand{font-size:1.35rem;letter-spacing:4px}
+    #displayScreen .top-subtitle{display:none}
+    #displayScreen .connection{font-size:.95rem;font-weight:850}
+    #displayScreen .main{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;padding:0;overflow:hidden}
+    #displayScreen .round{padding:6px 18px;font-size:1rem;flex:0 0 auto}
+    #displayScreen .phase-shell{flex:0 0 auto;min-height:92px;gap:16px}
+    #displayScreen .phase-icon{font-size:3.6rem}
+    #displayScreen .phase{font-size:4.25rem;line-height:.96}
+    #displayScreen .phase-subtitle{margin-top:2px;font-size:1rem}
+    #displayScreen .speaker-card{width:min(1320px,96vw);min-height:108px;margin:0;padding:14px 30px;gap:22px;border-radius:26px;flex:0 0 auto}
+    #displayScreen .speaker-mic{width:78px;height:78px;font-size:2.9rem}
+    #displayScreen .speaker-copy span{font-size:1rem}
+    #displayScreen .speaker-copy strong{font-size:3.55rem;line-height:.95}
+    #displayScreen .timer-frame{width:min(1320px,96vw);min-height:240px;max-height:300px;padding:12px 24px 14px;border-radius:28px;flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    #displayScreen .timer{font-size:min(18rem, 28vh);line-height:.76;letter-spacing:-.05em}
+    #displayScreen .timer-label{margin-top:6px;font-size:1rem}
+    #displayScreen .live-stats,
+    #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){width:min(1320px,96vw);min-height:110px;margin:0;gap:14px;flex:0 0 auto}
+    #displayScreen .live-stat{min-height:110px;border-radius:22px;gap:8px;padding:8px 10px}
+    #displayScreen .live-stat strong{font-size:3.15rem;line-height:1}
+    #displayScreen .live-stat-label{font-size:1rem}
+    #displayScreen .bottom.bottom-actions-only{position:fixed;left:14px;bottom:12px;width:auto;z-index:50;pointer-events:none}
+    #displayScreen .bottom.bottom-actions-only .fullscreen-btn{pointer-events:auto;opacity:.45;padding:8px 12px;font-size:.72rem}
+
+    body.phase-voting #displayScreen .main{justify-content:center;gap:18px}
+    body.phase-voting #displayScreen .phase-shell{min-height:280px;flex:1 1 auto}
+    body.phase-voting #displayScreen .phase-icon{font-size:8rem}
+    body.phase-voting #displayScreen .phase{font-size:7rem}
+
+    body.phase-night #displayScreen .main{justify-content:center;gap:16px}
+    body.phase-night #displayScreen .night-scene{width:min(1120px,92vw);flex:1 1 auto;min-height:0}
+    body.phase-night #displayScreen .night-moon{width:220px;height:220px}
+    body.phase-night #displayScreen .night-title{font-size:5.8rem}
+
+    @media (min-width:900px) and (max-height:820px){
+      #displayScreen.display.active{padding:10px 20px 12px;gap:8px}
+      #displayScreen .top{min-height:46px;padding-bottom:6px}
+      #displayScreen .brand-logo{width:46px;height:46px}
+      #displayScreen .top-brand{font-size:1.15rem}
+      #displayScreen .connection{font-size:.84rem}
+      #displayScreen .main{gap:8px}
+      #displayScreen .round{padding:5px 16px;font-size:.9rem}
+      #displayScreen .phase-shell{min-height:74px;gap:12px}
+      #displayScreen .phase-icon{font-size:3rem}
+      #displayScreen .phase{font-size:3.4rem}
+      #displayScreen .phase-subtitle{font-size:.84rem}
+      #displayScreen .speaker-card{width:min(1220px,95vw);min-height:88px;padding:10px 24px}
+      #displayScreen .speaker-mic{width:62px;height:62px;font-size:2.25rem}
+      #displayScreen .speaker-copy span{font-size:.86rem}
+      #displayScreen .speaker-copy strong{font-size:2.9rem}
+      #displayScreen .timer-frame{width:min(1220px,95vw);min-height:170px;max-height:220px;padding:8px 22px 10px}
+      #displayScreen .timer{font-size:min(13rem, 22vh)}
+      #displayScreen .timer-label{font-size:.84rem}
+      #displayScreen .live-stats,
+      #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){width:min(1220px,95vw);min-height:86px;gap:10px}
+      #displayScreen .live-stat{min-height:86px;border-radius:18px}
+      #displayScreen .live-stat strong{font-size:2.3rem}
+      #displayScreen .live-stat-label{font-size:.84rem}
+    }
+
+    @media (min-width:900px) and (max-height:680px){
+      #displayScreen .phase{font-size:2.75rem}
+      #displayScreen .speaker-card{min-height:74px}
+      #displayScreen .speaker-copy strong{font-size:2.45rem}
+      #displayScreen .timer-frame{min-height:150px;max-height:185px}
+      #displayScreen .timer{font-size:min(10.8rem, 18vh)}
+      #displayScreen .live-stats,
+      #displayScreen .live-stats:has(.live-stat.killer:not([hidden])){min-height:72px}
+      #displayScreen .live-stat{min-height:72px}
+      #displayScreen .live-stat strong{font-size:1.95rem}
+    }
+
   </style>
 </head>
 <body>
@@ -1372,7 +1451,7 @@ to{opacity:1}}
             keys
               .filter(key =>
                 key.startsWith('amman-mafia-tv-') &&
-                key !== 'amman-mafia-tv-v47-cache-v1'
+                key !== 'amman-mafia-tv-v48-cache-v1'
               )
               .forEach(key => caches.delete(key));
           });
@@ -1380,7 +1459,7 @@ to{opacity:1}}
       } catch (_) {}
     })();
   </script>
-  <script src="realtime-config.js?v=47"></script>
+  <script src="realtime-config.js?v=48"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
