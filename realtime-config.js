@@ -1,7 +1,6 @@
-// إعدادات الربط المباشر بين الموبايل والتلفزيون.
-// اتركها كما هي لتجربة الصفحتين على نفس الجهاز فقط.
-// للربط بين جهازين مختلفين: ضع Project URL و anon public key من Supabase.
+// إعدادات Supabase Realtime لمزامنة لوحة المنظم مع شاشة التلفزيون.
+// المفتاح المستخدم Publishable ومخصص للاستخدام في تطبيقات المتصفح.
 window.AMMAN_MAFIA_REALTIME = {
-  supabaseUrl: "PUT_YOUR_SUPABASE_URL_HERE",
-  supabaseAnonKey: "PUT_YOUR_SUPABASE_ANON_KEY_HERE"
+  supabaseUrl: "https://stkxplslyhkrslkjumwc.supabase.co",
+  supabaseAnonKey: "sb_publishable_l1xbSEUgs6D7tYrquJXqQQ_CvDZpPcz"
 };
