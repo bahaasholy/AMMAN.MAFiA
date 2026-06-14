@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v38</title>
+    <title>Amman Mafia — TV Control v39</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v38">
+    <meta name="app-version" content="tv-v39">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -853,7 +853,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=38">
+    <link rel="stylesheet" href="tv-control.css?v=39">
 </head>
 <body>
 
@@ -2241,7 +2241,7 @@
                 const roleHTML = result.showRole
                     ? `
                         <div class="night-result-role">
-                            <span>الكرت الذي تم إقصاؤه</span>
+                            <span>${escapeHTML(result.roleLabel || 'الكرت الذي تم إقصاؤه')}</span>
                             <strong>${escapeHTML(roleDisplayForSeat(result.seat))}</strong>
                         </div>
                     `
@@ -2251,6 +2251,10 @@
                     ? `<div class="night-result-tags">${result.tags.join('')}</div>`
                     : '';
 
+                const seatHTML = result.hideSeat
+                    ? ''
+                    : `<div class="night-result-seat">المقعد ${escapeHTML(result.seat)}</div>`;
+
                 return `
                     <div class="night-result-card ${result.actionOnly ? 'action-only' : ''}"
                          style="--result-color:${result.color}">
@@ -2258,7 +2262,7 @@
                             <span class="night-result-action-icon">${result.icon}</span>
                             <strong>${escapeHTML(result.title)}</strong>
                         </div>
-                        <div class="night-result-seat">المقعد ${escapeHTML(result.seat)}</div>
+                        ${seatHTML}
                         ${roleHTML}
                         ${tagsHTML}
                     </div>
@@ -2266,6 +2270,50 @@
             }
 
             const results = [];
+
+            // نتيجة الطبيب: لا نكشف رقم المقعد المحمي نهائيًا.
+            if (doctorTarget !== 'none') {
+                const protectionSources = [];
+
+                if (String(bossTarget) === String(doctorTarget)) {
+                    protectionSources.push('اغتيال المافيا');
+                }
+
+                if (String(heirTarget) === String(doctorTarget)) {
+                    protectionSources.push('اغتيال الوارث');
+                }
+
+                if (String(killerTarget) === String(doctorTarget)) {
+                    protectionSources.push('ذبح السفاح');
+                }
+
+                if (protectionSources.length) {
+                    results.push({
+                        seat:null,
+                        title:`حماية من ${protectionSources.join(' و')}`,
+                        icon:'🩺',
+                        color:'#378ed1',
+                        showRole:false,
+                        hideSeat:true,
+                        actionOnly:true,
+                        tags:[]
+                    });
+                }
+            }
+
+            // نتيجة الجاسوس: نعرض المقعد والكرت الذي تم كشفه.
+            if (spyTarget !== 'none') {
+                results.push({
+                    seat:spyTarget,
+                    title:'كشف الجاسوس',
+                    icon:'👁️',
+                    color:'#8b5cf6',
+                    showRole:true,
+                    roleLabel:'الكرت الذي تم كشفه',
+                    actionOnly:false,
+                    tags:[]
+                });
+            }
 
             distinctSeats.forEach(seatNum => {
                 const select = document.getElementById(`select-${seatNum}`);
@@ -2311,10 +2359,6 @@
 
                 if (String(silenceTarget) === String(seatNum)) {
                     tags.push(makeTag('🔇 MUTE', '#ff9500'));
-                }
-
-                if (String(spyTarget) === String(seatNum)) {
-                    tags.push(makeTag('👁️ كشف الجاسوس', '#8b5cf6'));
                 }
 
                 let primaryResult = null;
@@ -2374,15 +2418,9 @@
                             tags
                         };
                     } else if (hasBlockableAttack && isSavedByDoctor) {
-                        primaryResult = {
-                            seat:seatNum,
-                            title:'حماية الطبيب',
-                            icon:'🩺',
-                            color:'#378ed1',
-                            showRole:false,
-                            actionOnly:true,
-                            tags
-                        };
+                        // نتيجة الحماية أضيفت كبطاقة عامة بدون رقم مقعد.
+                        // نترك primaryResult فارغًا حتى لا ينكشف المقعد المحمي.
+                        primaryResult = null;
                     } else if (hasKillerAttack) {
                         wizardFinalKills.push(seatNum);
                         primaryResult = {
@@ -2422,18 +2460,6 @@
                         title:'MUTE',
                         icon:'🔇',
                         color:'#ff9500',
-                        showRole:false,
-                        actionOnly:true,
-                        tags:[]
-                    };
-                }
-
-                if (!primaryResult && String(spyTarget) === String(seatNum)) {
-                    primaryResult = {
-                        seat:seatNum,
-                        title:'كشف الجاسوس',
-                        icon:'👁️',
-                        color:'#8b5cf6',
                         showRole:false,
                         actionOnly:true,
                         tags:[]
@@ -2630,8 +2656,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=38"></script>
+    <script src="realtime-config.js?v=39"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=38"></script>
+    <script src="tv-control.js?v=39"></script>
 </body>
 </html>
