@@ -39,8 +39,14 @@
   </main>
   <script>
     (() => {
+      const sourceParams = new URLSearchParams(window.location.search);
       const target = new URL('display.html', window.location.href);
-      target.search = window.location.search;
+
+      sourceParams.forEach((value, key) => {
+        if (key !== 'v') target.searchParams.set(key, value);
+      });
+
+      target.searchParams.set('v', '47');
       target.hash = window.location.hash;
 
       document.getElementById('fallbackLink').href = target.href;
