@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v21</title>
+  <title>Amman Mafia — شاشة العرض v22</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -147,18 +147,56 @@
       min-height:22px;
     }
 
+  
+    .timer.warning{
+      color:#ff4e57 !important;
+      text-shadow:
+        0 0 18px rgba(255,78,87,.72),
+        0 0 55px rgba(255,50,65,.46),
+        0 0 110px rgba(255,30,45,.20);
+      animation:countdownWarningPulse .72s ease-in-out infinite;
+    }
+    .timer-label.warning-label{
+      color:#ff6b72;
+      font-weight:950;
+      animation:warningLabelPulse .72s ease-in-out infinite;
+    }
+    body.countdown-warning::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      box-shadow:inset 0 0 115px rgba(180,0,16,.19);
+      animation:warningScreenGlow .72s ease-in-out infinite;
+    }
+    @keyframes countdownWarningPulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.045);opacity:.70}
+    }
+    @keyframes warningLabelPulse{
+      0%,100%{opacity:1}
+      50%{opacity:.52}
+    }
+    @keyframes warningScreenGlow{
+      0%,100%{opacity:.30}
+      50%{opacity:1}
+    }
+
   </style>
 </head>
 <body>
   <audio id="alarmAudio" preload="auto" src="time-up.mp3"></audio>
-  <audio id="countdownAudio" preload="auto" src="countdown-ticking.mp3" loop></audio>
+  <audio id="countdownAudio30" preload="auto" src="countdown-5.mp3"></audio>
+  <audio id="countdownAudio45" preload="auto" src="countdown-10.mp3"></audio>
+  <audio id="countdownAudio60" preload="auto" src="countdown-15.mp3"></audio>
 
   <section id="soundGate" class="sound-gate">
     <div class="sound-gate-card">
       <div class="sound-gate-icon">🔊</div>
       <div class="sound-gate-title">تفعيل صوت شاشة العرض</div>
       <div class="sound-gate-text">
-        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها يشتغل صوت الساعة في الثواني الأخيرة، ثم الصوت الذي اخترته عند انتهاء الوقت.
+        اضغط الزر مرة واحدة. ستسمع نغمة اختبار، وبعدها يشتغل صوت العد التنازلي في الثواني الأخيرة، ثم صوت نهاية الوقت عند الصفر.
       </div>
       <button id="soundGateBtn" class="sound-gate-btn" type="button">تفعيل الصوت وتجربته</button>
       <div id="soundGateError" class="sound-error"></div>
@@ -223,8 +261,9 @@
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
     let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
     let audioContext=null,soundEnabled=false,lastRemainingMs=null,lastTimerStatus='idle',activeTimerCycle='',playedTimerCycle='';
-    let alarmAudio=null,countdownAudio=null;
-    let countdownCycle='',countdownPlaying=false;
+    let alarmAudio=null;
+    let countdownAudios={30:null,45:null,60:null};
+    let activeCountdownAudio=null,countdownCycle='',countdownPlaying=false;
     const $=id=>document.getElementById(id);
     
     function updateSoundButton(){
@@ -307,7 +346,11 @@
       if(error)error.textContent='';
 
       alarmAudio=$('alarmAudio');
-      countdownAudio=$('countdownAudio');
+      countdownAudios={
+        30:$('countdownAudio30'),
+        45:$('countdownAudio45'),
+        60:$('countdownAudio60')
+      };
       const contextReady=await ensureAudioContext();
 
       let audioReady=false;
@@ -327,15 +370,16 @@
         audioReady=audioReady||contextReady;
       }
 
-      try{
-        if(countdownAudio){
-          countdownAudio.volume=0;
-          await countdownAudio.play();
-          countdownAudio.pause();
-          countdownAudio.currentTime=0;
-          countdownAudio.volume=0.68;
-        }
-      }catch(_){}
+      for(const audio of Object.values(countdownAudios)){
+        if(!audio)continue;
+        try{
+          audio.volume=0;
+          await audio.play();
+          audio.pause();
+          audio.currentTime=0;
+          audio.volume=0.86;
+        }catch(_){}
+      }
 
       soundEnabled=Boolean(audioReady||contextReady);
       updateSoundButton();
@@ -351,47 +395,67 @@
     }
 
 
+    function getSelectedDurationSec(){
+      return Math.round(Math.max(0,Number(state?.timerDurationMs)||0)/1000);
+    }
+
     function getTickThresholdMs(){
-      const durationSec=Math.round(Math.max(0,Number(state?.timerDurationMs)||0)/1000);
+      const durationSec=getSelectedDurationSec();
 
+      if(durationSec===60)return 15000;
+      if(durationSec===45)return 10000;
       if(durationSec===30)return 5000;
-      if(durationSec===45||durationSec===60)return 10000;
 
-      return durationSec>30?10000:5000;
+      return durationSec>=60?15000:(durationSec>30?10000:5000);
+    }
+
+    function getCountdownAudio(){
+      const durationSec=getSelectedDurationSec();
+      if(durationSec===60)return countdownAudios[60];
+      if(durationSec===45)return countdownAudios[45];
+      return countdownAudios[30];
     }
 
     function stopCountdownSound(resetPosition=true){
-      if(!countdownAudio)countdownAudio=$('countdownAudio');
-
-      if(countdownAudio){
+      for(const audio of Object.values(countdownAudios)){
+        if(!audio)continue;
         try{
-          countdownAudio.pause();
-          if(resetPosition)countdownAudio.currentTime=0;
+          audio.pause();
+          if(resetPosition)audio.currentTime=0;
         }catch(_){}
       }
 
+      activeCountdownAudio=null;
       countdownPlaying=false;
     }
 
-    async function startCountdownSound(cycle){
+    async function startCountdownSound(cycle,rem){
       if(!soundEnabled)return false;
-      if(!countdownAudio)countdownAudio=$('countdownAudio');
-      if(!countdownAudio)return false;
 
-      if(countdownPlaying&&countdownCycle===cycle&&!countdownAudio.paused){
-        return true;
-      }
+      const audio=getCountdownAudio();
+      if(!audio)return false;
+
+      const thresholdMs=getTickThresholdMs();
+      const elapsedSec=Math.max(0,(thresholdMs-rem)/1000);
 
       try{
         stopCountdownSound(true);
         countdownCycle=cycle;
-        countdownAudio.loop=true;
-        countdownAudio.volume=0.68;
-        countdownAudio.currentTime=0;
-        await countdownAudio.play();
+        activeCountdownAudio=audio;
+        audio.loop=false;
+        audio.volume=0.86;
+
+        if(Number.isFinite(audio.duration)&&audio.duration>0){
+          audio.currentTime=Math.min(elapsedSec,Math.max(0,audio.duration-.12));
+        }else{
+          audio.currentTime=elapsedSec;
+        }
+
+        await audio.play();
         countdownPlaying=true;
         return true;
       }catch(_){
+        activeCountdownAudio=null;
         countdownPlaying=false;
         return false;
       }
@@ -409,15 +473,12 @@
       const cycle=String(state.timerEndsAt||'');
 
       if(shouldPlay){
-        if(!countdownPlaying||countdownCycle!==cycle||countdownAudio?.paused){
-          startCountdownSound(cycle);
+        if(!countdownPlaying||countdownCycle!==cycle||activeCountdownAudio?.paused){
+          startCountdownSound(cycle,rem);
         }
       }else{
         stopCountdownSound(true);
-
-        if(status==='idle'||status==='finished'){
-          countdownCycle='';
-        }
+        if(status==='idle'||status==='finished')countdownCycle='';
       }
     }
 
@@ -470,8 +531,21 @@
       if(!state)return;
       $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
       const phase=PHASE_LABELS[state.phase]?state.phase:'idle';$('phase').textContent=PHASE_LABELS[phase];$('phase').className='phase '+phase;document.body.classList.toggle('night-view',phase==='night');
-      const rem=remaining(),timer=$('timer');timer.textContent=fmt(rem);timer.className='timer '+(state.timerStatus||'idle');syncCountdownSound(rem);checkTimerAlarm(rem);
-      const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};$('timerLabel').textContent=labels[state.timerStatus]||'المؤقت جاهز';
+      const rem=remaining(),timer=$('timer');
+      const timerStatus=state.timerStatus||'idle';
+      const warning=timerStatus==='running'&&rem>0&&rem<=getTickThresholdMs();
+
+      timer.textContent=fmt(rem);
+      timer.className='timer '+timerStatus+(warning?' warning':'');
+      document.body.classList.toggle('countdown-warning',warning);
+
+      syncCountdownSound(rem);
+      checkTimerAlarm(rem);
+
+      const labels={idle:'المؤقت جاهز',running:'الوقت المتبقي',paused:'المؤقت متوقف مؤقتًا',finished:'انتهى الوقت'};
+      const timerLabel=$('timerLabel');
+      timerLabel.textContent=warning?'الوقت يوشك على الانتهاء':(labels[timerStatus]||'المؤقت جاهز');
+      timerLabel.classList.toggle('warning-label',warning);
       $('aliveCount').textContent=String(Math.max(0,Number(state.totalAlive)||0));
       $('citizenCount').textContent=String(Math.max(0,Number(state.citizenAlive)||0));
       $('mafiaCount').textContent=String(Math.max(0,Number(state.mafiaAlive)||0));
@@ -496,6 +570,11 @@
     $('fullscreenBtn').addEventListener('click',async()=>{await activateSound(false);const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
     $('soundGateBtn').addEventListener('click',()=>activateSound(true));
     alarmAudio=$('alarmAudio');
+    countdownAudios={
+      30:$('countdownAudio30'),
+      45:$('countdownAudio45'),
+      60:$('countdownAudio60')
+    };
     const params=new URLSearchParams(location.search),initial=(params.get('room')||localStorage.getItem('ammanMafiaDisplayLastRoom')||'').toUpperCase();
     $('roomInput').value=initial;
     updateSoundButton();
