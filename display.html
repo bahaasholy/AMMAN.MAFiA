@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v32</title>
+  <title>Amman Mafia — شاشة العرض v33</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -441,6 +441,149 @@ to{opacity:1}}
       .night-scene{min-height:55vh}
     }
 
+  
+    /* ===== v33: Speaker turn display ===== */
+    .speaker-card{
+      width:min(740px,88vw);
+      min-height:clamp(94px,13vh,140px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(16px,2.6vw,28px);
+      padding:clamp(14px,2vw,24px) clamp(22px,3.5vw,42px);
+      margin:clamp(5px,1vh,14px) 0;
+      border-radius:clamp(20px,2.6vw,32px);
+      border:1px solid rgba(201,168,76,.30);
+      background:
+        radial-gradient(circle at 20% 0%,rgba(201,168,76,.11),transparent 34%),
+        linear-gradient(145deg,rgba(35,30,20,.84),rgba(10,10,14,.82));
+      box-shadow:
+        0 24px 65px rgba(0,0,0,.25),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter:blur(12px);
+      animation:speakerCardEnter .42s cubic-bezier(.2,.78,.25,1) both;
+    }
+    .speaker-card[hidden]{display:none !important}
+    .speaker-mic{
+      width:clamp(66px,8vw,104px);
+      height:clamp(66px,8vw,104px);
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      border-radius:50%;
+      font-size:clamp(2.1rem,4.5vw,4rem);
+      background:rgba(201,168,76,.11);
+      border:1px solid rgba(201,168,76,.27);
+      box-shadow:0 0 35px rgba(201,168,76,.10);
+    }
+    .speaker-copy{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .speaker-copy span{
+      color:#8d877a;
+      font-size:clamp(.72rem,1.3vw,1rem);
+      font-weight:900;
+      letter-spacing:.7px;
+    }
+    .speaker-copy strong{
+      color:#e0c471;
+      font-size:clamp(2rem,5vw,4.7rem);
+      line-height:1.05;
+      font-weight:950;
+      text-shadow:0 0 30px rgba(201,168,76,.18);
+    }
+    .speaker-copy small{
+      color:#777580;
+      font-size:clamp(.72rem,1.2vw,.95rem);
+      font-weight:800;
+      margin-top:3px;
+    }
+    body.phase-discussion .speaker-card{
+      border-color:rgba(79,163,227,.28);
+      background:
+        radial-gradient(circle at 20% 0%,rgba(79,163,227,.12),transparent 34%),
+        linear-gradient(145deg,rgba(16,37,54,.84),rgba(9,11,15,.82));
+    }
+    body.phase-discussion .speaker-copy strong{color:#7fc4f2}
+    body.phase-voting .speaker-card{
+      border-color:rgba(201,168,76,.33);
+    }
+    body.phase-night .speaker-card{display:none !important}
+
+    .speaker-transition{
+      position:fixed;
+      inset:0;
+      z-index:14500;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      opacity:0;
+      visibility:hidden;
+      background:
+        radial-gradient(circle,rgba(201,168,76,.24),rgba(3,3,7,.96) 62%);
+      backdrop-filter:blur(18px);
+    }
+    .speaker-transition.show{
+      visibility:visible;
+      animation:speakerOverlay 1.05s cubic-bezier(.2,.78,.25,1) both;
+    }
+    .speaker-transition-card{
+      text-align:center;
+      transform:translateY(22px) scale(.87);
+      opacity:0;
+    }
+    .speaker-transition.show .speaker-transition-card{
+      animation:speakerTransitionCard .88s .04s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .speaker-transition-icon{
+      font-size:clamp(4rem,10vw,8rem);
+      line-height:1;
+      filter:drop-shadow(0 18px 40px rgba(0,0,0,.38));
+    }
+    .speaker-transition-label{
+      color:#8d877a;
+      font-size:clamp(.9rem,1.8vw,1.3rem);
+      font-weight:900;
+      margin-top:18px;
+    }
+    .speaker-transition-seat{
+      color:#e2c66f;
+      font-size:clamp(3rem,8vw,7rem);
+      font-weight:950;
+      line-height:1.1;
+      margin-top:4px;
+      text-shadow:0 0 45px rgba(201,168,76,.22);
+    }
+    @keyframes speakerOverlay{
+      0%{opacity:0}
+      14%,70%{opacity:1}
+      100%{opacity:0}
+    }
+    @keyframes speakerTransitionCard{
+      0%{opacity:0;transform:translateY(22px) scale(.87)}
+      30%,72%{opacity:1;transform:translateY(0) scale(1)}
+      100%{opacity:0;transform:translateY(-8px) scale(1.04)}
+    }
+    @keyframes speakerCardEnter{
+      from{opacity:0;transform:translateY(10px) scale(.98)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    @media(max-width:650px){
+      .speaker-card{
+        width:92vw;
+        gap:13px;
+        padding:14px 16px;
+      }
+      .speaker-mic{
+        width:62px;
+        height:62px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -479,6 +622,15 @@ to{opacity:1}}
         </div>
       </div>
 
+      <section id="speakerCard" class="speaker-card" hidden>
+        <div class="speaker-mic">🎙️</div>
+        <div class="speaker-copy">
+          <span>المتحدث الحالي</span>
+          <strong id="speakerSeatText">المقعد —</strong>
+          <small id="speakerDirectionText">مع عقارب الساعة</small>
+        </div>
+      </section>
+
       <div class="timer-frame">
         <div id="timer" class="timer">01:00</div>
         <div id="timerLabel" class="timer-label">المؤقت جاهز</div>
@@ -516,6 +668,14 @@ to{opacity:1}}
     </footer>
   </main>
 
+  <section id="speakerTransition" class="speaker-transition" aria-hidden="true">
+    <div class="speaker-transition-card">
+      <div class="speaker-transition-icon">🎙️</div>
+      <div class="speaker-transition-label">المتحدث الآن</div>
+      <div id="speakerTransitionSeat" class="speaker-transition-seat">المقعد 1</div>
+    </div>
+  </section>
+
   <section id="phaseTransition" class="phase-transition" aria-hidden="true">
     <div class="transition-card">
       <div id="transitionIcon" class="transition-icon">💬</div>
@@ -524,7 +684,7 @@ to{opacity:1}}
     </div>
   </section>
 
-  <script src="realtime-config.js?v=32"></script>
+  <script src="realtime-config.js?v=33"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -561,6 +721,8 @@ to{opacity:1}}
 
     let lastRenderedPhase=null;
     let transitionTimer=null;
+    let lastSpeakerChangeId=null;
+    let speakerTransitionTimer=null;
     let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null,syncPoll=null,retryTimer=null;
     let lastLocalWrittenAt=0;
     const LOCAL_STATE_PREFIX='ammanMafiaLocalDisplayStateV2:';
@@ -670,6 +832,24 @@ to{opacity:1}}
       },1400);
     }
 
+    function showSpeakerTransition(seat){
+      const overlay=$('speakerTransition');
+      if(!overlay||!(Number(seat)>0))return;
+
+      clearTimeout(speakerTransitionTimer);
+
+      $('speakerTransitionSeat').textContent=`المقعد ${Number(seat)}`;
+      overlay.classList.remove('show');
+      void overlay.offsetWidth;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+
+      speakerTransitionTimer=setTimeout(()=>{
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden','true');
+      },1100);
+    }
+
     function render(){
       if(!state)return;
       $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
@@ -690,6 +870,34 @@ to{opacity:1}}
         showPhaseTransition(phase);
       }
       lastRenderedPhase=phase;
+
+      const speakerSeat=Math.max(0,Number(state.speakerSeat)||0);
+      const speakerVisible=
+        Boolean(state.speakerVisible)&&
+        speakerSeat>0&&
+        phase!=='night';
+
+      const speakerCard=$('speakerCard');
+      speakerCard.hidden=!speakerVisible;
+
+      if(speakerVisible){
+        $('speakerSeatText').textContent=`المقعد ${speakerSeat}`;
+        $('speakerDirectionText').textContent=
+          state.speakerDirection==='counterclockwise'
+            ? 'الاتجاه: عكس عقارب الساعة'
+            : 'الاتجاه: مع عقارب الساعة';
+      }
+
+      const changeId=Math.max(0,Number(state.speakerChangeId)||0);
+      if(
+        lastSpeakerChangeId!==null&&
+        changeId!==lastSpeakerChangeId&&
+        speakerVisible
+      ){
+        showSpeakerTransition(speakerSeat);
+      }
+      lastSpeakerChangeId=changeId;
+
       const rem=remaining(),timer=$('timer');
       const rawTimerStatus=state.timerStatus||'idle';
       const timerStatus=

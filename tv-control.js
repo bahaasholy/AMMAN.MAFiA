@@ -52,6 +52,13 @@
       mafiaAlive: Math.max(0, Number(state.mafiaAlive) || 0),
       killerAlive: Math.max(0, Number(state.killerAlive) || 0),
       showKiller: Boolean(state.showKiller),
+      speakerSeat: Number(state.speakerSeat) > 0 ? Math.floor(Number(state.speakerSeat)) : null,
+      speakerVisible: Boolean(state.speakerVisible),
+      speakerDirection: ['clockwise','counterclockwise'].includes(state.speakerDirection)
+        ? state.speakerDirection
+        : 'clockwise',
+      speakerAutoTimer: state.speakerAutoTimer !== false,
+      speakerChangeId: Math.max(0, Number(state.speakerChangeId) || 0),
       updatedAt: Number(state.updatedAt) || now
     };
   }
@@ -206,6 +213,228 @@
     return true;
   }
 
+
+  function getAliveSeatNumbers() {
+    const seats = [];
+
+    let seatCount = 0;
+    try {
+      if (typeof totalGameSeats !== 'undefined') {
+        seatCount = Math.max(0, Number(totalGameSeats) || 0);
+      }
+    } catch (_) {}
+
+    for (let seat = 1; seat <= seatCount; seat++) {
+      const card = document.getElementById(`seat-${seat}`);
+      const role = document.getElementById(`select-${seat}`);
+
+      if (!card || card.classList.contains('dead-status')) continue;
+      if (role && role.value === 'unassigned') continue;
+
+      seats.push(seat);
+    }
+
+    return seats.sort((a, b) => a - b);
+  }
+
+  function startFullSpeakerTimer() {
+    const duration = Math.max(
+      1000,
+      Number(publicState.timerDurationMs) || DEFAULT_SECONDS * 1000
+    );
+
+    publicState.timerRemainingMs = duration;
+    publicState.timerEndsAt = Date.now() + duration;
+    publicState.timerStatus = 'running';
+    hasBroadcastFinished = false;
+  }
+
+  function selectSpeakerSeat(seat, options = {}) {
+    const aliveSeats = getAliveSeatNumbers();
+    const parsedSeat = Number(seat);
+
+    if (!aliveSeats.includes(parsedSeat)) return false;
+
+    publicState.speakerSeat = parsedSeat;
+    publicState.speakerVisible = true;
+    publicState.speakerChangeId += 1;
+
+    if (options.startTimer !== false && publicState.speakerAutoTimer) {
+      startFullSpeakerTimer();
+    }
+
+    vibrate(28);
+    saveState();
+    return true;
+  }
+
+  function getSpeakerTarget(step = 1) {
+    const aliveSeats = getAliveSeatNumbers();
+    if (!aliveSeats.length) return null;
+
+    const clockwise = publicState.speakerDirection === 'clockwise';
+    const movement = clockwise ? step : -step;
+    const current = Number(publicState.speakerSeat);
+
+    if (aliveSeats.includes(current)) {
+      const currentIndex = aliveSeats.indexOf(current);
+      return aliveSeats[
+        (currentIndex + movement + aliveSeats.length) % aliveSeats.length
+      ];
+    }
+
+    // If the current speaker was eliminated, continue from the closest
+    // living seat in the selected direction instead of restarting randomly.
+    if (Number.isFinite(current) && current > 0) {
+      if (movement > 0) {
+        return aliveSeats.find(seat => seat > current) || aliveSeats[0];
+      }
+
+      return [...aliveSeats].reverse().find(seat => seat < current)
+        || aliveSeats[aliveSeats.length - 1];
+    }
+
+    return movement > 0
+      ? aliveSeats[0]
+      : aliveSeats[aliveSeats.length - 1];
+  }
+
+  function moveSpeaker(step = 1) {
+    const target = getSpeakerTarget(step);
+    if (target == null) return;
+
+    selectSpeakerSeat(target, { startTimer:true });
+  }
+
+  function getSpeakerOrderPreview() {
+    const aliveSeats = getAliveSeatNumbers();
+    if (!aliveSeats.length) return [];
+
+    const first = Number(publicState.speakerSeat);
+    const startSeat = aliveSeats.includes(first)
+      ? first
+      : (
+          publicState.speakerDirection === 'clockwise'
+            ? aliveSeats[0]
+            : aliveSeats[aliveSeats.length - 1]
+        );
+
+    const order = [];
+    let current = startSeat;
+
+    for (let index = 0; index < Math.min(aliveSeats.length, 6); index++) {
+      order.push(current);
+
+      const currentIndex = aliveSeats.indexOf(current);
+      const movement = publicState.speakerDirection === 'clockwise' ? 1 : -1;
+      current = aliveSeats[
+        (currentIndex + movement + aliveSeats.length) % aliveSeats.length
+      ];
+    }
+
+    return order;
+  }
+
+  function renderSpeakerControls() {
+    const grid = document.getElementById('tvSpeakerSeats');
+    if (!grid) return;
+
+    const aliveSeats = getAliveSeatNumbers();
+    const currentSeat = Number(publicState.speakerSeat);
+    const currentAlive = aliveSeats.includes(currentSeat);
+    const signature = [
+      aliveSeats.join(','),
+      currentSeat || '',
+      publicState.speakerVisible ? '1' : '0',
+      publicState.speakerDirection,
+      publicState.speakerAutoTimer ? '1' : '0'
+    ].join('|');
+
+    if (grid.dataset.signature !== signature) {
+      grid.dataset.signature = signature;
+      grid.innerHTML = '';
+
+      aliveSeats.forEach(seat => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'tv-speaker-seat-btn';
+        button.textContent = String(seat);
+        button.classList.toggle('active', seat === currentSeat);
+        button.addEventListener('click', () => selectSpeakerSeat(seat));
+        grid.appendChild(button);
+      });
+    }
+
+    document.getElementById('tvSpeakerEmpty').hidden = aliveSeats.length > 0;
+
+    const currentBox = document.getElementById('tvSpeakerCurrent');
+    const currentStrong = currentBox.querySelector('strong');
+    const status = document.getElementById('tvSpeakerStatus');
+
+    if (currentSeat > 0) {
+      currentStrong.textContent = `المقعد ${currentSeat}`;
+      currentBox.classList.toggle('hidden-on-tv', !publicState.speakerVisible);
+      currentBox.classList.toggle('not-alive', !currentAlive);
+
+      if (!currentAlive) {
+        status.textContent = 'المقعد الحالي مقصي — اضغط التالي للتخطي';
+      } else if (!publicState.speakerVisible) {
+        status.textContent = 'مخفي من شاشة التلفزيون';
+      } else {
+        status.textContent = `المقعد ${currentSeat} يتحدث الآن`;
+      }
+    } else {
+      currentStrong.textContent = '—';
+      currentBox.classList.remove('hidden-on-tv', 'not-alive');
+      status.textContent = 'لم يتم اختيار متحدث';
+    }
+
+    document
+      .getElementById('tvSpeakerClockwise')
+      .classList.toggle('active', publicState.speakerDirection === 'clockwise');
+
+    document
+      .getElementById('tvSpeakerCounterclockwise')
+      .classList.toggle('active', publicState.speakerDirection === 'counterclockwise');
+
+    document.getElementById('tvSpeakerAutoTimer').checked =
+      Boolean(publicState.speakerAutoTimer);
+
+    const visibilityButton = document.getElementById('tvSpeakerVisibility');
+    visibilityButton.disabled = !(currentSeat > 0);
+    visibilityButton.textContent = publicState.speakerVisible
+      ? 'إخفاء المتحدث من التلفزيون'
+      : 'إظهار المتحدث على التلفزيون';
+
+    const preview = getSpeakerOrderPreview();
+    const previewElement = document.getElementById('tvSpeakerPreview');
+    previewElement.textContent = preview.length
+      ? `الترتيب القادم: ${preview.join(' ← ')}`
+      : 'لا توجد مقاعد حية متاحة حاليًا.';
+
+    document.getElementById('tvSpeakerPrevious').disabled =
+      aliveSeats.length === 0;
+
+    document.getElementById('tvSpeakerNext').disabled =
+      aliveSeats.length === 0;
+  }
+
+  function syncSpeakerAvailability() {
+    const currentSeat = Number(publicState.speakerSeat);
+    if (!(currentSeat > 0) || !publicState.speakerVisible) return false;
+
+    const aliveSeats = getAliveSeatNumbers();
+    if (aliveSeats.includes(currentSeat)) return false;
+
+    // Keep the seat number so "next" continues correctly around the table,
+    // but hide an eliminated speaker from the public screen.
+    publicState.speakerVisible = false;
+    publicState.updatedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(publicState));
+    broadcastState();
+    return true;
+  }
+
   function createUI() {
     const mainTabs = document.getElementById('mainTabs');
     if (!mainTabs || document.getElementById('tabDisplayControl')) return;
@@ -234,14 +463,65 @@
             <button class="tv-btn tv-preset" type="button" data-seconds="60">60 ثانية</button>
           </div>
           <button id="tvTimerNext" class="tv-btn tv-next-btn" type="button">
-            التالي
-            <span>ابدأ وقت المتحدث التالي مباشرة</span>
+            إعادة الوقت والبدء
+            <span>يشغّل نفس المدة المختارة من البداية</span>
           </button>
           <div class="tv-timer-actions">
             <button id="tvTimerStart" class="tv-btn gold" type="button">بدء</button>
             <button id="tvTimerPause" class="tv-btn" type="button">إيقاف</button>
             <button id="tvTimerReset" class="tv-btn red" type="button">إعادة</button>
           </div>
+        </section>
+
+        <section class="tv-control-card full tv-speaker-card">
+          <div class="tv-control-title">
+            <h3>دور المتحدث 🎙️</h3>
+            <span id="tvSpeakerStatus" class="tv-muted">لم يتم اختيار متحدث</span>
+          </div>
+
+          <div class="tv-speaker-direction-label">اتجاه الكلام</div>
+          <div class="tv-speaker-direction">
+            <button id="tvSpeakerClockwise" class="tv-btn tv-direction-btn" type="button">
+              ↻ مع عقارب الساعة
+              <small>ترتيب تصاعدي</small>
+            </button>
+            <button id="tvSpeakerCounterclockwise" class="tv-btn tv-direction-btn" type="button">
+              ↺ عكس عقارب الساعة
+              <small>ترتيب تنازلي</small>
+            </button>
+          </div>
+
+          <div id="tvSpeakerCurrent" class="tv-speaker-current">
+            <span>المتحدث الحالي</span>
+            <strong>—</strong>
+          </div>
+
+          <div class="tv-speaker-direction-label">اختر أول متحدث من المقاعد الحية</div>
+          <div id="tvSpeakerSeats" class="tv-speaker-seats"></div>
+          <div id="tvSpeakerEmpty" class="tv-speaker-empty" hidden>
+            ابدأ اللعبة وحدد أدوار المقاعد حتى تظهر المقاعد الحية هنا.
+          </div>
+
+          <div id="tvSpeakerPreview" class="tv-speaker-preview"></div>
+
+          <div class="tv-speaker-actions">
+            <button id="tvSpeakerPrevious" class="tv-btn" type="button">السابق</button>
+            <button id="tvSpeakerNext" class="tv-btn gold tv-speaker-next" type="button">
+              المتحدث التالي
+            </button>
+          </div>
+
+          <label class="tv-speaker-option">
+            <input id="tvSpeakerAutoTimer" type="checkbox">
+            <span>
+              تشغيل المؤقت تلقائيًا عند اختيار أو تغيير المتحدث
+              <small>يبدأ من 30 أو 45 أو 60 ثانية حسب المدة المختارة</small>
+            </span>
+          </label>
+
+          <button id="tvSpeakerVisibility" class="tv-btn red tv-speaker-visibility" type="button">
+            إخفاء المتحدث من التلفزيون
+          </button>
         </section>
 
         <section class="tv-control-card">
@@ -419,6 +699,41 @@
       vibrate(30); saveState();
     });
 
+    document.getElementById('tvSpeakerClockwise').addEventListener('click', () => {
+      publicState.speakerDirection = 'clockwise';
+      vibrate(18);
+      saveState();
+    });
+
+    document.getElementById('tvSpeakerCounterclockwise').addEventListener('click', () => {
+      publicState.speakerDirection = 'counterclockwise';
+      vibrate(18);
+      saveState();
+    });
+
+    document.getElementById('tvSpeakerPrevious').addEventListener('click', () => {
+      moveSpeaker(-1);
+    });
+
+    document.getElementById('tvSpeakerNext').addEventListener('click', () => {
+      moveSpeaker(1);
+    });
+
+    document.getElementById('tvSpeakerAutoTimer').addEventListener('change', event => {
+      publicState.speakerAutoTimer = Boolean(event.target.checked);
+      vibrate(12);
+      saveState();
+    });
+
+    document.getElementById('tvSpeakerVisibility').addEventListener('click', () => {
+      if (!(Number(publicState.speakerSeat) > 0)) return;
+
+      publicState.speakerVisible = !publicState.speakerVisible;
+      publicState.speakerChangeId += 1;
+      vibrate(22);
+      saveState();
+    });
+
 
   }
 
@@ -455,7 +770,7 @@
     try { if (typeof nightRoundCounter !== 'undefined') gameRound = `داخل اللعبة: ${nightRoundCounter}`; } catch (_) {}
     document.getElementById('tvGameRoundHint').textContent = gameRound;
 
-
+    renderSpeakerControls();
 
     updateConnectionStatus();
   }
@@ -593,6 +908,7 @@
 
   function timerTick() {
     syncGameCounts(false);
+    syncSpeakerAvailability();
     if (publicState.timerStatus === 'running') {
       const remaining = getRemainingMs();
       if (remaining <= 0) {

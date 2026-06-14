@@ -133,3 +133,163 @@
   margin-top: 4px;
   opacity: .96;
 }
+
+
+/* ===== v33: دور المتحدث ===== */
+.tv-speaker-card{
+  border-color:rgba(79,163,227,.22);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(62,135,197,.08),transparent 44%),
+    linear-gradient(155deg,rgba(23,23,30,.99),rgba(10,10,14,.99));
+}
+.tv-speaker-direction-label{
+  color:rgba(240,230,204,.55);
+  font-size:.76rem;
+  font-weight:850;
+  margin:12px 0 7px;
+}
+.tv-speaker-direction{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.tv-direction-btn{
+  min-height:60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+.tv-direction-btn small{
+  color:rgba(240,230,204,.43);
+  font-size:.66rem;
+}
+.tv-direction-btn.active{
+  color:#80bfff;
+  border-color:rgba(73,148,217,.48);
+  background:rgba(34,103,165,.17);
+  box-shadow:0 0 0 1px rgba(73,148,217,.18);
+}
+.tv-speaker-current{
+  margin-top:12px;
+  min-height:78px;
+  border-radius:15px;
+  border:1px solid rgba(201,168,76,.22);
+  background:rgba(201,168,76,.06);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  transition:.2s ease;
+}
+.tv-speaker-current span{
+  color:rgba(240,230,204,.5);
+  font-size:.72rem;
+  font-weight:850;
+}
+.tv-speaker-current strong{
+  color:var(--gold);
+  font-size:1.55rem;
+  font-weight:950;
+}
+.tv-speaker-current.hidden-on-tv{
+  opacity:.58;
+  border-style:dashed;
+}
+.tv-speaker-current.not-alive{
+  border-color:rgba(255,94,99,.28);
+  background:rgba(151,25,25,.10);
+}
+.tv-speaker-current.not-alive strong{color:#ff7777}
+.tv-speaker-seats{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(48px,1fr));
+  gap:7px;
+}
+.tv-speaker-seat-btn{
+  min-height:48px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.045);
+  color:var(--cream);
+  font-size:1rem;
+  font-weight:950;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.tv-speaker-seat-btn:active{transform:scale(.96)}
+.tv-speaker-seat-btn.active{
+  color:#08090c;
+  border-color:rgba(201,168,76,.55);
+  background:linear-gradient(180deg,#dec36d,#b89137);
+  box-shadow:0 8px 22px rgba(201,168,76,.16);
+}
+.tv-speaker-empty{
+  color:#666;
+  text-align:center;
+  padding:16px 8px;
+  border:1px dashed rgba(255,255,255,.08);
+  border-radius:12px;
+  font-size:.78rem;
+  line-height:1.7;
+}
+.tv-speaker-preview{
+  margin-top:10px;
+  color:#8da9bf;
+  background:rgba(45,104,149,.08);
+  border:1px solid rgba(73,148,217,.14);
+  border-radius:11px;
+  padding:10px 12px;
+  font-size:.78rem;
+  line-height:1.7;
+  text-align:center;
+}
+.tv-speaker-actions{
+  display:grid;
+  grid-template-columns:1fr 1.45fr;
+  gap:8px;
+  margin-top:10px;
+}
+.tv-speaker-next{
+  min-height:55px;
+  font-size:.98rem;
+}
+.tv-speaker-option{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-top:12px;
+  padding:11px 12px;
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.055);
+  cursor:pointer;
+}
+.tv-speaker-option input{
+  width:19px;
+  height:19px;
+  margin-top:2px;
+  accent-color:#c9a84c;
+}
+.tv-speaker-option span{
+  color:var(--cream);
+  font-size:.8rem;
+  font-weight:850;
+  line-height:1.55;
+}
+.tv-speaker-option small{
+  display:block;
+  color:rgba(240,230,204,.43);
+  margin-top:3px;
+  font-size:.67rem;
+}
+.tv-speaker-visibility{
+  width:100%;
+  margin-top:9px;
+}
+@media(max-width:420px){
+  .tv-speaker-direction{grid-template-columns:1fr}
+  .tv-speaker-actions{grid-template-columns:1fr 1.3fr}
+}
