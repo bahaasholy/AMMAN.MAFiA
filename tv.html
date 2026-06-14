@@ -3,15 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07070b">
   <title>Amman Mafia — TV</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#07070b;color:#f2ead8;font-family:Arial,Tahoma,sans-serif}
+    body{display:grid;place-items:center;padding:24px}
+    .card{
+      width:min(92vw,520px);
+      padding:30px;
+      text-align:center;
+      border-radius:24px;
+      border:1px solid rgba(201,168,76,.32);
+      background:linear-gradient(145deg,#17171d,#0b0b10);
+      box-shadow:0 28px 80px rgba(0,0,0,.42)
+    }
+    img{
+      width:112px;height:112px;object-fit:cover;border-radius:24px;
+      border:1px solid rgba(201,168,76,.4);margin-bottom:16px
+    }
+    h1{margin:0;color:#d4b65c;font-size:1.8rem}
+    p{color:#888895;line-height:1.8;margin:12px 0 0}
+    a{
+      display:inline-block;margin-top:20px;padding:13px 20px;border-radius:12px;
+      background:#c9a84c;color:#09090c;text-decoration:none;font-weight:900
+    }
+  </style>
 </head>
 <body>
+  <main class="card">
+    <img src="app-icon-master.png" alt="Amman Mafia">
+    <h1>AMMAN MAFIA</h1>
+    <p>جاري فتح شاشة التلفزيون…</p>
+    <a id="fallbackLink" href="display.html">فتح شاشة العرض</a>
+  </main>
   <script>
-    const target = new URL('./tv/', window.location.href);
-    target.search = window.location.search;
-    target.hash = window.location.hash;
-    window.location.replace(target.href);
+    (() => {
+      const target = new URL('display.html', window.location.href);
+      target.search = window.location.search;
+      target.hash = window.location.hash;
+
+      document.getElementById('fallbackLink').href = target.href;
+
+      window.setTimeout(() => {
+        window.location.replace(target.href);
+      }, 120);
+    })();
   </script>
-  <a href="./tv/">فتح شاشة العرض</a>
 </body>
 </html>

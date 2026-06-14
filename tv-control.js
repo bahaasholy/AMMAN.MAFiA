@@ -836,7 +836,7 @@
   }
 
   function getDisplayUrl() {
-    const url = new URL('tv/', window.location.href);
+    const url = new URL('tv.html', window.location.href);
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
