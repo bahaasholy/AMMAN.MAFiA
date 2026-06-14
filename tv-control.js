@@ -4,6 +4,9 @@
 
   const STORAGE_KEY = 'ammanMafiaPublicDisplayStateV1';
   const ROOM_KEY = 'ammanMafiaPublicDisplayRoomV1';
+  const LOCAL_STATE_PREFIX = 'ammanMafiaLocalDisplayStateV2:';
+  const LOCAL_REQUEST_PREFIX = 'ammanMafiaLocalDisplayRequestV2:';
+  const LOCAL_PRESENCE_PREFIX = 'ammanMafiaLocalDisplayPresenceV2:';
   const DEFAULT_SECONDS = 60;
   const PHASE_LABELS = {
     idle: 'بانتظار بدء الجولة',
@@ -60,6 +63,55 @@
   if (!/^[A-Z2-9]{6,14}$/.test(roomCode)) {
     roomCode = generateRoomCode();
     localStorage.setItem(ROOM_KEY, roomCode);
+  }
+
+  function localStateKey(code = roomCode) {
+    return LOCAL_STATE_PREFIX + code;
+  }
+
+  function localRequestKey(code = roomCode) {
+    return LOCAL_REQUEST_PREFIX + code;
+  }
+
+  function localPresenceKey(code = roomCode) {
+    return LOCAL_PRESENCE_PREFIX + code;
+  }
+
+  function writeLocalState(payload) {
+    try {
+      localStorage.setItem(localStateKey(), JSON.stringify({
+        event: 'state',
+        payload,
+        writtenAt: Date.now(),
+        nonce: Math.random().toString(36).slice(2)
+      }));
+    } catch (_) {}
+  }
+
+  function readLocalPresence() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(localPresenceKey()) || 'null');
+      return raw && Number(raw.at) ? Number(raw.at) : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function handleLocalStorageMessage(event) {
+    if (!event || !event.key) return;
+
+    if (event.key === localRequestKey()) {
+      tvLastSeenAt = Date.now();
+      broadcastState();
+      updateConnectionStatus();
+      return;
+    }
+
+    if (event.key === localPresenceKey()) {
+      const seenAt = readLocalPresence();
+      if (seenAt) tvLastSeenAt = Math.max(tvLastSeenAt, seenAt);
+      updateConnectionStatus();
+    }
   }
 
   function configuredForSupabase() {
@@ -431,10 +483,14 @@
   function broadcastState() {
     Object.assign(publicState, collectGameCounts());
     const payload = { ...publicState, roomCode, sentAt: Date.now() };
+
+    // Reliable local-tab fallback: the display can always read the latest state.
+    writeLocalState(payload);
+
     if (connectionMode === 'supabase' && channel) {
       channel.send({ type:'broadcast', event:'state', payload }).catch(() => {});
     } else if (localChannel) {
-      localChannel.postMessage({ event:'state', payload });
+      try { localChannel.postMessage({ event:'state', payload }); } catch (_) {}
     }
   }
 
@@ -471,10 +527,23 @@
         const data = e.data || {};
         messageReceived(data.event, data.payload);
       };
+
+      const seenAt = readLocalPresence();
+      if (seenAt) tvLastSeenAt = seenAt;
+
+      // Publish the current state as soon as the local channel is opened.
+      broadcastState();
     } else {
-      connectionMode = 'none';
+      connectionMode = 'local-storage';
+      broadcastState();
     }
-    tvPresenceTimer = setInterval(updateConnectionStatus, 3000);
+
+    tvPresenceTimer = setInterval(() => {
+      const seenAt = readLocalPresence();
+      if (seenAt) tvLastSeenAt = Math.max(tvLastSeenAt, seenAt);
+      updateConnectionStatus();
+    }, 2000);
+
     renderAll();
   }
 
@@ -553,7 +622,11 @@
     createUI();
     installTabWrapper();
     installNightCompletionSync();
+
+    window.addEventListener('storage', handleLocalStorageMessage);
+
     connectRealtime();
+    broadcastState();
     renderAll();
     timerTicker = setInterval(timerTick, 250);
   }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Amman Mafia — شاشة العرض v28</title>
+  <title>Amman Mafia — شاشة العرض v29</title>
   <meta name="theme-color" content="#07070a">
   <style>
     :root { --gold:#c9a84c; --cream:#f0e6cc; --bg:#07070a; --card:#121218; --red:#d84d52; --blue:#4fa3e3; --purple:#8f73dd; }
@@ -177,7 +177,11 @@ to{opacity:1}}
   (function(){
     'use strict';
     const PHASE_LABELS={idle:'بانتظار بدء الجولة',discussion:'جولة النقاش 💬',voting:'جولة التصويت 🗳️',night:'جولة الليل 🌙'};
-    let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null;
+    let room='',state=null,client=null,channel=null,localChannel=null,mode='local',lastStateAt=0,tick=null,ping=null,syncPoll=null;
+    let lastLocalWrittenAt=0;
+    const LOCAL_STATE_PREFIX='ammanMafiaLocalDisplayStateV2:';
+    const LOCAL_REQUEST_PREFIX='ammanMafiaLocalDisplayRequestV2:';
+    const LOCAL_PRESENCE_PREFIX='ammanMafiaLocalDisplayPresenceV2:';
     const $=id=>document.getElementById(id);
     
     function configured(){const c=window.AMMAN_MAFIA_REALTIME||{};return /^https:\/\/.+\.supabase\.co\/?$/i.test(String(c.supabaseUrl||'').trim())&&String(c.supabaseAnonKey||'').trim().length>40&&!String(c.supabaseAnonKey).includes('PUT_YOUR_')}
@@ -198,7 +202,68 @@ to{opacity:1}}
 
     function remaining(){if(!state)return 0;return state.timerStatus==='running'?Math.max(0,Number(state.timerEndsAt||0)-Date.now()):Math.max(0,Number(state.timerRemainingMs||0))}
     function fmt(ms){const t=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(t/60),s=t%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
-    function apply(payload){if(!payload||typeof payload!=='object')return;state=payload;lastStateAt=Date.now();render();}
+    function apply(payload){
+      if(!payload||typeof payload!=='object')return;
+
+      if(payload.roomCode&&room&&String(payload.roomCode)!==room)return;
+
+      state={
+        ...payload,
+        timerEndsAt:Number(payload.timerEndsAt)||0,
+        timerRemainingMs:Math.max(0,Number(payload.timerRemainingMs)||0),
+        timerDurationMs:Math.max(1000,Number(payload.timerDurationMs)||60000)
+      };
+
+      lastStateAt=Date.now();
+      render();
+    }
+
+    function localStateKey(){return LOCAL_STATE_PREFIX+room}
+    function localRequestKey(){return LOCAL_REQUEST_PREFIX+room}
+    function localPresenceKey(){return LOCAL_PRESENCE_PREFIX+room}
+
+    function writeLocalSignal(key,payload){
+      try{
+        localStorage.setItem(key,JSON.stringify({
+          ...payload,
+          at:Date.now(),
+          nonce:Math.random().toString(36).slice(2)
+        }));
+      }catch(_){}
+    }
+
+    function announcePresence(){
+      if(!room)return;
+      writeLocalSignal(localPresenceKey(),{type:'display-presence'});
+    }
+
+    function requestLocalState(){
+      if(!room)return;
+      writeLocalSignal(localRequestKey(),{type:'display-request'});
+    }
+
+    function pullLocalState(force=false){
+      if(!room)return false;
+
+      try{
+        const envelope=JSON.parse(localStorage.getItem(localStateKey())||'null');
+        if(!envelope||!envelope.payload)return false;
+
+        const writtenAt=Number(envelope.writtenAt)||0;
+        if(!force&&writtenAt<=lastLocalWrittenAt)return false;
+
+        lastLocalWrittenAt=writtenAt;
+        apply(envelope.payload);
+        return true;
+      }catch(_){
+        return false;
+      }
+    }
+
+    function handleStorageEvent(event){
+      if(!room||!event||event.key!==localStateKey())return;
+      pullLocalState(true);
+    }
     function render(){
       if(!state)return;
       $('round').textContent=`الجولة ${Math.max(1,Number(state.roundNumber)||1)}`;
@@ -231,19 +296,102 @@ to{opacity:1}}
 
     }
     function status(){const online=Date.now()-lastStateAt<18000;$('connection').className='connection '+(online?'online':'');$('connection').querySelector('span').textContent=online?'متصل بلوحة المنظم':(mode==='supabase'?'بانتظار لوحة المنظم':'تجربة محلية')}
-    function send(event,payload={}){if(mode==='supabase'&&channel)channel.send({type:'broadcast',event,payload}).catch(()=>{});else if(localChannel)localChannel.postMessage({event,payload})}
+    function send(event,payload={}){
+      if(mode==='supabase'&&channel){
+        channel.send({type:'broadcast',event,payload}).catch(()=>{});
+        return;
+      }
+
+      if(localChannel){
+        try{localChannel.postMessage({event,payload})}catch(_){}
+      }
+
+      if(event==='display_request')requestLocalState();
+      if(event==='display_ping')announcePresence();
+    }
     function connect(){
-      room=$('roomInput').value.trim().toUpperCase().replace(/[^A-Z2-9]/g,'');if(room.length<6){$('pairMessage').textContent='أدخل رمز الجلسة الظاهر في لوحة المنظم.';return}localStorage.setItem('ammanMafiaDisplayLastRoom',room);$('pairMessage').textContent='جاري الاتصال...';
+      room=$('roomInput').value.trim().toUpperCase().replace(/[^A-Z2-9]/g,'');
+      if(room.length<6){
+        $('pairMessage').textContent='أدخل رمز الجلسة الظاهر في لوحة المنظم.';
+        return;
+      }
+
+      localStorage.setItem('ammanMafiaDisplayLastRoom',room);
+      $('pairMessage').textContent='جاري الاتصال...';
+
+      try{if(localChannel)localChannel.close()}catch(_){}
+      localChannel=null;
+      clearInterval(ping);
+      clearInterval(syncPoll);
+
       if(configured()&&window.supabase&&typeof window.supabase.createClient==='function'){
-        mode='supabase';const c=window.AMMAN_MAFIA_REALTIME;client=window.supabase.createClient(c.supabaseUrl.trim(),c.supabaseAnonKey.trim(),{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:10}}});channel=client.channel(`amman-mafia-display-${room}`,{config:{broadcast:{self:false}}});channel.on('broadcast',{event:'state'},({payload})=>apply(payload)).subscribe(st=>{if(st==='SUBSCRIBED'){show();send('display_request',{at:Date.now()})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT')$('pairMessage').textContent='تعذر الاتصال. تأكد من الإنترنت والإعدادات.'});
-      }else if('BroadcastChannel'in window){mode='local';localChannel=new BroadcastChannel(`amman-mafia-display-${room}`);localChannel.onmessage=e=>{const d=e.data||{};if(d.event==='state')apply(d.payload)};show();send('display_request',{at:Date.now()});$('pairMessage').textContent='وضع تجربة محلي — افتح لوحة المنظم في تبويب آخر على نفس الجهاز.'
-      }else $('pairMessage').textContent='هذا المتصفح لا يدعم الاتصال.';
-      clearInterval(ping);ping=setInterval(()=>send('display_ping',{at:Date.now()}),7000);
+        mode='supabase';
+        const c=window.AMMAN_MAFIA_REALTIME;
+        client=window.supabase.createClient(
+          c.supabaseUrl.trim(),
+          c.supabaseAnonKey.trim(),
+          {
+            auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
+            realtime:{params:{eventsPerSecond:10}}
+          }
+        );
+
+        channel=client.channel(
+          `amman-mafia-display-${room}`,
+          {config:{broadcast:{self:false}}}
+        );
+
+        channel
+          .on('broadcast',{event:'state'},({payload})=>apply(payload))
+          .subscribe(st=>{
+            if(st==='SUBSCRIBED'){
+              show();
+              send('display_request',{at:Date.now()});
+            }else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){
+              $('pairMessage').textContent='تعذر الاتصال. تأكد من الإنترنت والإعدادات.';
+            }
+          });
+      }else{
+        mode='local';
+
+        if('BroadcastChannel'in window){
+          localChannel=new BroadcastChannel(`amman-mafia-display-${room}`);
+          localChannel.onmessage=e=>{
+            const d=e.data||{};
+            if(d.event==='state')apply(d.payload);
+          };
+        }
+
+        // Read the latest saved state before requesting a fresh one.
+        pullLocalState(true);
+        show();
+        announcePresence();
+        requestLocalState();
+        send('display_request',{at:Date.now()});
+
+        $('pairMessage').textContent=
+          'وضع محلي — متصل بلوحة المنظم في تبويب آخر على نفس المتصفح.';
+
+        // Poll localStorage as a safety net if BroadcastChannel misses a message.
+        syncPoll=setInterval(()=>{
+          pullLocalState(false);
+          announcePresence();
+        },500);
+      }
+
+      ping=setInterval(()=>{
+        send('display_ping',{at:Date.now()});
+        if(mode==='local'){
+          pullLocalState(false);
+          announcePresence();
+        }
+      },2000);
     }
     function show(){$('pairScreen').style.display='none';$('displayScreen').classList.add('active')}
     $('connectBtn').addEventListener('click',connect);
     $('roomInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect()});
     $('fullscreenBtn').addEventListener('click',()=>{const el=document.documentElement;if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()});
+    window.addEventListener('storage',handleStorageEvent);
     const params=new URLSearchParams(location.search),initial=(params.get('room')||localStorage.getItem('ammanMafiaDisplayLastRoom')||'').toUpperCase();
     $('roomInput').value=initial;
     if(params.get('room'))connect();
