@@ -59,6 +59,12 @@
       eliminationSeat: Number(state.eliminationSeat) > 0
         ? Math.floor(Number(state.eliminationSeat))
         : null,
+      eliminationType: String(state.eliminationType || 'manual'),
+      eliminationTitle: String(
+        state.eliminationTitle || 'تم إقصاء اللاعب'
+      ),
+      eliminationIcon: String(state.eliminationIcon || '💀'),
+      eliminationColor: String(state.eliminationColor || '#d1d5db'),
       eliminationEventId: Math.max(0, Number(state.eliminationEventId) || 0),
       eliminationActive: Boolean(state.eliminationActive),
       speakerSeat: Number(state.speakerSeat) > 0 ? Math.floor(Number(state.speakerSeat)) : null,
@@ -887,7 +893,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '72');
+    url.searchParams.set('v', '73');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -1356,11 +1362,22 @@
   }
 
 
-  function publishEliminationNotice(seatId) {
+  function publishEliminationNotice(seatId, meta = {}) {
     const parsedSeat = Math.floor(Number(seatId) || 0);
     if (!(parsedSeat > 0)) return;
 
+    const safeMeta = {
+      type: String(meta.type || 'manual'),
+      title: String(meta.title || 'تم إقصاء اللاعب'),
+      icon: String(meta.icon || '💀'),
+      color: String(meta.color || '#d1d5db')
+    };
+
     publicState.eliminationSeat = parsedSeat;
+    publicState.eliminationType = safeMeta.type;
+    publicState.eliminationTitle = safeMeta.title;
+    publicState.eliminationIcon = safeMeta.icon;
+    publicState.eliminationColor = safeMeta.color;
     publicState.eliminationEventId =
       Math.max(0, Number(publicState.eliminationEventId) || 0) + 1;
     publicState.eliminationActive = true;
@@ -1368,12 +1385,23 @@
     const eventId = publicState.eliminationEventId;
     saveState();
 
-    // إبقاء الحدث فعالًا لفترة كافية حتى يصل لكل الشاشات.
     window.setTimeout(() => {
       if (Number(publicState.eliminationEventId) !== eventId) return;
       publicState.eliminationActive = false;
       saveState();
     }, 4500);
+  }
+
+  function handleTypedEliminationNotices(event) {
+    const notices = Array.isArray(event?.detail?.notices)
+      ? event.detail.notices
+      : [];
+
+    notices.forEach((notice, index) => {
+      window.setTimeout(() => {
+        publishEliminationNotice(notice.seat, notice);
+      }, index * 180);
+    });
   }
 
   function installEliminationNoticeSync() {
@@ -1401,8 +1429,17 @@
       );
 
       // يظهر التنبيه فقط عند التحول من حي إلى مقصي، وليس عند الإحياء.
-      if (!wasDead && isDead) {
-        publishEliminationNotice(seatId);
+      if (
+        !wasDead &&
+        isDead &&
+        !window.__ammanMafiaTypedNightEliminations
+      ) {
+        publishEliminationNotice(seatId, {
+          type: 'manual',
+          title: 'تم إقصاء اللاعب',
+          icon: '💀',
+          color: '#d1d5db'
+        });
       }
 
       return result;
@@ -1459,6 +1496,10 @@
     window.addEventListener(
       'amman-mafia-muted-seat',
       handleDirectMutedSeat
+    );
+    window.addEventListener(
+      'amman-mafia-elimination-notices',
+      handleTypedEliminationNotices
     );
     window.addEventListener('storage', handleLocalStorageMessage);
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v72</title>
+  <title>Amman Mafia — شاشة العرض v73</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -112,6 +112,7 @@
 
 
     .elimination-overlay{
+      --elim-color:#d1d5db;
       position:absolute;
       inset:0;
       z-index:100;
@@ -132,24 +133,32 @@
       gap:20px;
       text-align:center;
       border-radius:44px;
-      border:3px solid rgba(255,76,86,.78);
+      border:3px solid var(--elim-color);
       background:
-        radial-gradient(circle at 50% 30%,rgba(155,0,8,.26),transparent 55%),
-        linear-gradient(180deg,rgba(24,5,9,.98),rgba(7,7,11,.98));
+        radial-gradient(
+          circle at 50% 30%,
+          color-mix(in srgb,var(--elim-color) 22%,transparent),
+          transparent 56%
+        ),
+        linear-gradient(180deg,rgba(18,10,13,.98),rgba(7,7,11,.98));
       box-shadow:
-        0 0 65px rgba(255,40,50,.20),
-        inset 0 0 70px rgba(140,0,7,.12);
+        0 0 65px color-mix(in srgb,var(--elim-color) 22%,transparent),
+        inset 0 0 70px color-mix(in srgb,var(--elim-color) 10%,transparent);
     }
     .elimination-icon{
       font-size:92px;
       line-height:1;
-      filter:drop-shadow(0 0 22px rgba(255,76,86,.28));
+      filter:drop-shadow(
+        0 0 22px color-mix(in srgb,var(--elim-color) 36%,transparent)
+      );
     }
     .elimination-title{
-      color:#fff5ec;
+      color:var(--elim-color);
       font-size:62px;
       line-height:1;
       font-weight:900;
+      text-shadow:
+        0 0 20px color-mix(in srgb,var(--elim-color) 22%,transparent);
     }
     .elimination-seat-line{
       display:flex;
@@ -161,14 +170,14 @@
       font-weight:800;
     }
     .elimination-seat{
-      color:var(--red);
+      color:var(--elim-color);
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
       font-size:150px;
       line-height:.8;
       font-weight:950;
       text-shadow:
-        0 0 18px rgba(255,76,86,.70),
-        0 0 50px rgba(255,76,86,.28);
+        0 0 18px color-mix(in srgb,var(--elim-color) 70%,transparent),
+        0 0 50px color-mix(in srgb,var(--elim-color) 28%,transparent);
     }
     .elimination-overlay.show .elimination-card{
       animation:eliminationReveal .34s ease-out both;
@@ -228,10 +237,12 @@
 
       <section id="eliminationOverlay" class="elimination-overlay" aria-live="assertive">
         <div class="elimination-card">
-          <div class="elimination-icon">💀</div>
-          <div class="elimination-title">تم إقصاء اللاعب</div>
+          <div id="eliminationIcon" class="elimination-icon">💀</div>
+          <div id="eliminationTitle" class="elimination-title">
+            تم إقصاء اللاعب
+          </div>
           <div class="elimination-seat-line">
-            <span>رقم</span>
+            <span>اللاعب رقم</span>
             <strong id="eliminationSeat" class="elimination-seat">—</strong>
           </div>
         </div>
@@ -248,9 +259,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v72-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v73-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=72"></script>
+  <script src="realtime-config.js?v=73"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -331,7 +342,16 @@
       ) return;
 
       lastEliminationEventId=eventId;
-      eliminationQueue.push({eventId,seat});
+      eliminationQueue.push({
+        eventId,
+        seat,
+        type:String(nextState.eliminationType||'manual'),
+        title:String(
+          nextState.eliminationTitle||'تم إقصاء اللاعب'
+        ),
+        icon:String(nextState.eliminationIcon||'💀'),
+        color:String(nextState.eliminationColor||'#d1d5db')
+      });
       showNextEliminationNotice();
     }
 
@@ -341,10 +361,25 @@
       const notice=eliminationQueue.shift();
       const overlay=$("eliminationOverlay");
       const seatElement=$("eliminationSeat");
-      if(!overlay || !seatElement) return;
+      const titleElement=$("eliminationTitle");
+      const iconElement=$("eliminationIcon");
+
+      if(
+        !overlay ||
+        !seatElement ||
+        !titleElement ||
+        !iconElement
+      ) return;
 
       eliminationShowing=true;
       seatElement.textContent=String(notice.seat);
+      titleElement.textContent=notice.title;
+      iconElement.textContent=notice.icon;
+      overlay.dataset.type=notice.type;
+      overlay.style.setProperty(
+        "--elim-color",
+        notice.color
+      );
       overlay.classList.add("show");
 
       window.setTimeout(()=>{

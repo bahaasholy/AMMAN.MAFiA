@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v72</title>
+    <title>Amman Mafia — TV Control v73</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v72">
+    <meta name="app-version" content="tv-v73">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=72">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=72">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=72">
+    <link rel="manifest" href="manifest.json?v=73">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=73">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=73">
     <style>
         :root {
             --gold: #c9a84c;
@@ -988,7 +988,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=72">
+    <link rel="stylesheet" href="tv-control.css?v=73">
 </head>
 <body>
 
@@ -1265,6 +1265,7 @@
         let activeGameRoles = [];
         let deckSelection = {}; 
         let wizardFinalKills = [];
+        let nightEliminationNotices = [];
         let activeNightSteps = []; // المصفوفة الديناميكية الموحدة والآمنة 
         let currentStep = 0; // نعتمد الفهرس (Index) من 0 لربط المصفوفة بالكامل دون تضارب
         let nightRoundInProgress = false; // يسمح بالخروج للوحة الإدارة ثم العودة لنفس خطوة الليل
@@ -2287,6 +2288,7 @@
             killBtn.style.display = 'block';
 
             wizardFinalKills = [];
+            nightEliminationNotices = [];
 
             let actualSniperTarget = 'none';
             let sniperSuicideSeat = 'none';
@@ -2693,6 +2695,51 @@
 
                 if (primaryResult) {
                     pushNightResult(primaryCategory, primaryResult);
+
+                    const seatWasEliminated = wizardFinalKills
+                        .map(String)
+                        .includes(String(seatNum));
+
+                    if (seatWasEliminated) {
+                        let noticeType = 'manual';
+                        let noticeTitle = 'تم إقصاء اللاعب';
+                        let noticeIcon = '💀';
+                        let noticeColor = '#d1d5db';
+
+                        if (primaryCategory === 'mafia') {
+                            noticeType = 'mafia';
+                            noticeTitle = primaryResult.title.includes('الوارث')
+                                ? 'اغتيال الوارث'
+                                : 'اغتيال المافيا';
+                            noticeIcon = '🩸';
+                            noticeColor = '#e50914';
+                        } else if (primaryCategory === 'killer') {
+                            noticeType = 'killer';
+                            noticeTitle = 'ذبح السفاح';
+                            noticeIcon = '🔪';
+                            noticeColor = '#ff8a00';
+                        } else if (primaryCategory === 'sniper') {
+                            noticeType = 'sniper';
+                            noticeTitle = primaryResult.title.includes('نيران صديقة')
+                                ? 'نيران صديقة'
+                                : 'قنصة القناص';
+                            noticeIcon = '🎯';
+                            noticeColor = '#22b8cf';
+                        } else if (primaryCategory === 'vanguard') {
+                            noticeType = 'vanguard';
+                            noticeTitle = 'انفجار الفدائي';
+                            noticeIcon = '💥';
+                            noticeColor = '#a855f7';
+                        }
+
+                        nightEliminationNotices.push({
+                            seat: Number(seatNum),
+                            type: noticeType,
+                            title: noticeTitle,
+                            icon: noticeIcon,
+                            color: noticeColor
+                        });
+                    }
                 }
             });
 
@@ -2762,10 +2809,51 @@
 
             let actionTaken = false;
             if (wizardFinalKills.length > 0) {
-                wizardFinalKills.forEach(id => {
-                    const seatCard = document.getElementById(`seat-${id}`);
-                    if (seatCard && !seatCard.classList.contains('dead-status')) toggleElimination(parseInt(id));
+                const noticeBySeat = new Map(
+                    nightEliminationNotices.map(notice => [
+                        String(notice.seat),
+                        notice
+                    ])
+                );
+
+                const typedNotices = wizardFinalKills.map(id => {
+                    return noticeBySeat.get(String(id)) || {
+                        seat: Number(id),
+                        type: 'manual',
+                        title: 'تم إقصاء اللاعب',
+                        icon: '💀',
+                        color: '#d1d5db'
+                    };
                 });
+
+                // منع التنبيه العام أثناء تطبيق نتائج الليل؛
+                // التنبيهات الملوّنة ستُرسل دفعة واحدة بعد الإقصاءات.
+                window.__ammanMafiaTypedNightEliminations = true;
+
+                try {
+                    wizardFinalKills.forEach(id => {
+                        const seatCard = document.getElementById(`seat-${id}`);
+
+                        if (
+                            seatCard &&
+                            !seatCard.classList.contains('dead-status')
+                        ) {
+                            toggleElimination(parseInt(id));
+                        }
+                    });
+                } finally {
+                    window.__ammanMafiaTypedNightEliminations = false;
+                }
+
+                window.dispatchEvent(
+                    new CustomEvent('amman-mafia-elimination-notices', {
+                        detail: {
+                            notices: typedNotices,
+                            source: 'night-round'
+                        }
+                    })
+                );
+
                 actionTaken = true;
             }
 
@@ -2956,8 +3044,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=72"></script>
+    <script src="realtime-config.js?v=73"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=72"></script>
+    <script src="tv-control.js?v=73"></script>
 </body>
 </html>
