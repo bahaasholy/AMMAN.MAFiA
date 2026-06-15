@@ -293,3 +293,11 @@
   .tv-speaker-direction{grid-template-columns:1fr}
   .tv-speaker-actions{grid-template-columns:1fr 1.3fr}
 }
+
+/* ===== v69: تبسيط قسم دور المتحدث ===== */
+.tv-speaker-actions-single {
+  grid-template-columns: 1fr !important;
+}
+.tv-speaker-actions-single .tv-btn {
+  width: 100%;
+}

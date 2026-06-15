@@ -58,7 +58,7 @@
       speakerDirection: ['clockwise','counterclockwise'].includes(state.speakerDirection)
         ? state.speakerDirection
         : 'clockwise',
-      speakerAutoTimer: state.speakerAutoTimer !== false,
+      speakerAutoTimer: false,
       speakerChangeId: Math.max(0, Number(state.speakerChangeId) || 0),
       speakerCycleStartSeat: Number(state.speakerCycleStartSeat) > 0
         ? Math.floor(Number(state.speakerCycleStartSeat))
@@ -296,9 +296,6 @@
       publicState.speakerVisitedSeats.push(parsedSeat);
     }
 
-    if (options.startTimer !== false && publicState.speakerAutoTimer) {
-      startFullSpeakerTimer();
-    }
 
     vibrate(28);
     saveState();
@@ -472,7 +469,7 @@
       publicState.speakerVisitedSeats.push(target);
     }
 
-    if (options.forceTimer || publicState.speakerAutoTimer) {
+    if (options.forceTimer) {
       startFullSpeakerTimer();
     }
 
@@ -504,10 +501,6 @@
     publicState.speakerVisible = true;
     publicState.speakerChangeId += 1;
 
-    if (publicState.speakerAutoTimer) {
-      startFullSpeakerTimer();
-    }
-
     vibrate(24);
     saveState();
     return true;
@@ -536,7 +529,7 @@
         return null;
       }
 
-      if (forceTimer || publicState.speakerAutoTimer) {
+      if (forceTimer) {
         startFullSpeakerTimer();
       }
 
@@ -658,20 +651,11 @@
       .getElementById('tvSpeakerCounterclockwise')
       .classList.toggle('active', publicState.speakerDirection === 'counterclockwise');
 
-    document.getElementById('tvSpeakerAutoTimer').checked =
-      Boolean(publicState.speakerAutoTimer);
-
-    const visibilityButton = document.getElementById('tvSpeakerVisibility');
-    visibilityButton.disabled = !(currentSeat > 0);
-    visibilityButton.textContent = publicState.speakerVisible
-      ? 'إخفاء اللاعب من التلفزيون'
-      : 'إظهار اللاعب على التلفزيون';
-
     const preview = getSpeakerOrderPreview();
     const previewElement = document.getElementById('tvSpeakerPreview');
     if (isSpeakerLapComplete()) {
       previewElement.textContent =
-        'انتهت اللفة — اضغط التالي للانتقال إلى جولة التصويت';
+        'انتهت اللفة — استخدم زر التالي الرئيسي للانتقال إلى جولة التصويت';
     } else {
       previewElement.textContent = preview.length
         ? `اللفة الحالية: ${preview.join(' ← ')} ← ثم جولة التصويت`
@@ -682,8 +666,6 @@
       !publicState.speakerCycleActive ||
       publicState.speakerVisitedSeats.length <= 1;
 
-    document.getElementById('tvSpeakerNext').disabled =
-      aliveSeats.length === 0 && !publicState.speakerCycleActive;
   }
 
   function syncSpeakerAvailability() {
@@ -769,24 +751,9 @@
 
           <div id="tvSpeakerPreview" class="tv-speaker-preview"></div>
 
-          <div class="tv-speaker-actions">
+          <div class="tv-speaker-actions tv-speaker-actions-single">
             <button id="tvSpeakerPrevious" class="tv-btn" type="button">السابق</button>
-            <button id="tvSpeakerNext" class="tv-btn gold tv-speaker-next" type="button">
-              المتحدث التالي
-            </button>
           </div>
-
-          <label class="tv-speaker-option">
-            <input id="tvSpeakerAutoTimer" type="checkbox">
-            <span>
-              تشغيل المؤقت تلقائيًا عند اختيار أو تغيير المتحدث
-              <small>يبدأ من 30 أو 45 أو 60 ثانية حسب المدة المختارة</small>
-            </span>
-          </label>
-
-          <button id="tvSpeakerVisibility" class="tv-btn red tv-speaker-visibility" type="button">
-            إخفاء اللاعب من التلفزيون
-          </button>
         </section>
 
         <section class="tv-control-card">
@@ -838,7 +805,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '68');
+    url.searchParams.set('v', '69');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -1014,30 +981,18 @@
       moveSpeaker(-1);
     });
 
-    document.getElementById('tvSpeakerNext').addEventListener('click', () => {
-      moveSpeaker(1);
-    });
-
-    document.getElementById('tvSpeakerAutoTimer').addEventListener('change', event => {
-      publicState.speakerAutoTimer = Boolean(event.target.checked);
-      vibrate(12);
-      saveState();
-    });
-
-    document.getElementById('tvSpeakerVisibility').addEventListener('click', () => {
-      if (!(Number(publicState.speakerSeat) > 0)) return;
-
-      publicState.speakerVisible = !publicState.speakerVisible;
-      publicState.speakerChangeId += 1;
-      vibrate(22);
-      saveState();
-    });
-
-
   }
 
   function renderAll() {
     if (!document.getElementById('sectionDisplayControl')) return;
+
+    if (
+      publicState.phase === 'discussion' &&
+      Number(publicState.speakerSeat) > 0 &&
+      getAliveSeatNumbers().includes(Number(publicState.speakerSeat))
+    ) {
+      publicState.speakerVisible = true;
+    }
     document.getElementById('tvRoomCode').textContent = roomCode;
     document.getElementById('tvDisplayUrl').value = getDisplayUrl();
     document.getElementById('tvRoundNumber').textContent = String(publicState.roundNumber);
