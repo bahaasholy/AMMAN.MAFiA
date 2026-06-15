@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v60</title>
+  <title>Amman Mafia — شاشة العرض v61</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@
 
     .phase-title{position:absolute;left:260px;top:24px;width:1080px;height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:54px;font-weight:900;line-height:1;color:#faf9f5;text-shadow:0 3px 15px rgba(0,0,0,.5)}
 
-    .timer-stage{position:absolute;left:70px;top:128px;width:790px;height:610px;display:flex;align-items:center;justify-content:center;border-radius:38px;background:rgba(5,7,12,.30)}
+    .timer-stage{position:absolute;left:70px;top:124px;width:790px;height:592px;display:flex;align-items:center;justify-content:center;border-radius:38px;background:rgba(5,7,12,.30)}
     .timer-wrap{position:relative;width:590px;height:590px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
     .timer-svg{position:absolute;inset:0;width:590px;height:590px;z-index:1;transform:rotate(-90deg);overflow:visible;filter:drop-shadow(0 0 18px rgba(242,195,91,.14))}
     .ring-track{fill:rgba(3,5,9,.86);stroke:rgba(255,255,255,.12);stroke-width:18}
@@ -65,13 +65,13 @@
     .speaker-label{position:absolute;left:0;right:0;top:56px;text-align:center;color:var(--gold);font-size:46px;font-weight:900}
     .speaker-value{position:absolute;left:0;right:0;top:148px;text-align:center;font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:202px;line-height:1;font-weight:950;color:#f8f5ed;text-shadow:0 0 25px rgba(255,255,255,.06)}
 
-    .phase-panel{position:absolute;left:55px;right:55px;top:130px;bottom:188px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:25px;border-radius:38px;background:rgba(6,8,13,.72);border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+    .phase-panel{position:absolute;left:55px;right:55px;top:130px;bottom:196px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:25px;border-radius:38px;background:rgba(6,8,13,.72);border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
     .phase-icon{font-size:130px;line-height:1}.phase-name{font-size:90px;line-height:.9;font-weight:900}.phase-panel.night .phase-name{color:var(--purple)}.phase-panel.voting .phase-name{color:var(--gold)}.phase-panel.idle .phase-name{color:var(--blue)}
 
-    .stats-row{position:absolute;left:55px;right:55px;bottom:30px;height:128px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;direction:rtl}
-    .stat-card{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 28px 16px;border-radius:25px;background:linear-gradient(180deg,rgba(11,13,18,.92),rgba(8,10,15,.86));border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 38px rgba(0,0,0,.28);overflow:hidden}
-    .stat-card::after{content:"";position:absolute;left:20px;right:20px;bottom:0;height:5px;border-radius:999px;background:var(--accent)}
-    .stat-title{font-size:31px;font-weight:900;color:#f7f6f2}.stat-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:68px;line-height:1;font-weight:950;color:var(--accent)}
+    .stats-row{position:absolute;left:55px;right:55px;bottom:24px;height:148px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;direction:rtl}
+    .stat-card{position:relative;display:flex;align-items:center;justify-content:space-between;padding:22px 30px 20px;border-radius:29px;background:linear-gradient(180deg,rgba(16,19,26,.96),rgba(8,10,15,.90));border:1px solid rgba(255,255,255,.11);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 18px 44px rgba(0,0,0,.34);overflow:hidden}.stat-card::before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+    .stat-card::after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:6px;border-radius:999px;background:var(--accent);box-shadow:0 0 14px color-mix(in srgb,var(--accent) 42%,transparent)}
+    .stat-title{font-size:33px;font-weight:900;color:#f7f6f2;text-shadow:0 2px 8px rgba(0,0,0,.28)}.stat-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:76px;line-height:.95;font-weight:950;color:var(--accent);text-shadow:0 0 18px color-mix(in srgb,var(--accent) 20%,transparent)}
     .stat-alive{--accent:#52afff}.stat-mafia{--accent:#ff5962}.stat-citizen{--accent:#599fff}.stat-killer{--accent:#b873ff}
 
     .fullscreen-btn{position:fixed;left:16px;bottom:12px;z-index:20;padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(5,7,11,.6);color:#d6d8de;font-size:.72rem;font-weight:800;opacity:.18;cursor:pointer}.fullscreen-btn:hover{opacity:1}
@@ -129,9 +129,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v60-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v61-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=60"></script>
+  <script src="realtime-config.js?v=61"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
