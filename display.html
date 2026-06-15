@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v69</title>
+  <title>Amman Mafia — شاشة العرض v70</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -74,6 +74,74 @@
     .stat-title{font-size:33px;font-weight:900;color:#f7f6f2;text-shadow:0 2px 8px rgba(0,0,0,.28)}.stat-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:76px;line-height:.95;font-weight:950;color:var(--accent);text-shadow:0 0 18px color-mix(in srgb,var(--accent) 20%,transparent)}
     .stat-alive{--accent:#52afff}.stat-mafia{--accent:#ff5962}.stat-citizen{--accent:#599fff}.stat-killer{--accent:#b873ff}
 
+
+    .elimination-overlay{
+      position:absolute;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:60px;
+      background:rgba(2,3,7,.88);
+    }
+    .elimination-overlay.show{display:flex}
+    .elimination-card{
+      width:820px;
+      min-height:470px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:20px;
+      text-align:center;
+      border-radius:44px;
+      border:3px solid rgba(255,76,86,.78);
+      background:
+        radial-gradient(circle at 50% 30%,rgba(155,0,8,.26),transparent 55%),
+        linear-gradient(180deg,rgba(24,5,9,.98),rgba(7,7,11,.98));
+      box-shadow:
+        0 0 65px rgba(255,40,50,.20),
+        inset 0 0 70px rgba(140,0,7,.12);
+    }
+    .elimination-icon{
+      font-size:92px;
+      line-height:1;
+      filter:drop-shadow(0 0 22px rgba(255,76,86,.28));
+    }
+    .elimination-title{
+      color:#fff5ec;
+      font-size:62px;
+      line-height:1;
+      font-weight:900;
+    }
+    .elimination-seat-line{
+      display:flex;
+      align-items:baseline;
+      justify-content:center;
+      gap:22px;
+      color:#d8d8df;
+      font-size:42px;
+      font-weight:800;
+    }
+    .elimination-seat{
+      color:var(--red);
+      font-family:"Arial Black","Segoe UI",Arial,sans-serif;
+      font-size:150px;
+      line-height:.8;
+      font-weight:950;
+      text-shadow:
+        0 0 18px rgba(255,76,86,.70),
+        0 0 50px rgba(255,76,86,.28);
+    }
+    .elimination-overlay.show .elimination-card{
+      animation:eliminationReveal .34s ease-out both;
+    }
+    @keyframes eliminationReveal{
+      from{opacity:0;transform:scale(.90)}
+      to{opacity:1;transform:scale(1)}
+    }
+
     .fullscreen-btn{position:fixed;left:16px;bottom:12px;z-index:20;padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(5,7,11,.6);color:#d6d8de;font-size:.72rem;font-weight:800;opacity:.18;cursor:pointer}.fullscreen-btn:hover{opacity:1}
 
     body.phase-discussion .timer-stage,body.phase-discussion .speaker-card,body.phase-discussion .round-pill{display:flex}
@@ -118,6 +186,17 @@
       <section class="phase-panel voting"><div class="phase-icon">🗳️</div><div class="phase-name">جولة التصويت</div></section>
       <section class="phase-panel idle"><div class="phase-icon">⌛</div><div class="phase-name">بانتظار الجولة</div></section>
 
+      <section id="eliminationOverlay" class="elimination-overlay" aria-live="assertive">
+        <div class="elimination-card">
+          <div class="elimination-icon">💀</div>
+          <div class="elimination-title">تم إقصاء اللاعب</div>
+          <div class="elimination-seat-line">
+            <span>رقم</span>
+            <strong id="eliminationSeat" class="elimination-seat">—</strong>
+          </div>
+        </div>
+      </section>
+
       <section class="stats-row">
         <div class="stat-card stat-alive"><div class="stat-title">الأحياء</div><div id="aliveCount" class="stat-value">0</div></div>
         <div class="stat-card stat-mafia"><div class="stat-title">مافيا</div><div id="mafiaCount" class="stat-value">0</div></div>
@@ -129,9 +208,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v69-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v70-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=69"></script>
+  <script src="realtime-config.js?v=70"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -139,6 +218,9 @@
     const PHASE_LABELS={idle:"بانتظار الجولة",discussion:"جولة النقاش",voting:"جولة التصويت",night:"جولة الليل"};
     const RING_RADIUS=270;const RING_CIRCUMFERENCE=2*Math.PI*RING_RADIUS;
     let room="",state=null,client=null,channel=null,localChannel=null,mode="local",transportConnected=false,lastStateAt=0,tick=null,ping=null,syncPoll=null,retryTimer=null,lastLocalWrittenAt=0,timerSyncReceivedAt=0,timerRemainingAtSync=0;
+    let eliminationQueue=[];
+    let eliminationShowing=false;
+    let lastEliminationEventId=0;
     const LOCAL_STATE_PREFIX="ammanMafiaLocalDisplayStateV2:",LOCAL_REQUEST_PREFIX="ammanMafiaLocalDisplayRequestV2:",LOCAL_PRESENCE_PREFIX="ammanMafiaLocalDisplayPresenceV2:";
     const $=id=>document.getElementById(id);
 
@@ -188,8 +270,53 @@
       timerRemainingAtSync=state.timerRemainingMs;
       timerSyncReceivedAt=monotonicNow();
       lastStateAt=Date.now();
+      enqueueEliminationNotice(state);
       render();
     }
+
+    function enqueueEliminationNotice(nextState){
+      const eventId=Math.max(
+        0,
+        Number(nextState && nextState.eliminationEventId) || 0
+      );
+      const seat=Math.floor(
+        Number(nextState && nextState.eliminationSeat) || 0
+      );
+
+      if (
+        !nextState ||
+        !nextState.eliminationActive ||
+        !(eventId > lastEliminationEventId) ||
+        !(seat > 0)
+      ) return;
+
+      lastEliminationEventId=eventId;
+      eliminationQueue.push({eventId,seat});
+      showNextEliminationNotice();
+    }
+
+    function showNextEliminationNotice(){
+      if(eliminationShowing || eliminationQueue.length===0) return;
+
+      const notice=eliminationQueue.shift();
+      const overlay=$("eliminationOverlay");
+      const seatElement=$("eliminationSeat");
+      if(!overlay || !seatElement) return;
+
+      eliminationShowing=true;
+      seatElement.textContent=String(notice.seat);
+      overlay.classList.add("show");
+
+      window.setTimeout(()=>{
+        overlay.classList.remove("show");
+
+        window.setTimeout(()=>{
+          eliminationShowing=false;
+          showNextEliminationNotice();
+        },260);
+      },3500);
+    }
+
     function localStateKey(){return LOCAL_STATE_PREFIX+room}function localRequestKey(){return LOCAL_REQUEST_PREFIX+room}function localPresenceKey(){return LOCAL_PRESENCE_PREFIX+room}
     function writeLocalSignal(key,payload){try{localStorage.setItem(key,JSON.stringify({...payload,at:Date.now(),nonce:Math.random().toString(36).slice(2)}))}catch(_){}}
     function announcePresence(){if(room)writeLocalSignal(localPresenceKey(),{type:"display-presence"})}function requestLocalState(){if(room)writeLocalSignal(localRequestKey(),{type:"display-request"})}

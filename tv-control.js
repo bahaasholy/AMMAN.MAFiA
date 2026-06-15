@@ -53,6 +53,11 @@
       mafiaAlive: Math.max(0, Number(state.mafiaAlive) || 0),
       killerAlive: Math.max(0, Number(state.killerAlive) || 0),
       showKiller: Boolean(state.showKiller),
+      eliminationSeat: Number(state.eliminationSeat) > 0
+        ? Math.floor(Number(state.eliminationSeat))
+        : null,
+      eliminationEventId: Math.max(0, Number(state.eliminationEventId) || 0),
+      eliminationActive: Boolean(state.eliminationActive),
       speakerSeat: Number(state.speakerSeat) > 0 ? Math.floor(Number(state.speakerSeat)) : null,
       speakerVisible: Boolean(state.speakerVisible),
       speakerDirection: ['clockwise','counterclockwise'].includes(state.speakerDirection)
@@ -805,7 +810,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '69');
+    url.searchParams.set('v', '70');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -1237,6 +1242,62 @@
     window.__tvSwitchWrapped = true;
   }
 
+
+  function publishEliminationNotice(seatId) {
+    const parsedSeat = Math.floor(Number(seatId) || 0);
+    if (!(parsedSeat > 0)) return;
+
+    publicState.eliminationSeat = parsedSeat;
+    publicState.eliminationEventId =
+      Math.max(0, Number(publicState.eliminationEventId) || 0) + 1;
+    publicState.eliminationActive = true;
+
+    const eventId = publicState.eliminationEventId;
+    saveState();
+
+    // إبقاء الحدث فعالًا لفترة كافية حتى يصل لكل الشاشات.
+    window.setTimeout(() => {
+      if (Number(publicState.eliminationEventId) !== eventId) return;
+      publicState.eliminationActive = false;
+      saveState();
+    }, 4500);
+  }
+
+  function installEliminationNoticeSync() {
+    if (
+      typeof window.toggleElimination !== 'function' ||
+      window.__tvEliminationNoticeWrapped
+    ) return;
+
+    const originalToggleElimination = window.toggleElimination;
+
+    window.toggleElimination = function (seatId, ...args) {
+      const cardBefore = document.getElementById(`seat-${seatId}`);
+      const wasDead = Boolean(
+        cardBefore && cardBefore.classList.contains('dead-status')
+      );
+
+      const result = originalToggleElimination.apply(
+        this,
+        [seatId, ...args]
+      );
+
+      const cardAfter = document.getElementById(`seat-${seatId}`);
+      const isDead = Boolean(
+        cardAfter && cardAfter.classList.contains('dead-status')
+      );
+
+      // يظهر التنبيه فقط عند التحول من حي إلى مقصي، وليس عند الإحياء.
+      if (!wasDead && isDead) {
+        publishEliminationNotice(seatId);
+      }
+
+      return result;
+    };
+
+    window.__tvEliminationNoticeWrapped = true;
+  }
+
   function installNightCompletionSync() {
     if (typeof window.endNightRound !== 'function' || window.__tvNightCompletionWrapped) return;
 
@@ -1254,6 +1315,7 @@
     createUI();
     installTabWrapper();
     installNightCompletionSync();
+    installEliminationNoticeSync();
 
     window.addEventListener('storage', handleLocalStorageMessage);
 
