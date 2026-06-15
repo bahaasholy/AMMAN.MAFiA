@@ -1,6 +1,6 @@
 {
   "name": "Amman Mafia",
-  "short_name": "Mafia",
+  "short_name": "Amman Mafia",
   "description": "لوحة إدارة لعبة المافيا مع شاشة عرض للتلفزيون",
   "start_url": "./index.html",
   "scope": "./",
@@ -15,13 +15,19 @@
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

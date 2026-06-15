@@ -1,9 +1,21 @@
-AMMAN MAFIA — v66 — CENTERED MAFIA SETUP HEADER
+AMMAN MAFIA — v67 — APP ICON PACKAGE
 
-التعديلات:
-- توسيط النص داخل المستطيل الأول في صفحة تحديد مقاعد المافيا.
-- جعل العنوان والوصف والعداد في المنتصف بشكل احترافي أكثر.
-- الإبقاء على بقية الوظائف كما هي.
+تمت إضافة حزمة الأيقونات الجديدة للمنصة:
+
+- icon-192.png
+- icon-512.png
+- icon-512-maskable.png
+- apple-touch-icon.png
+- favicon-32.png
+- app-icon-master.png
+
+تم تحديث:
+- manifest.json
+- index.html
+- Service Worker cache
+
+الأيقونات مربعة وتحافظ على نسبة الشعار بدون شد أو تمديد.
+نسخة maskable فيها مساحة آمنة لتفادي قص الشعار على Android.
 
 الرابط:
-https://bahaasholy.github.io/AMMAN.MAFiA/?v=66
+https://bahaasholy.github.io/AMMAN.MAFiA/?v=67
