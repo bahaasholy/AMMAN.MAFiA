@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v61</title>
+    <title>Amman Mafia — TV Control v63</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v61">
+    <meta name="app-version" content="tv-v63">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -852,13 +852,40 @@
             font-weight:850;
         }
 
+
+        /* v63 — الشعار الرسمي في رأس المنصة */
+        .app-brand-logo {
+            display: block;
+            width: clamp(220px, 58vw, 390px);
+            max-width: calc(100vw - 36px);
+            height: auto;
+            max-height: 116px;
+            object-fit: contain;
+            margin: 0 auto 8px;
+            filter: drop-shadow(0 10px 24px rgba(0,0,0,0.34));
+        }
+        .app-header {
+            padding-top: calc(12px + env(safe-area-inset-top)) !important;
+            padding-bottom: 12px !important;
+        }
+        .app-header .subtitle {
+            margin-top: 0 !important;
+        }
+        @media (max-width: 420px) {
+            .app-brand-logo {
+                width: min(72vw, 300px);
+                max-height: 94px;
+                margin-bottom: 5px;
+            }
+        }
+
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=61">
+    <link rel="stylesheet" href="tv-control.css?v=63">
 </head>
 <body>
 
     <div class="app-header">
-        <h1>AMMAN MAFIA</h1>
+        <img class="app-brand-logo" src="amman-mafia-wordmark.png" alt="Amman Mafia">
         <div class="subtitle">لوحة إدارة اللعبة</div>
         <div class="header-line"></div>
     </div>
@@ -871,7 +898,7 @@
                 <div style="color:#888; font-size:0.85rem; margin-bottom:12px; letter-spacing:1px;">عدد اللاعبين</div>
                 <div style="display:flex; align-items:center; justify-content:center; gap:15px;">
                     <button onclick="changePlayerCount(-1)" style="width:42px; height:42px; font-size:1.4rem; background:#222228; border:1px solid #c9a84c44; border-radius:8px; color:#c9a84c; cursor:pointer;">−</button>
-                    <span id="pcCount" style="font-size:2.8rem; font-weight:800; color:#c9a84c; min-width:60px; text-align:center;">8</span>
+                    <span id="pcCount" style="font-size:2.8rem; font-weight:800; color:#c9a84c; min-width:60px; text-align:center;">12</span>
                     <button onclick="changePlayerCount(1)" style="width:42px; height:42px; font-size:1.4rem; background:#222228; border:1px solid #c9a84c44; border-radius:8px; color:#c9a84c; cursor:pointer;">+</button>
                 </div>
             </div>
@@ -902,7 +929,7 @@
             <span style="color:#888; font-size:0.85rem;">عدد اللاعبين:</span>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button onclick="changeDeckPc(-1)" style="width:30px; height:30px; background:#222228; border:1px solid #c9a84c44; border-radius:6px; color:#c9a84c; cursor:pointer; font-size:1rem;">−</button>
-                <span id="deckPcCount" style="font-size:1.2rem; font-weight:800; color:#c9a84c; min-width:30px; text-align:center;">8</span>
+                <span id="deckPcCount" style="font-size:1.2rem; font-weight:800; color:#c9a84c; min-width:30px; text-align:center;">12</span>
                 <button onclick="changeDeckPc(1)" style="width:30px; height:30px; background:#222228; border:1px solid #c9a84c44; border-radius:6px; color:#c9a84c; cursor:pointer; font-size:1rem;">+</button>
             </div>
             <div style="display:flex; gap:8px;">
@@ -1027,7 +1054,7 @@
         // ===== AMMAN MAFIA STABLE v10.1 BUGFIX =====
         // ملاحظة: هذه النسخة تنظف وتثبت v9 بدون إضافة ميزات جديدة.
         // ===== شاشة حساب التوزيع =====
-        let pcPlayerCount = 8;
+        let pcPlayerCount = 12;
         let pcHasKiller = false;
 
         function changePlayerCount(delta) {
@@ -1067,7 +1094,7 @@
         }
 
         // ===== شريط الاقتراح في Deck Builder =====
-        let deckPcCount = 8;
+        let deckPcCount = 12;
         let deckHasKiller = false;
 
         function changeDeckPc(delta) {
@@ -2713,8 +2740,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=61"></script>
+    <script src="realtime-config.js?v=63"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=61"></script>
+    <script src="tv-control.js?v=63"></script>
 </body>
 </html>
