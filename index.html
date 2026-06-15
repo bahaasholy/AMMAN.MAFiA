@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v64</title>
+    <title>Amman Mafia — TV Control v65</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v64">
+    <meta name="app-version" content="tv-v65">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -508,6 +508,76 @@
             background: linear-gradient(160deg, rgba(24,24,31,0.96), rgba(12,12,16,0.96)) !important;
         }
 
+
+        .mafia-setup-wrap {
+            width: 95%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .mafia-setup-hero {
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(27,27,34,0.98), rgba(17,17,22,0.98));
+            border: 1px solid rgba(201,168,76,0.18);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.20);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mafia-setup-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .mafia-setup-title {
+            font-size: 1.08rem;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 0.3px;
+        }
+        .mafia-setup-subtitle {
+            color: #9b9ba6;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        .mafia-setup-counter-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 14px;
+            min-height: 42px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.22);
+            border: 1px solid rgba(201,168,76,0.16);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        .mafia-setup-counter-pill .label {
+            color: #8e8e98;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .mafia-setup-counter-pill .current,
+        .mafia-setup-counter-pill .total {
+            color: #cc4444;
+            font-size: 1.08rem;
+            font-weight: 900;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .mafia-setup-counter-pill .slash {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
         /* Small screens */
         @media (max-width: 420px) {
             .cinema-container { grid-template-columns: repeat(3, 1fr) !important; }
@@ -517,6 +587,11 @@
             .counter-card { min-height: 82px; }
             .counter-value { font-size: 1.35rem !important; }
             #mafiaSetupGrid { grid-template-columns: repeat(4, 1fr) !important; }
+            .mafia-setup-hero { padding: 14px 14px; }
+            .mafia-setup-title { font-size: 1rem; }
+            .mafia-setup-subtitle { font-size: 0.84rem; }
+            .mafia-setup-title-row { align-items: flex-start; }
+            .mafia-setup-counter-pill { width: 100%; justify-content: center; }
         }
         @media (min-width: 768px) {
             body { padding-bottom: 100px; }
@@ -891,7 +966,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=64">
+    <link rel="stylesheet" href="tv-control.css?v=65">
 </head>
 <body>
 
@@ -981,16 +1056,18 @@
 
     <!-- شاشة تحديد مقاعد المافيا السريع -->
     <div id="sectionMafiaSetup" class="page-section">
-        <div style="width:95%; max-width:600px; display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:20px;">
-            <div style="text-align:center;">
-                <div style="font-size:1.3rem; font-weight:800; color:#c9a84c; margin-bottom:6px; letter-spacing:1px;">تحديد مقاعد المافيا 🩸</div>
-                <div style="color:#888; font-size:0.85rem;">اضغط على المقاعد التي تحتوي على مافيا</div>
-                <div style="margin-top:10px; background:#141418; border:1px solid #c9a84c22; border-radius:8px; padding:8px 20px; display:inline-block;">
-                    <span style="color:#888; font-size:0.85rem;">المحددون: </span>
-                    <span id="mafiaSetupCount" style="color:#cc3333; font-weight:800; font-size:1.2rem;">0</span>
-                    <span style="color:#555; font-size:0.9rem;"> / </span>
-                    <span id="mafiaSetupTotal" style="color:#cc3333; font-weight:800; font-size:1.2rem;">0</span>
+        <div class="mafia-setup-wrap">
+            <div class="mafia-setup-hero">
+                <div class="mafia-setup-title-row">
+                    <div class="mafia-setup-title">تحديد مقاعد المافيا 🩸</div>
+                    <div class="mafia-setup-counter-pill">
+                        <span class="label">المحددون</span>
+                        <span id="mafiaSetupCount" class="current">0</span>
+                        <span class="slash">/</span>
+                        <span id="mafiaSetupTotal" class="total">0</span>
+                    </div>
                 </div>
+                <div class="mafia-setup-subtitle">اضغط على المقاعد التي تحتوي على مافيا</div>
             </div>
             <div id="mafiaSetupGrid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; width:100%;"></div>
             <button id="mafiaSetupBtn" onclick="confirmMafiaSetup()" style="width:100%; padding:15px; background:#333; color:#888; border:none; border-radius:12px; font-size:1rem; font-weight:800; cursor:not-allowed; letter-spacing:0.5px;">
@@ -2749,8 +2826,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=64"></script>
+    <script src="realtime-config.js?v=65"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=64"></script>
+    <script src="tv-control.js?v=65"></script>
 </body>
 </html>
