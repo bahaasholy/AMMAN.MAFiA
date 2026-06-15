@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v67</title>
+    <title>Amman Mafia — TV Control v68</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v67">
+    <meta name="app-version" content="tv-v68">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=67">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=67">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=67">
+    <link rel="manifest" href="manifest.json?v=68">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=68">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=68">
     <style>
         :root {
             --gold: #c9a84c;
@@ -971,8 +971,24 @@
             display: none !important;
         }
 
+    
+        .new-game-btn {
+            background: linear-gradient(
+                180deg,
+                rgba(139,0,0,0.30),
+                rgba(85,0,0,0.24)
+            ) !important;
+            color: #ff7d7d !important;
+            border: 1px solid rgba(255,107,107,0.25) !important;
+            white-space: nowrap;
+        }
+        .new-game-btn:disabled {
+            opacity: 0.65;
+            filter: grayscale(0.25);
+        }
+
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=67">
+    <link rel="stylesheet" href="tv-control.css?v=68">
 </head>
 <body>
 
@@ -1043,7 +1059,7 @@
             <span style="color:#aaa; margin-right: 15px;">الجولة:</span> 
             <span id="nightRoundDisplay" style="font-size: 1.2rem; color: #ffcc00;">1</span>
         </div>
-        <button class="reset-btn" onclick="resetToDeckBuilder()">تغيير الكروت 🔄</button>
+        <button class="reset-btn new-game-btn" onclick="startNewGame(this)">لعبة جديدة ✨</button>
     </div>
 
     <div id="mainTabs" class="navigation-tabs">
@@ -1083,7 +1099,6 @@
     </div>
 
     <div id="sectionDashboard" class="page-section">
-        <div class="screen">الشاشة / المشرف</div>
         <div id="mainCounters" class="counters-dashboard" style="display:none; width:95%; max-width:1100px; margin-bottom:20px;">
             <div class="counter-card total-count">
                 <div class="counter-title">إجمالي الأحياء 👥</div>
@@ -1137,7 +1152,7 @@
             </div>
         </div>
 
-        <div class="screen" id="nightScreenTitle">الشاشة / المشرف</div>
+        <div id="nightScreenTitle" style="display:none !important;"></div>
         <div id="nightCinemaContainer" class="cinema-container" style="margin-bottom:100px;"></div>
 
     </div>
@@ -1433,32 +1448,90 @@
             saveCurrentState();
         }
 
-        function resetToDeckBuilder() {
-            if(confirm("سيتم مسح الجلسة الحالية بالكامل والعودة لشاشة اختيار الكروت. هل أنت متأكد؟")) {
-                localStorage.removeItem('mafiaGameState');
-                localStorage.removeItem('mafiaSetupSeats');
-                mafiaSetupSeats = [];
-                nightRoundInProgress = false;
-                activeNightSteps = [];
-                currentStep = 0;
-                localStorage.removeItem('mafiaSpyUsed');
-                localStorage.removeItem('mafiaSniperDead');
-                localStorage.removeItem('heirSpyUsed');
-                localStorage.removeItem('heirSniperDead');
-                localStorage.removeItem('mafiaEventLog');
-                gameEventLog = [];
-                wizardFinalKills = [];
-                gameEventLog = [];
-                document.body.classList.remove('night-mode', 'game-mode');
-                
-                document.getElementById('sectionDashboard').classList.remove('active');
-                document.getElementById('sectionLog').classList.remove('active');
-                document.getElementById('sectionNight').classList.remove('active');
-                document.getElementById('setupBar').style.display = 'none';
-                document.getElementById('mainTabs').style.display = 'none';
-                document.getElementById('mainCounters').style.display = 'none';
-                document.getElementById('sectionPlayerCount').classList.add('active');
+        async function startNewGame(button) {
+            const confirmed = confirm(
+                "سيتم إنهاء اللعبة الحالية ومسح جميع بياناتها وبدء لعبة جديدة. هل أنت متأكد؟"
+            );
+            if (!confirmed) return;
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = "جاري بدء لعبة جديدة...";
+                button.style.cursor = "wait";
             }
+
+            const isAmmanMafiaKey = (key) => {
+                const value = String(key || "");
+                return (
+                    value.startsWith("mafia") ||
+                    value.startsWith("ammanMafia") ||
+                    value.startsWith("AMMAN_MAFIA") ||
+                    value.includes("AmmanMafia")
+                );
+            };
+
+            try {
+                // حذف كل Storage تابع للمنصة، بدون التأثير على مشاريع أخرى على نفس النطاق.
+                try {
+                    Object.keys(localStorage).forEach((key) => {
+                        if (isAmmanMafiaKey(key)) localStorage.removeItem(key);
+                    });
+                } catch (_) {}
+
+                try {
+                    Object.keys(sessionStorage).forEach((key) => {
+                        if (isAmmanMafiaKey(key)) sessionStorage.removeItem(key);
+                    });
+                } catch (_) {}
+
+                // حذف كاش جميع النسخ القديمة.
+                try {
+                    if ("caches" in window) {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(
+                            cacheNames
+                                .filter((name) =>
+                                    String(name).startsWith("amman-mafia-tv-")
+                                )
+                                .map((name) => caches.delete(name))
+                        );
+                    }
+                } catch (_) {}
+
+                // فصل Service Worker القديم حتى لا يعيد ملفات محفوظة.
+                try {
+                    if ("serviceWorker" in navigator) {
+                        const registrations =
+                            await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(
+                            registrations.map((registration) =>
+                                registration.unregister()
+                            )
+                        );
+                    }
+                } catch (_) {}
+
+                // إعادة المتغيرات الحالية احتياطياً قبل إعادة فتح الصفحة.
+                try {
+                    mafiaSetupSeats = [];
+                    nightRoundInProgress = false;
+                    activeNightSteps = [];
+                    currentStep = 0;
+                    gameEventLog = [];
+                    wizardFinalKills = [];
+                } catch (_) {}
+            } finally {
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.hash = "";
+                cleanUrl.search = "";
+                cleanUrl.searchParams.set("v", "68");
+                cleanUrl.searchParams.set("newGame", String(Date.now()));
+                window.location.replace(cleanUrl.toString());
+            }
+        }
+
+        function resetToDeckBuilder() {
+            startNewGame();
         }
 
         function switchTab(tabName) {
@@ -2832,8 +2905,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=67"></script>
+    <script src="realtime-config.js?v=68"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=67"></script>
+    <script src="tv-control.js?v=68"></script>
 </body>
 </html>

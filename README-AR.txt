@@ -1,21 +1,14 @@
-AMMAN MAFIA — v67 — APP ICON PACKAGE
+AMMAN MAFIA — v68 — NEW GAME RESET
 
-تمت إضافة حزمة الأيقونات الجديدة للمنصة:
-
-- icon-192.png
-- icon-512.png
-- icon-512-maskable.png
-- apple-touch-icon.png
-- favicon-32.png
-- app-icon-master.png
-
-تم تحديث:
-- manifest.json
-- index.html
-- Service Worker cache
-
-الأيقونات مربعة وتحافظ على نسبة الشعار بدون شد أو تمديد.
-نسخة maskable فيها مساحة آمنة لتفادي قص الشعار على Android.
+التعديلات:
+- تغيير زر "تغيير الكروت" إلى "لعبة جديدة".
+- زر لعبة جديدة يمسح بيانات اللعبة الحالية بالكامل.
+- حذف Storage الخاص بمنصة Amman Mafia.
+- حذف كاش النسخ القديمة.
+- فصل Service Worker القديم.
+- إعادة فتح أول صفحة بإعدادات نظيفة و12 لاعبًا افتراضيًا.
+- حذف عبارة "الشاشة / المشرف" من لوحة المقاعد وشاشة الليل.
+- الحفاظ على بيانات المشاريع الأخرى الموجودة على نفس نطاق GitHub Pages.
 
 الرابط:
-https://bahaasholy.github.io/AMMAN.MAFiA/?v=67
+https://bahaasholy.github.io/AMMAN.MAFiA/?v=68
