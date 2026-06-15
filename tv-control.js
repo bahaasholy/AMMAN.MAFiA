@@ -53,6 +53,9 @@
       mafiaAlive: Math.max(0, Number(state.mafiaAlive) || 0),
       killerAlive: Math.max(0, Number(state.killerAlive) || 0),
       showKiller: Boolean(state.showKiller),
+      mutedSeat: Number(state.mutedSeat) > 0
+        ? Math.floor(Number(state.mutedSeat))
+        : null,
       eliminationSeat: Number(state.eliminationSeat) > 0
         ? Math.floor(Number(state.eliminationSeat))
         : null,
@@ -201,13 +204,40 @@
     return Boolean(publicState.showKiller);
   }
 
+
+  function readMutedSeat() {
+    try {
+      if (
+        typeof currentMutedSeat !== 'undefined' &&
+        Number(currentMutedSeat) > 0
+      ) {
+        return Math.floor(Number(currentMutedSeat));
+      }
+    } catch (_) {}
+
+    try {
+      const savedGame = JSON.parse(
+        localStorage.getItem('mafiaGameState') || '{}'
+      );
+      if (Number(savedGame.mutedSeat) > 0) {
+        return Math.floor(Number(savedGame.mutedSeat));
+      }
+    } catch (_) {}
+
+    const stored = Math.floor(
+      Number(localStorage.getItem('mafiaMutedSeat')) || 0
+    );
+    return stored > 0 ? stored : null;
+  }
+
   function collectGameCounts() {
     return {
       totalAlive: readCounterValue('totalLiveCount'),
       citizenAlive: readCounterValue('citizenLiveCount'),
       mafiaAlive: readCounterValue('mafiaLiveCount'),
       killerAlive: readCounterValue('soloLiveCount'),
-      showKiller: killerWasIncludedFromStart()
+      showKiller: killerWasIncludedFromStart(),
+      mutedSeat: readMutedSeat()
     };
   }
 
@@ -218,7 +248,8 @@
       publicState.citizenAlive !== next.citizenAlive ||
       publicState.mafiaAlive !== next.mafiaAlive ||
       publicState.killerAlive !== next.killerAlive ||
-      publicState.showKiller !== next.showKiller;
+      publicState.showKiller !== next.showKiller ||
+      Number(publicState.mutedSeat || 0) !== Number(next.mutedSeat || 0);
 
     if (!changed && !forceBroadcast) return false;
 
@@ -254,7 +285,28 @@
     return seats.sort((a, b) => a - b);
   }
 
+
+  function isMutedSpeaker(seat = publicState.speakerSeat) {
+    return (
+      publicState.phase === 'discussion' &&
+      Number(seat) > 0 &&
+      Number(publicState.mutedSeat) === Number(seat)
+    );
+  }
+
+  function stopTimerForMutedSpeaker() {
+    publicState.timerRemainingMs = publicState.timerDurationMs;
+    publicState.timerEndsAt = 0;
+    publicState.timerStatus = 'idle';
+    hasBroadcastFinished = false;
+  }
+
   function startFullSpeakerTimer() {
+    if (isMutedSpeaker()) {
+      stopTimerForMutedSpeaker();
+      return false;
+    }
+
     const duration = Math.max(
       1000,
       Number(publicState.timerDurationMs) || DEFAULT_SECONDS * 1000
@@ -264,6 +316,7 @@
     publicState.timerEndsAt = Date.now() + duration;
     publicState.timerStatus = 'running';
     hasBroadcastFinished = false;
+    return true;
   }
 
   function resetSpeakerCycle(options = {}) {
@@ -301,6 +354,9 @@
       publicState.speakerVisitedSeats.push(parsedSeat);
     }
 
+    if (isMutedSpeaker(parsedSeat)) {
+      stopTimerForMutedSpeaker();
+    }
 
     vibrate(28);
     saveState();
@@ -506,6 +562,10 @@
     publicState.speakerVisible = true;
     publicState.speakerChangeId += 1;
 
+    if (isMutedSpeaker(previous)) {
+      stopTimerForMutedSpeaker();
+    }
+
     vibrate(24);
     saveState();
     return true;
@@ -600,6 +660,7 @@
       publicState.speakerVisible ? '1' : '0',
       publicState.speakerDirection,
       publicState.speakerAutoTimer ? '1' : '0',
+      Number(publicState.mutedSeat) || '',
       publicState.speakerCycleActive ? '1' : '0',
       publicState.speakerVisitedSeats.join(',')
     ].join('|');
@@ -614,6 +675,13 @@
         button.className = 'tv-speaker-seat-btn';
         button.textContent = String(seat);
         button.classList.toggle('active', seat === currentSeat);
+        button.classList.toggle(
+          'muted',
+          Number(publicState.mutedSeat) === Number(seat)
+        );
+        if (Number(publicState.mutedSeat) === Number(seat)) {
+          button.title = 'هذا اللاعب مسكّت في جولة النقاش';
+        }
         button.addEventListener('click', () => selectSpeakerSeat(seat));
         grid.appendChild(button);
       });
@@ -632,6 +700,9 @@
 
       if (!currentAlive) {
         status.textContent = 'المتحدث الحالي مقصي — اضغط التالي للتخطي';
+      } else if (isMutedSpeaker(currentSeat)) {
+        status.textContent =
+          `لاعب ${currentSeat} مسكّت — يظهر MUTE بدل المؤقت`;
       } else if (!publicState.speakerVisible) {
         status.textContent = 'المتحدث مخفي من شاشة التلفزيون';
       } else if (publicState.speakerCycleActive) {
@@ -645,7 +716,13 @@
     } else {
       currentStrong.textContent = '—';
       currentBox.classList.remove('hidden-on-tv', 'not-alive');
-      status.textContent = 'لم يتم اختيار لاعب';
+
+      if (Number(publicState.mutedSeat) > 0) {
+        status.textContent =
+          `المقعد المسكّت في هذه الجولة: ${publicState.mutedSeat} 🔇`;
+      } else {
+        status.textContent = 'لم يتم اختيار لاعب';
+      }
     }
 
     document
@@ -718,7 +795,7 @@
           </div>
           <button id="tvTimerNext" class="tv-btn tv-next-btn" type="button">
             التالي
-            <span>انتقل للاعب التالي وابدأ الوقت</span>
+            <span>ينتقل للاعب التالي — والمسكّت يظهر بدون وقت</span>
           </button>
           <div class="tv-timer-actions">
             <button id="tvTimerStart" class="tv-btn gold" type="button">بدء</button>
@@ -810,7 +887,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '70');
+    url.searchParams.set('v', '72');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -824,6 +901,12 @@
     if (phase === 'discussion' && options.resetTimer) {
       // Each discussion phase starts with a fresh one-lap speaker order.
       resetSpeakerCycle({ clearSpeaker:true });
+
+      const storedMutedSeat = readMutedSeat();
+      publicState.mutedSeat =
+        Number(storedMutedSeat) > 0
+          ? Number(storedMutedSeat)
+          : null;
     }
 
     if (phase === 'voting') {
@@ -908,6 +991,13 @@
     });
 
     document.getElementById('tvTimerStart').addEventListener('click', () => {
+      if (isMutedSpeaker()) {
+        stopTimerForMutedSpeaker();
+        vibrate([20, 30, 20]);
+        saveState();
+        return;
+      }
+
       let remaining = getRemainingMs();
       if (remaining <= 0) remaining = publicState.timerDurationMs;
       publicState.timerRemainingMs = remaining;
@@ -1010,13 +1100,36 @@
 
     const timer = document.getElementById('tvAdminTimer');
     const remaining = getRemainingMs();
-    timer.textContent = formattedTimer(remaining);
-    timer.classList.toggle('running', publicState.timerStatus === 'running');
-    timer.classList.toggle('finished', publicState.timerStatus === 'finished');
-    const statusTexts = { idle:'جاهز', running:'يعمل الآن', paused:'متوقف مؤقتًا', finished:'انتهى الوقت' };
-    document.getElementById('tvTimerStatusText').textContent = statusTexts[publicState.timerStatus];
-    document.getElementById('tvTimerStart').disabled = publicState.timerStatus === 'running';
-    document.getElementById('tvTimerPause').disabled = publicState.timerStatus !== 'running';
+    const mutedTurn = isMutedSpeaker();
+
+    timer.textContent = mutedTurn ? 'MUTE' : formattedTimer(remaining);
+    timer.classList.toggle(
+      'running',
+      !mutedTurn && publicState.timerStatus === 'running'
+    );
+    timer.classList.toggle(
+      'finished',
+      !mutedTurn && publicState.timerStatus === 'finished'
+    );
+    timer.classList.toggle('muted-turn', mutedTurn);
+
+    const statusTexts = {
+      idle:'جاهز',
+      running:'يعمل الآن',
+      paused:'متوقف مؤقتًا',
+      finished:'انتهى الوقت'
+    };
+
+    document.getElementById('tvTimerStatusText').textContent =
+      mutedTurn
+        ? 'اللاعب مسكّت — بدون مؤقت'
+        : statusTexts[publicState.timerStatus];
+
+    document.getElementById('tvTimerStart').disabled =
+      mutedTurn || publicState.timerStatus === 'running';
+
+    document.getElementById('tvTimerPause').disabled =
+      mutedTurn || publicState.timerStatus !== 'running';
 
     document.querySelectorAll('.tv-preset').forEach(btn => {
       btn.classList.toggle('active', Number(btn.dataset.seconds) * 1000 === publicState.timerDurationMs);
@@ -1298,6 +1411,32 @@
     window.__tvEliminationNoticeWrapped = true;
   }
 
+
+  function handleDirectMutedSeat(event) {
+    const rawSeat = Number(event?.detail?.seat);
+    const mutedSeat =
+      Number.isFinite(rawSeat) && rawSeat > 0
+        ? Math.floor(rawSeat)
+        : null;
+
+    publicState.mutedSeat = mutedSeat;
+
+    if (isMutedSpeaker()) {
+      stopTimerForMutedSpeaker();
+    }
+
+    publicState.updatedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(publicState));
+    broadcastState();
+    renderAll();
+
+    // إعادة إرسال ثانية احتياطية بعد اكتمال انتقال صفحة الليل إلى النقاش.
+    window.setTimeout(() => {
+      broadcastState();
+      renderAll();
+    }, 180);
+  }
+
   function installNightCompletionSync() {
     if (typeof window.endNightRound !== 'function' || window.__tvNightCompletionWrapped) return;
 
@@ -1317,6 +1456,10 @@
     installNightCompletionSync();
     installEliminationNoticeSync();
 
+    window.addEventListener(
+      'amman-mafia-muted-seat',
+      handleDirectMutedSeat
+    );
     window.addEventListener('storage', handleLocalStorageMessage);
 
     connectRealtime();

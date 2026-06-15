@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v70</title>
+    <title>Amman Mafia — TV Control v72</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v70">
+    <meta name="app-version" content="tv-v72">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=70">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=70">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=70">
+    <link rel="manifest" href="manifest.json?v=72">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=72">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=72">
     <style>
         :root {
             --gold: #c9a84c;
@@ -988,7 +988,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=70">
+    <link rel="stylesheet" href="tv-control.css?v=72">
 </head>
 <body>
 
@@ -1270,6 +1270,7 @@
         let nightRoundInProgress = false; // يسمح بالخروج للوحة الإدارة ثم العودة لنفس خطوة الليل
 
         let nightSelections = { mafiaKill: 'none', heirKill: 'none', priestSilence: 'none', spyCheck: 'none', detectiveCheck: 'none', doctorSave: 'none', sniperKill: 'none', killerKill: 'none' };
+        let currentMutedSeat = null; // المقعد المسكّت في جولة النقاش الحالية
         let spyHasUsedAbility = false; let sniperIsDeadByFriendlyFire = false;
         let currentMafiaLeaderLabel = "شيخ المافيا 🎩"; let currentMafiaLeaderRoleValue = "mafia_boss";
         let totalGameSeats = 0;
@@ -2752,6 +2753,13 @@
 
         function endNightRound() {
             addNightEventLog();
+
+            // نحفظ هل خطوة قص المافيا كانت موجودة قبل تطبيق أي إقصاءات.
+            // هذا يمنع ضياع التسكيت إذا تم إقصاء القص بنفس الليلة.
+            const silenceStepWasActive = activeNightSteps.some(
+                step => step && step.code === 'priestSilence'
+            );
+
             let actionTaken = false;
             if (wizardFinalKills.length > 0) {
                 wizardFinalKills.forEach(id => {
@@ -2770,6 +2778,36 @@
                 }
             }
 
+            // تسكيت قص المافيا يطبق على جولة النقاش التالية فقط.
+            // نعتمد على وجود خطوة القص خلال الليلة، وليس على بقائه حيًا بعد النتائج.
+            const selectedMutedSeat = Math.floor(
+                Number(nightSelections.priestSilence) || 0
+            );
+
+            currentMutedSeat =
+                silenceStepWasActive && selectedMutedSeat > 0
+                    ? selectedMutedSeat
+                    : null;
+
+            if (currentMutedSeat) {
+                localStorage.setItem(
+                    'mafiaMutedSeat',
+                    String(currentMutedSeat)
+                );
+            } else {
+                localStorage.removeItem('mafiaMutedSeat');
+            }
+
+            // إرسال مباشر إلى نظام شاشة العرض بدل انتظار القراءة الدورية.
+            window.dispatchEvent(
+                new CustomEvent('amman-mafia-muted-seat', {
+                    detail: {
+                        seat: currentMutedSeat,
+                        source: 'night-round'
+                    }
+                })
+            );
+
             nightRoundCounter++;
             nightRoundInProgress = false;
             activeNightSteps = [];
@@ -2785,6 +2823,7 @@
                 nightRound: nightRoundCounter,
                 eventLog: gameEventLog,
                 mafiaSeats: [...(mafiaSetupSeats || [])],
+                mutedSeat: currentMutedSeat,
                 seats: []
             };
             for (let i = 1; i <= totalGameSeats; i++) {
@@ -2865,6 +2904,18 @@
 
                 generateSeats(); 
                 nightRoundCounter = savedData.nightRound ? savedData.nightRound : 1;
+
+                const savedMutedSeat = Math.floor(
+                    Number(
+                        savedData.mutedSeat ||
+                        localStorage.getItem('mafiaMutedSeat') ||
+                        0
+                    )
+                );
+                currentMutedSeat = savedMutedSeat > 0
+                    ? savedMutedSeat
+                    : null;
+
                 try {
                     gameEventLog = savedData.eventLog || JSON.parse(localStorage.getItem('mafiaEventLog') || '[]') || [];
                 } catch (e) { gameEventLog = []; }
@@ -2905,8 +2956,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=70"></script>
+    <script src="realtime-config.js?v=72"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=70"></script>
+    <script src="tv-control.js?v=72"></script>
 </body>
 </html>

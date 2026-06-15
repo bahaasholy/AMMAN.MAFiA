@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v70</title>
+  <title>Amman Mafia — شاشة العرض v72</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -55,6 +55,42 @@
     .timer-readout{position:absolute;z-index:5;left:0;right:0;top:50%;transform:translateY(-50%);direction:ltr;text-align:center;font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums;font-size:112px;line-height:1;font-weight:950;letter-spacing:-8px;color:#fff9ee;text-shadow:0 0 24px rgba(255,255,255,.12),0 0 38px rgba(242,195,91,.13);white-space:nowrap}
     .timer-readout.warning{color:var(--red);text-shadow:0 0 15px rgba(255,76,86,.72),0 0 42px rgba(255,76,86,.28);animation:warnPulse .7s ease-in-out infinite}
     .timer-stage.warning .ring-progress{stroke:var(--red);filter:drop-shadow(0 0 13px rgba(255,76,86,.62))}
+    .mute-mark{
+      position:absolute;
+      z-index:6;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:16px;
+      color:#facc15;
+      text-align:center;
+      text-shadow:
+        0 0 18px rgba(250,204,21,.52),
+        0 0 48px rgba(250,204,21,.20);
+    }
+    .mute-mark-icon{
+      font-size:118px;
+      line-height:1;
+      filter:drop-shadow(0 0 18px rgba(250,204,21,.35));
+    }
+    .mute-mark-text{
+      font-family:"Arial Black","Segoe UI",Arial,sans-serif;
+      font-size:96px;
+      line-height:.9;
+      font-weight:950;
+      letter-spacing:4px;
+    }
+    .timer-stage.muted .timer-readout{display:none}
+    .timer-stage.muted .mute-mark{display:flex}
+    .timer-stage.muted .ring-progress{
+      stroke:#facc15 !important;
+      filter:drop-shadow(0 0 14px rgba(250,204,21,.58));
+    }
+    .timer-stage.muted .ring-track{
+      stroke:rgba(250,204,21,.18);
+    }
     @keyframes warnPulse{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.035)}}
 
     .round-pill{right:42px;color:var(--gold)}
@@ -177,6 +213,10 @@
             <circle class="ring-inner" cx="320" cy="320" r="234"></circle>
           </svg>
           <div id="timer" class="timer-readout">00:30</div>
+          <div id="muteMark" class="mute-mark" aria-label="اللاعب مسكّت">
+            <div class="mute-mark-icon">🔇</div>
+            <div class="mute-mark-text">MUTE</div>
+          </div>
         </div>
       </section>
 
@@ -208,9 +248,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v70-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v72-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=70"></script>
+  <script src="realtime-config.js?v=72"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -325,7 +365,93 @@
     function setConnection(on){$("connectionPill").classList.toggle("online",!!on);$("connectionText").textContent=on?"متصل":"غير متصل"}
     function updateConnection(){setConnection(transportConnected&&(!state||Date.now()-lastStateAt<22000))}
     function updateRing(rem,duration,warning){const ratio=duration>0?Math.max(0,Math.min(1,rem/duration)):0;const ring=$("ringProgress");ring.style.strokeDasharray=String(RING_CIRCUMFERENCE);ring.style.strokeDashoffset=String(RING_CIRCUMFERENCE*(1-ratio));ring.style.stroke=warning?"var(--red)":"var(--gold)"}
-    function render(){if(!state)return;const phase=PHASE_LABELS[state.phase]?state.phase:"idle";document.body.className=`phase-${phase}`;$("phaseTitle").textContent=PHASE_LABELS[phase];$("roundBadge").textContent=String(Math.max(1,Number(state.roundNumber)||1));$("speakerValue").textContent=String(Math.max(0,Number(state.speakerSeat)||0)||"—");const rem=remaining();const raw=state.timerStatus||"idle";const status=raw==="running"&&rem<=0?"finished":raw;const warning=status==="running"&&rem>0&&rem<=warningThreshold();$("timer").textContent=formatSeconds(authoritativeDisplaySeconds());$("timer").classList.toggle("warning",warning||status==="finished");$("timerStage").classList.toggle("warning",warning||status==="finished");updateRing(rem,state.timerDurationMs,warning||status==="finished");$("aliveCount").textContent=String(Math.max(0,Number(state.totalAlive)||0));$("mafiaCount").textContent=String(Math.max(0,Number(state.mafiaAlive)||0));$("citizenCount").textContent=String(Math.max(0,Number(state.citizenAlive)||0));$("killerCount").textContent=String(Math.max(0,Number(state.killerAlive)||0))}
+    function render(){
+      if(!state)return;
+
+      const phase=PHASE_LABELS[state.phase]
+        ?state.phase
+        :"idle";
+
+      document.body.className=`phase-${phase}`;
+      $("phaseTitle").textContent=PHASE_LABELS[phase];
+      $("roundBadge").textContent=String(
+        Math.max(1,Number(state.roundNumber)||1)
+      );
+
+      const speakerSeat=Math.max(
+        0,
+        Number(state.speakerSeat)||0
+      );
+
+      $("speakerValue").textContent=String(
+        speakerSeat||"—"
+      );
+
+      const mutedTurn=
+        phase==="discussion" &&
+        speakerSeat>0 &&
+        Number(state.mutedSeat)===speakerSeat;
+
+      const rem=remaining();
+      const raw=state.timerStatus||"idle";
+      const status=
+        raw==="running"&&rem<=0
+          ?"finished"
+          :raw;
+
+      const warning=
+        !mutedTurn &&
+        status==="running" &&
+        rem>0 &&
+        rem<=warningThreshold();
+
+      $("timer").textContent=formatSeconds(
+        authoritativeDisplaySeconds()
+      );
+
+      $("timer").classList.toggle(
+        "warning",
+        !mutedTurn&&(warning||status==="finished")
+      );
+
+      $("timerStage").classList.toggle(
+        "warning",
+        !mutedTurn&&(warning||status==="finished")
+      );
+
+      $("timerStage").classList.toggle(
+        "muted",
+        mutedTurn
+      );
+
+      if(mutedTurn){
+        updateRing(
+          state.timerDurationMs,
+          state.timerDurationMs,
+          false
+        );
+      }else{
+        updateRing(
+          rem,
+          state.timerDurationMs,
+          warning||status==="finished"
+        );
+      }
+
+      $("aliveCount").textContent=String(
+        Math.max(0,Number(state.totalAlive)||0)
+      );
+      $("mafiaCount").textContent=String(
+        Math.max(0,Number(state.mafiaAlive)||0)
+      );
+      $("citizenCount").textContent=String(
+        Math.max(0,Number(state.citizenAlive)||0)
+      );
+      $("killerCount").textContent=String(
+        Math.max(0,Number(state.killerAlive)||0)
+      );
+    }
+
     function send(event,payload={}){if(mode==="supabase"&&channel){channel.send({type:"broadcast",event,payload}).catch(()=>{});return}if(localChannel){try{localChannel.postMessage({event,payload})}catch(_){}}if(event==="display_request")requestLocalState();if(event==="display_ping")announcePresence()}
     function setDebug(text,type=""){const e=$("debugStatus");if(!e)return;e.textContent=text||"";e.className=`debug-status${type?` ${type}`:""}`}
     function readableRealtimeError(status,error){return [status||"UNKNOWN",error?.message||"",error?.name||"",error?.cause?.message||""].filter(Boolean).join(" — ")||"Realtime connection failed"}
@@ -339,7 +465,7 @@
     }
     $("connectBtn").addEventListener("click",connect);$("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")connect()});$("fullscreenBtn").addEventListener("click",()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});window.addEventListener("storage",handleStorageEvent);
     const params=new URLSearchParams(location.search);const initialRoom=(params.get("room")||localStorage.getItem("ammanMafiaDisplayLastRoom")||"").toUpperCase();$("roomInput").value=initialRoom;
-    if(params.get("preview")==="1"){room="PREVIEW";transportConnected=true;lastStateAt=Date.now();showDisplay();setConnection(true);apply({roomCode:"PREVIEW",phase:"discussion",roundNumber:1,speakerVisible:true,speakerSeat:10,timerDurationMs:30000,timerRemainingMs:30000,timerDisplaySeconds:30,timerStatus:"paused",timerEndsAt:0,totalAlive:26,citizenAlive:14,mafiaAlive:11,killerAlive:1})}else if(params.get("room")){connect()}
+    if(params.get("preview")==="1"){room="PREVIEW";transportConnected=true;lastStateAt=Date.now();showDisplay();setConnection(true);apply({roomCode:"PREVIEW",phase:"discussion",roundNumber:1,speakerVisible:true,speakerSeat:10,mutedSeat:10,timerDurationMs:30000,timerRemainingMs:30000,timerDisplaySeconds:30,timerStatus:"paused",timerEndsAt:0,totalAlive:26,citizenAlive:14,mafiaAlive:11,killerAlive:1})}else if(params.get("room")){connect()}
     tick=setInterval(()=>{render();updateConnection()},250);fitStage();
   })();
   </script>
