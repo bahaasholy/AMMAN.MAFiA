@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v57</title>
+  <title>Amman Mafia — شاشة العرض v58</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -38,12 +38,13 @@
     /* لوحة تصميم ثابتة 1600×900. يتم تغيير حجمها كوحدة واحدة فقط. */
     .fixed-stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center;will-change:transform}
 
-    .connection-pill{position:absolute;left:42px;top:30px;height:58px;min-width:152px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 22px;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:rgba(5,7,11,.78);box-shadow:0 12px 32px rgba(0,0,0,.25)}
+    .connection-pill,.round-pill{position:absolute;top:30px;height:58px;min-width:152px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 22px;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:rgba(5,7,11,.78);box-shadow:0 12px 32px rgba(0,0,0,.25)}
+    .connection-pill{left:42px}
     .connection-dot{width:15px;height:15px;border-radius:50%;background:#ff5563;box-shadow:0 0 15px rgba(255,85,99,.9)}
     .connection-pill.online .connection-dot{background:var(--green);box-shadow:0 0 17px rgba(44,226,135,.95)}
     .connection-text{font-size:25px;font-weight:800}
 
-    .phase-title{position:absolute;left:410px;top:24px;width:780px;height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:54px;font-weight:900;line-height:1;color:#faf9f5;text-shadow:0 3px 15px rgba(0,0,0,.5)}
+    .phase-title{position:absolute;left:260px;top:24px;width:1080px;height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:54px;font-weight:900;line-height:1;color:#faf9f5;text-shadow:0 3px 15px rgba(0,0,0,.5)}
 
     .timer-stage{position:absolute;left:70px;top:128px;width:790px;height:610px;display:flex;align-items:center;justify-content:center;border-radius:38px;background:rgba(5,7,12,.30)}
     .timer-wrap{position:relative;width:590px;height:590px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
@@ -56,7 +57,9 @@
     .timer-stage.warning .ring-progress{stroke:var(--red);filter:drop-shadow(0 0 13px rgba(255,76,86,.62))}
     @keyframes warnPulse{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.035)}}
 
-    .round-badge{position:absolute;right:258px;top:113px;width:100px;height:100px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(7,9,13,.92);border:3px solid var(--gold);color:var(--gold);font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:48px;font-weight:950;box-shadow:0 0 22px rgba(242,195,91,.18),inset 0 0 18px rgba(242,195,91,.05)}
+    .round-pill{right:42px;color:var(--gold)}
+    .round-pill-label{font-size:24px;font-weight:900;line-height:1}
+    .round-pill-value{font-family:"Arial Black","Segoe UI",Arial,sans-serif;font-size:32px;font-weight:950;line-height:1}
     .speaker-card{position:absolute;right:85px;top:235px;width:570px;height:475px;border-radius:30px;background:linear-gradient(180deg,rgba(10,12,17,.92),rgba(7,9,13,.86));border:1px solid rgba(255,255,255,.09);box-shadow:0 20px 55px rgba(0,0,0,.33);overflow:hidden}
     .speaker-card::after{content:"";position:absolute;left:40px;right:40px;bottom:0;height:5px;border-radius:999px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
     .speaker-label{position:absolute;left:0;right:0;top:56px;text-align:center;color:var(--gold);font-size:46px;font-weight:900}
@@ -73,10 +76,10 @@
 
     .fullscreen-btn{position:fixed;left:16px;bottom:12px;z-index:20;padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(5,7,11,.6);color:#d6d8de;font-size:.72rem;font-weight:800;opacity:.18;cursor:pointer}.fullscreen-btn:hover{opacity:1}
 
-    body.phase-discussion .timer-stage,body.phase-discussion .speaker-card,body.phase-discussion .round-badge{display:flex}
-    body.phase-voting .timer-stage,body.phase-voting .speaker-card,body.phase-voting .round-badge,
-    body.phase-night .timer-stage,body.phase-night .speaker-card,body.phase-night .round-badge,
-    body.phase-idle .timer-stage,body.phase-idle .speaker-card,body.phase-idle .round-badge{display:none}
+    body.phase-discussion .timer-stage,body.phase-discussion .speaker-card,body.phase-discussion .round-pill{display:flex}
+    body.phase-voting .timer-stage,body.phase-voting .speaker-card,body.phase-voting .round-pill,
+    body.phase-night .timer-stage,body.phase-night .speaker-card,body.phase-night .round-pill,
+    body.phase-idle .timer-stage,body.phase-idle .speaker-card,body.phase-idle .round-pill{display:none}
     body.phase-voting .phase-panel.voting,body.phase-night .phase-panel.night,body.phase-idle .phase-panel.idle{display:flex}
     @media (prefers-reduced-motion:reduce){.timer-readout.warning{animation:none}}
   </style>
@@ -95,6 +98,7 @@
   <main id="displayScreen" class="display">
     <section id="fixedStage" class="fixed-stage">
       <div id="connectionPill" class="connection-pill"><span class="connection-dot"></span><span id="connectionText" class="connection-text">غير متصل</span></div>
+      <div id="roundPill" class="round-pill"><span class="round-pill-label">الجولة</span><span id="roundBadge" class="round-pill-value">1</span></div>
       <div id="phaseTitle" class="phase-title">جولة النقاش</div>
 
       <section id="timerStage" class="timer-stage">
@@ -108,8 +112,7 @@
         </div>
       </section>
 
-      <div id="roundBadge" class="round-badge">1</div>
-      <section class="speaker-card"><div class="speaker-label">لاعب رقم</div><div id="speakerValue" class="speaker-value">10</div></section>
+            <section class="speaker-card"><div class="speaker-label">لاعب رقم</div><div id="speakerValue" class="speaker-value">10</div></section>
 
       <section class="phase-panel night"><div class="phase-icon">🌙</div><div class="phase-name">جولة الليل</div></section>
       <section class="phase-panel voting"><div class="phase-icon">🗳️</div><div class="phase-name">جولة التصويت</div></section>
@@ -126,9 +129,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v57-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v58-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=57"></script>
+  <script src="realtime-config.js?v=58"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
