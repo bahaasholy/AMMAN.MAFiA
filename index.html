@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v65</title>
+    <title>Amman Mafia — TV Control v66</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v65">
+    <meta name="app-version" content="tv-v66">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -520,7 +520,7 @@
         }
         .mafia-setup-hero {
             width: 100%;
-            padding: 16px 18px;
+            padding: 18px 18px;
             border-radius: 16px;
             background: linear-gradient(180deg, rgba(27,27,34,0.98), rgba(17,17,22,0.98));
             border: 1px solid rgba(201,168,76,0.18);
@@ -528,13 +528,17 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            text-align: center;
+            align-items: center;
         }
         .mafia-setup-title-row {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            justify-content: center;
+            gap: 10px;
             flex-wrap: wrap;
+            width: 100%;
         }
         .mafia-setup-title {
             font-size: 1.08rem;
@@ -546,6 +550,7 @@
             color: #9b9ba6;
             font-size: 0.92rem;
             line-height: 1.6;
+            text-align: center;
         }
         .mafia-setup-counter-pill {
             display: inline-flex;
@@ -590,7 +595,7 @@
             .mafia-setup-hero { padding: 14px 14px; }
             .mafia-setup-title { font-size: 1rem; }
             .mafia-setup-subtitle { font-size: 0.84rem; }
-            .mafia-setup-title-row { align-items: flex-start; }
+            .mafia-setup-title-row { align-items: center; }
             .mafia-setup-counter-pill { width: 100%; justify-content: center; }
         }
         @media (min-width: 768px) {
@@ -966,7 +971,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=65">
+    <link rel="stylesheet" href="tv-control.css?v=66">
 </head>
 <body>
 
@@ -2826,8 +2831,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=65"></script>
+    <script src="realtime-config.js?v=66"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=65"></script>
+    <script src="tv-control.js?v=66"></script>
 </body>
 </html>
