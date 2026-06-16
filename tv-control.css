@@ -485,9 +485,9 @@
 }
 
 .tv-exit-card {
-  flex: 0 1 240px;
-  min-width: 210px;
-  max-width: 290px;
+  flex: 0 1 190px;
+  min-width: 170px;
+  max-width: 220px;
 }
 
 .tv-nominee-card,
@@ -622,9 +622,9 @@
   }
 
   .tv-exit-card {
-    flex-basis: 100%;
-    min-width: 0;
-    max-width: none;
+    flex-basis: 46%;
+    min-width: 140px;
+    max-width: 190px;
   }
 
   .tv-vote-choice-grid,
@@ -643,41 +643,23 @@
 }
 
 
-@keyframes tvVoteSeatPressGlow {
-  0% {
-    transform: scale(1);
-    background: linear-gradient(160deg,#202027,#131318);
-    border-color: rgba(201,168,76,.20);
-    color: #f0e6cc;
-    box-shadow: none;
-  }
-  28% {
-    transform: scale(.94);
-    background: linear-gradient(160deg,#f1c75b,#b88928);
-    border-color: rgba(255,226,139,.95);
-    color: #121216;
-    box-shadow:
-      0 0 0 4px rgba(242,195,91,.12),
-      0 0 28px rgba(242,195,91,.72),
-      inset 0 0 18px rgba(255,255,255,.30);
-  }
-  72% {
-    transform: scale(1.04);
-    background: linear-gradient(160deg,#cfaa45,#7f641f);
-    border-color: rgba(242,195,91,.62);
-    color: #fff8df;
-    box-shadow: 0 0 18px rgba(242,195,91,.38);
-  }
-  100% {
-    transform: scale(1);
-    background: linear-gradient(160deg,#202027,#131318);
-    border-color: rgba(201,168,76,.20);
-    color: #f0e6cc;
-    box-shadow: none;
-  }
+
+
+/* ===== v81: instant vote-button feedback, no delay ===== */
+.tv-vote-seat {
+  transition:
+    transform .07s ease,
+    border-color .07s ease,
+    background .07s ease,
+    box-shadow .07s ease;
 }
 
-.tv-vote-seat.vote-pressed {
-  animation: tvVoteSeatPressGlow .28s ease-out both;
-  pointer-events: none;
+.tv-vote-seat:active {
+  transform: scale(.95);
+  color: #17140d;
+  border-color: rgba(255,226,139,.9);
+  background: linear-gradient(160deg,#f1c75b,#b88928);
+  box-shadow:
+    0 0 16px rgba(242,195,91,.42),
+    inset 0 0 10px rgba(255,255,255,.20);
 }

@@ -1618,17 +1618,8 @@
     };
 
     if (action === 'record') {
-      if (button.dataset.voteBusy === '1') return;
-
-      button.dataset.voteBusy = '1';
-      button.disabled = true;
-      button.classList.remove('vote-pressed');
-      void button.offsetWidth;
-      button.classList.add('vote-pressed');
-
-      window.setTimeout(() => {
-        recordLiveVote(seat);
-      }, 280);
+      // تسجيل فوري بدون أي تأخير أو انتظار للمؤثر.
+      recordLiveVote(seat);
       return;
     }
 
@@ -1778,7 +1769,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '80');
+    url.searchParams.set('v', '81');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
