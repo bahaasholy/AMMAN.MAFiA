@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v81</title>
+    <title>Amman Mafia — TV Control v82</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v81">
+    <meta name="app-version" content="tv-v82">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=81">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=81">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=81">
+    <link rel="manifest" href="manifest.json?v=82">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=82">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=82">
     <style>
         :root {
             --gold: #c9a84c;
@@ -988,7 +988,7 @@
         }
 
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=81">
+    <link rel="stylesheet" href="tv-control.css?v=82">
 </head>
 <body>
 
@@ -997,7 +997,7 @@
     </div>
     
     <div id="sectionPlayerCount" class="page-section active">
-        <div style="width:95%; max-width:500px; display:flex; flex-direction:column; align-items:center; gap:20px; margin-top:20px;">
+        <div style="width:95%; max-width:500px; display:flex; flex-direction:column; align-items:center; gap:24px; margin-top:55px;">
             
             <!-- إدخال عدد اللاعبين -->
             <div style="background:#141418; border:1px solid #c9a84c22; border-radius:12px; padding:25px; width:100%; text-align:center;">
@@ -1009,20 +1009,6 @@
                 </div>
             </div>
 
-            <!-- هل في سفاح؟ -->
-            <div style="background:#141418; border:1px solid #c9a84c22; border-radius:12px; padding:18px; width:100%; text-align:center;">
-                <div style="color:#888; font-size:0.85rem; margin-bottom:12px; letter-spacing:1px;">هل يوجد سفاح في اللعبة؟</div>
-                <div style="display:flex; gap:8px; justify-content:center;">
-                    <button id="pcBtnNoKiller" onclick="setKiller(false)" style="flex:1; padding:11px; border-radius:10px; border:2px solid #c9a84c; background:#c9a84c11; color:#c9a84c; font-size:0.95rem; font-weight:bold; cursor:pointer;">بدون سفاح</button>
-                    <button id="pcBtnYesKiller" onclick="setKiller(true)" style="flex:1; padding:11px; border-radius:10px; border:1px solid #2a2a30; background:#1a1a1f; color:#666; font-size:0.95rem; font-weight:bold; cursor:pointer;">مع سفاح 🔪</button>
-                </div>
-            </div>
-
-            <!-- النتيجة -->
-            <div id="pcResult" style="background:#141418; border:1px solid #c9a84c22; border-radius:12px; padding:18px; width:100%; text-align:center;">
-                <div style="color:#888; font-size:0.85rem; margin-bottom:12px; letter-spacing:1px;">التوزيع المقترح</div>
-                <div id="pcResultText" style="font-size:1.1rem; font-weight:bold; line-height:2.2;"></div>
-            </div>
 
             <!-- زر المتابعة -->
             <button onclick="goToDeckBuilder()" style="width:100%; padding:15px; background:#c9a84c; color:#0a0a0d; border:none; border-radius:12px; font-size:1.05rem; font-weight:800; cursor:pointer; letter-spacing:0.5px;">متابعة لاختيار الأدوار ←</button>
@@ -1160,44 +1146,17 @@
     <script>
         // ===== AMMAN MAFIA STABLE v10.1 BUGFIX =====
         // ملاحظة: هذه النسخة تنظف وتثبت v9 بدون إضافة ميزات جديدة.
-        // ===== شاشة حساب التوزيع =====
+        // ===== الصفحة الأولى: اختيار عدد اللاعبين فقط =====
         let pcPlayerCount = 12;
-        let pcHasKiller = false;
 
         function changePlayerCount(delta) {
             pcPlayerCount = Math.max(4, pcPlayerCount + delta);
             document.getElementById('pcCount').textContent = pcPlayerCount;
-            updatePcResult();
         }
 
-        function setKiller(hasKiller) {
-            pcHasKiller = hasKiller;
-            document.getElementById('pcBtnYesKiller').style.border = hasKiller ? '2px solid #ff9500' : '1px solid #444';
-            document.getElementById('pcBtnYesKiller').style.background = hasKiller ? 'rgba(255,149,0,0.2)' : '#2a2a30';
-            document.getElementById('pcBtnYesKiller').style.color = hasKiller ? '#ff9500' : '#aaa';
-            document.getElementById('pcBtnNoKiller').style.border = !hasKiller ? '2px solid #0071e3' : '1px solid #444';
-            document.getElementById('pcBtnNoKiller').style.background = !hasKiller ? 'rgba(0,113,227,0.2)' : '#2a2a30';
-            document.getElementById('pcBtnNoKiller').style.color = !hasKiller ? '#0071e3' : '#aaa';
-            updatePcResult();
-        }
-
-        function calcMafiaCount(players, hasKiller) {
-            const raw = players * 0.3;
-            if (hasKiller) return Math.floor(raw);
-            // بدون سفاح: كسر 0.6 وأكثر → للأعلى، أقل → للأسفل
-            const decimal = raw - Math.floor(raw);
-            return decimal >= 0.6 ? Math.ceil(raw) : Math.floor(raw);
-        }
-
-        function updatePcResult() {
-            const mafia = calcMafiaCount(pcPlayerCount, pcHasKiller);
-            const citizens = pcHasKiller ? pcPlayerCount - mafia - 1 : pcPlayerCount - mafia;
-            const el = document.getElementById('pcResultText');
-            el.innerHTML = `
-                <span style="color:#e50914;">المافيا: ${mafia} 🩸</span><br>
-                <span style="color:#0071e3;">المواطنون: ${citizens} 🛡️</span>
-                ${pcHasKiller ? '<br><span style="color:#ff9500;">السفاح: 1 🔪</span>' : ''}
-            `;
+        // عدد المافيا = ثلث عدد اللاعبين، مع حذف أي كسر دون تقريب.
+        function calcMafiaCount(players) {
+            return Math.floor(Number(players) / 3);
         }
 
         // ===== شريط الاقتراح في Deck Builder =====
@@ -1215,32 +1174,44 @@
             document.getElementById('deckBtnYesKiller').style.border = hasKiller ? '2px solid #ff9500' : '1px solid #444';
             document.getElementById('deckBtnYesKiller').style.background = hasKiller ? 'rgba(255,149,0,0.2)' : '#2a2a30';
             document.getElementById('deckBtnYesKiller').style.color = hasKiller ? '#ff9500' : '#aaa';
-            document.getElementById('deckBtnNoKiller').style.border = !hasKiller ? '2px solid #0071e3' : '1px solid #444';
-            document.getElementById('deckBtnNoKiller').style.background = !hasKiller ? 'rgba(0,113,227,0.2)' : '#2a2a30';
-            document.getElementById('deckBtnNoKiller').style.color = !hasKiller ? '#0071e3' : '#aaa';
+            document.getElementById('deckBtnNoKiller').style.border = !hasKiller ? '2px solid #35d07f' : '1px solid #444';
+            document.getElementById('deckBtnNoKiller').style.background = !hasKiller ? 'rgba(53,208,127,0.16)' : '#2a2a30';
+            document.getElementById('deckBtnNoKiller').style.color = !hasKiller ? '#35d07f' : '#aaa';
             updateDeckSuggestion();
         }
 
         function updateDeckSuggestion() {
-            const mafia = calcMafiaCount(deckPcCount, deckHasKiller);
-            const citizens = deckHasKiller ? deckPcCount - mafia - 1 : deckPcCount - mafia;
+            const mafia = calcMafiaCount(deckPcCount);
+            const citizenSide = Math.max(0, deckPcCount - mafia);
+            const citizenCards = Math.max(
+                0,
+                citizenSide - (deckHasKiller ? 1 : 0)
+            );
+
             document.getElementById('deckSuggestion').innerHTML =
-                `المقترح: <span style="color:#e50914;">${mafia} مافيا 🩸</span> + <span style="color:#0071e3;">${citizens} مواطن 🛡️</span>` +
-                (deckHasKiller ? ` + <span style="color:#ff9500;">1 سفاح 🔪</span>` : '');
+                `المقترح: <span style="color:#e50914;">${mafia} مافيا 🩸</span> + ` +
+                `<span style="color:#35d07f;">${citizenSide} جهة المواطنين 🛡️</span>` +
+                (deckHasKiller
+                    ? `<br><span style="color:#9ca3af; font-size:0.82rem;">` +
+                      `${citizenCards} كرت مواطن + 1 سفاح ضمن جهة المواطنين` +
+                      `</span>`
+                    : '');
         }
 
         function goToDeckBuilder() {
             deckPcCount = pcPlayerCount;
-            deckHasKiller = pcHasKiller;
             document.getElementById('deckPcCount').textContent = deckPcCount;
+            // اختيار السفاح يتم فقط من صفحة اختيار الكروت.
             setDeckKiller(deckHasKiller, true);
             initDeckBuilder();
             document.getElementById('sectionPlayerCount').classList.remove('active');
             document.getElementById('sectionDeckBuilder').classList.add('active');
         }
 
-        // تهيئة شاشة التوزيع عند التحميل
-        window.addEventListener('DOMContentLoaded', () => { updatePcResult(); updateDeckSuggestion(); });
+        // تهيئة اقتراح صفحة اختيار الكروت فقط.
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDeckSuggestion();
+        });
 
         const masterRoles = [
             { value: 'detective', label: 'المحقق 🔍', group: 'citizen_team', maxAllowed: 1 },
@@ -3044,8 +3015,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=81"></script>
+    <script src="realtime-config.js?v=82"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=81"></script>
+    <script src="tv-control.js?v=82"></script>
 </body>
 </html>

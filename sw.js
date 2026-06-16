@@ -1,4 +1,4 @@
-const CACHE_NAME = 'amman-mafia-tv-v81-cache-v1';
+const CACHE_NAME = 'amman-mafia-tv-v82-cache-v1';
 
 const STATIC_ASSETS = [
   './manifest.json',
