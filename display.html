@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v78</title>
+  <title>Amman Mafia — شاشة العرض v79</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -212,6 +212,24 @@
     }
     body.voting-live .live-voting-panel{display:flex}
     body.voting-live .phase-panel.voting{display:none!important}
+    body.voting-defense .live-voting-panel{
+      left:0;
+      right:0;
+      top:0;
+      bottom:0;
+      padding:0;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      overflow:visible;
+    }
+    body.voting-defense #liveVotingContent{
+      width:100%;
+      max-width:none;
+      height:100%;
+      margin:0;
+      display:block;
+    }
 
     #liveVotingContent{
       width:100%;
@@ -340,95 +358,90 @@
       line-height:1;
     }
     .live-defense-layout{
-      width:min(100%,1490px);
+      position:relative;
+      width:100%;
       height:100%;
-      margin:16px auto 0;
-      display:grid;
-      grid-template-columns:790px minmax(0,1fr);
-      align-items:center;
-      justify-items:stretch;
-      gap:56px;
       direction:ltr;
-      padding:6px 10px 8px;
     }
     .live-defense-timer-stage{
+      position:absolute;
+      left:70px;
+      top:124px;
       width:790px;
       height:592px;
       display:flex;
       align-items:center;
       justify-content:center;
       border-radius:38px;
-      background:linear-gradient(180deg,rgba(7,10,16,.38),rgba(5,7,12,.22));
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+      background:rgba(5,7,12,.30);
     }
     .live-defense-timer-stage.warning .ring-progress{
       stroke:var(--red);
       filter:drop-shadow(0 0 13px rgba(255,76,86,.62));
     }
     .live-defense-info{
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:flex-end;
-      min-height:520px;
+      position:absolute;
+      right:85px;
+      top:235px;
+      width:570px;
+      height:475px;
+      display:block;
+      min-height:0;
       padding:0;
     }
     .live-defense-player-card{
       position:relative;
-      width:100%;
-      max-width:620px;
-      height:500px;
-      margin-inline-start:auto;
-      border-radius:32px;
-      background:linear-gradient(180deg,rgba(12,15,21,.96),rgba(7,9,13,.88));
+      width:570px;
+      height:475px;
+      border-radius:30px;
+      background:linear-gradient(180deg,rgba(10,12,17,.92),rgba(7,9,13,.86));
       border:1px solid rgba(255,255,255,.09);
-      box-shadow:0 24px 60px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.025);
+      box-shadow:0 20px 55px rgba(0,0,0,.33);
       overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:30px;
-      padding:18px 24px;
-    }
-    .live-defense-player-card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:radial-gradient(circle at top center,rgba(242,195,91,.08),transparent 58%);
-      pointer-events:none;
     }
     .live-defense-player-card::after{
       content:"";
       position:absolute;
-      left:44px;
-      right:44px;
+      left:40px;
+      right:40px;
       bottom:0;
       height:5px;
       border-radius:999px;
       background:linear-gradient(90deg,transparent,var(--gold),transparent);
     }
     .live-defense-player-label{
+      position:absolute;
+      left:0;
+      right:0;
+      top:56px;
       color:var(--gold);
-      font-size:48px;
+      font-size:46px;
       font-weight:900;
       line-height:1;
       text-align:center;
     }
     .live-defense-player-value{
+      position:absolute;
+      left:0;
+      right:0;
+      top:148px;
+      text-align:center;
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
-      font-size:220px;
-      line-height:.92;
+      font-size:202px;
+      line-height:1;
       font-weight:950;
       color:#f8f5ed;
       text-shadow:0 0 25px rgba(255,255,255,.06);
     }
     .live-defense-player-note{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:54px;
       color:#9ea3af;
-      font-size:30px;
+      font-size:27px;
       font-weight:700;
       line-height:1;
-      margin-top:-2px;
       text-align:center;
     }
     .live-defense-seat{
@@ -563,9 +576,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v78-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v79-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=78"></script>
+  <script src="realtime-config.js?v=79"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -816,7 +829,6 @@
         const dashOffset=RING_CIRCUMFERENCE*(1-ratio);
 
         content.innerHTML=`
-          <div class="live-vote-title">جولة التبرير</div>
           <div class="live-defense-layout">
             <section class="live-defense-timer-stage ${isWarn?"warning":""}">
               <div class="timer-wrap">
@@ -902,9 +914,13 @@
         state.votingMode==="live" &&
         !["choice","manual"].includes(state.votingStage);
 
+      const defenseMode =
+        phase==="voting" && state.votingStage==="defense";
+
       document.body.className=
-        `phase-${phase}${liveVoting?" voting-live":""}`;
-      $("phaseTitle").textContent=PHASE_LABELS[phase];
+        `phase-${phase}${liveVoting?" voting-live":""}${defenseMode?" voting-defense":""}`;
+      $("phaseTitle").textContent=
+        defenseMode?"جولة التبرير":PHASE_LABELS[phase];
       $("roundBadge").textContent=String(
         Math.max(1,Number(state.roundNumber)||1)
       );
