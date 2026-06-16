@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v82</title>
+    <title>Amman Mafia — TV Control v83</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v82">
+    <meta name="app-version" content="tv-v83">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=82">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=82">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=82">
+    <link rel="manifest" href="manifest.json?v=83">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=83">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=83">
     <style>
         :root {
             --gold: #c9a84c;
@@ -987,8 +987,323 @@
             filter: grayscale(0.25);
         }
 
+
+        /* ===== v83 — Role builder as the main landing page ===== */
+        .deck-builder-page {
+            padding-top: 10px !important;
+            padding-bottom: 55px !important;
+        }
+
+        .deck-builder-hero {
+            width: min(95%, 900px);
+            margin: 0 auto 14px;
+            padding: 20px;
+            border-radius: 26px;
+            border: 1px solid rgba(201,168,76,.18);
+            background:
+                radial-gradient(circle at 50% 0%, rgba(201,168,76,.08), transparent 48%),
+                linear-gradient(150deg, rgba(24,24,31,.97), rgba(12,12,17,.97));
+            box-shadow:
+                0 22px 55px rgba(0,0,0,.34),
+                inset 0 1px 0 rgba(255,255,255,.035);
+        }
+
+        .deck-builder-heading {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .deck-builder-kicker {
+            color: rgba(201,168,76,.72);
+            font-size: .74rem;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+        }
+
+        .deck-builder-heading h2 {
+            margin: 5px 0 7px;
+            color: #f4efe2;
+            font-size: clamp(1.55rem, 7vw, 2.25rem);
+            line-height: 1;
+        }
+
+        .deck-builder-heading p {
+            margin: 0;
+            color: rgba(240,230,204,.48);
+            font-size: .86rem;
+            line-height: 1.7;
+        }
+
+        .deck-setup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 12px;
+        }
+
+        .deck-setup-card {
+            min-height: 112px;
+            padding: 15px;
+            border-radius: 19px;
+            border: 1px solid rgba(255,255,255,.065);
+            background: rgba(8,8,12,.34);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .deck-setup-label {
+            color: rgba(240,230,204,.52);
+            font-size: .78rem;
+            font-weight: 800;
+        }
+
+        .deck-player-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 13px;
+        }
+
+        .deck-player-stepper button {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            border: 1px solid rgba(201,168,76,.25);
+            background: rgba(255,255,255,.055);
+            color: var(--gold);
+            font-size: 1.45rem;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .deck-player-stepper strong {
+            min-width: 58px;
+            color: var(--gold);
+            font-size: 2.35rem;
+            line-height: 1;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .deck-killer-toggle {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 7px;
+        }
+
+        .deck-killer-toggle button {
+            min-height: 43px;
+            padding: 8px 7px;
+            border-radius: 13px !important;
+            border: 1px solid rgba(255,255,255,.07);
+            background: rgba(255,255,255,.045);
+            color: rgba(240,230,204,.47);
+            font-size: .78rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: none;
+        }
+
+        .deck-killer-toggle #deckBtnNoKiller.active {
+            color: #48dc8a;
+            border-color: rgba(53,208,127,.46);
+            background: rgba(53,208,127,.12);
+        }
+
+        .deck-killer-toggle #deckBtnYesKiller.active {
+            color: #ffad42;
+            border-color: rgba(255,149,0,.52);
+            background: rgba(255,149,0,.13);
+        }
+
+        .deck-suggestion-card {
+            margin-top: 12px;
+            min-height: 67px;
+            padding: 13px 15px;
+            border-radius: 17px;
+            border: 1px solid rgba(201,168,76,.14);
+            background: rgba(0,0,0,.20);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .deck-suggestion-title {
+            width: 100%;
+            color: rgba(240,230,204,.43);
+            font-size: .72rem;
+            font-weight: 800;
+        }
+
+        .deck-suggestion-chip {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: .82rem;
+            font-weight: 900;
+            border: 1px solid currentColor;
+            background: rgba(255,255,255,.025);
+        }
+
+        .deck-suggestion-chip.mafia { color: #ff626a; }
+        .deck-suggestion-chip.citizen { color: #42d986; }
+        .deck-suggestion-chip.killer { color: #ffad42; }
+
+        .deck-selection-summary {
+            width: min(95%, 900px) !important;
+            max-width: 900px !important;
+            display: grid;
+            grid-template-columns: auto minmax(0,1fr) minmax(230px, 310px);
+            align-items: center;
+            gap: 12px;
+            text-align: initial !important;
+        }
+
+        .deck-total-block {
+            min-width: 110px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .deck-total-block > span {
+            color: rgba(240,230,204,.48);
+            font-size: .72rem;
+            font-weight: 800;
+        }
+
+        .deck-total-block strong {
+            direction: ltr;
+            color: #f5efe0;
+            font-size: 1.48rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .deck-total-block small {
+            color: rgba(240,230,204,.28);
+            font-size: .9rem;
+        }
+
+        .deck-count-status {
+            min-height: 42px;
+            padding: 9px 13px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: .82rem;
+            font-weight: 900;
+            transition: .18s ease;
+        }
+
+        .deck-count-status.under {
+            color: #ffcb64;
+            border: 1px solid rgba(255,183,62,.22);
+            background: rgba(255,183,62,.08);
+        }
+
+        .deck-count-status.complete {
+            color: #46df8b;
+            border: 1px solid rgba(53,208,127,.28);
+            background: rgba(53,208,127,.10);
+            box-shadow: 0 0 18px rgba(53,208,127,.07);
+        }
+
+        .deck-count-status.error {
+            color: #ff7379;
+            border: 1px solid rgba(255,89,98,.28);
+            background: rgba(255,89,98,.09);
+        }
+
+        .deck-selection-summary .start-game-btn:disabled {
+            opacity: .36;
+            cursor: not-allowed;
+            filter: grayscale(.45);
+            box-shadow: none;
+        }
+
+        .deck-roles-heading {
+            width: min(95%, 880px);
+            margin: 18px auto 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .deck-roles-heading h3 {
+            margin: 0;
+            color: #f3eee2;
+            font-size: 1.05rem;
+        }
+
+        .deck-roles-heading span {
+            color: rgba(240,230,204,.38);
+            font-size: .72rem;
+        }
+
+        .deck-btn:disabled {
+            opacity: .28;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .deck-card-item.limit-reached {
+            opacity: .78;
+        }
+
+        .deck-count-flash {
+            animation: deckCountFlash .32s ease;
+        }
+
+        @keyframes deckCountFlash {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.035); box-shadow: 0 0 24px rgba(255,95,104,.18); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 680px) {
+            .deck-setup-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .deck-selection-summary {
+                grid-template-columns: 1fr 1fr !important;
+            }
+
+            .deck-selection-summary .start-game-btn {
+                grid-column: 1 / -1;
+            }
+
+            .deck-total-block {
+                align-items: center;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .deck-builder-hero {
+                padding: 15px;
+            }
+
+            .deck-selection-summary {
+                grid-template-columns: 1fr !important;
+            }
+
+            .deck-roles-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=82">
+    <link rel="stylesheet" href="tv-control.css?v=83">
 </head>
 <body>
 
@@ -996,45 +1311,85 @@
         <img class="app-brand-logo" src="amman-mafia-wordmark.png" alt="Amman Mafia">
     </div>
     
-    <div id="sectionPlayerCount" class="page-section active">
-        <div style="width:95%; max-width:500px; display:flex; flex-direction:column; align-items:center; gap:24px; margin-top:55px;">
-            
-            <!-- إدخال عدد اللاعبين -->
-            <div style="background:#141418; border:1px solid #c9a84c22; border-radius:12px; padding:25px; width:100%; text-align:center;">
-                <div style="color:#888; font-size:0.85rem; margin-bottom:12px; letter-spacing:1px;">عدد اللاعبين</div>
-                <div style="display:flex; align-items:center; justify-content:center; gap:15px;">
-                    <button onclick="changePlayerCount(-1)" style="width:42px; height:42px; font-size:1.4rem; background:#222228; border:1px solid #c9a84c44; border-radius:8px; color:#c9a84c; cursor:pointer;">−</button>
-                    <span id="pcCount" style="font-size:2.8rem; font-weight:800; color:#c9a84c; min-width:60px; text-align:center;">12</span>
-                    <button onclick="changePlayerCount(1)" style="width:42px; height:42px; font-size:1.4rem; background:#222228; border:1px solid #c9a84c44; border-radius:8px; color:#c9a84c; cursor:pointer;">+</button>
+    <!-- حاوية مخفية للتوافق مع الجلسات القديمة -->
+    <div id="sectionPlayerCount" class="page-section" style="display:none !important;"></div>
+
+    <div id="sectionDeckBuilder" class="page-section active deck-builder-page">
+        <section class="deck-builder-hero">
+            <div class="deck-builder-heading">
+                <span class="deck-builder-kicker">إعداد جلسة جديدة</span>
+                <h2>اختيار الأدوار</h2>
+                <p>حدد عدد اللاعبين، ثم اختر الكروت حتى يطابق مجموعها العدد تمامًا.</p>
+            </div>
+
+            <div class="deck-setup-grid">
+                <div class="deck-setup-card">
+                    <span class="deck-setup-label">عدد اللاعبين</span>
+                    <div class="deck-player-stepper">
+                        <button
+                            id="deckPlayerMinus"
+                            type="button"
+                            onclick="changeDeckPc(-1)"
+                            aria-label="تقليل عدد اللاعبين"
+                        >−</button>
+                        <strong id="deckPcCount">12</strong>
+                        <button
+                            id="deckPlayerPlus"
+                            type="button"
+                            onclick="changeDeckPc(1)"
+                            aria-label="زيادة عدد اللاعبين"
+                        >+</button>
+                    </div>
+                </div>
+
+                <div class="deck-setup-card">
+                    <span class="deck-setup-label">السفاح</span>
+                    <div class="deck-killer-toggle">
+                        <button
+                            id="deckBtnNoKiller"
+                            type="button"
+                            onclick="setDeckKiller(false)"
+                            class="active"
+                        >بدون سفاح</button>
+                        <button
+                            id="deckBtnYesKiller"
+                            type="button"
+                            onclick="setDeckKiller(true)"
+                        >مع سفاح 🔪</button>
+                    </div>
                 </div>
             </div>
 
+            <div id="deckSuggestion" class="deck-suggestion-card"></div>
+        </section>
 
-            <!-- زر المتابعة -->
-            <button onclick="goToDeckBuilder()" style="width:100%; padding:15px; background:#c9a84c; color:#0a0a0d; border:none; border-radius:12px; font-size:1.05rem; font-weight:800; cursor:pointer; letter-spacing:0.5px;">متابعة لاختيار الأدوار ←</button>
-        </div>
-    </div>
-
-    <div id="sectionDeckBuilder" class="page-section">
-        <!-- شريط الاقتراح في أعلى Deck Builder -->
-        <div style="background:#141418; border:1px solid #c9a84c22; border-radius:12px; padding:14px 16px; width:95%; max-width:800px; margin-bottom:14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center;">
-            <span style="color:#888; font-size:0.85rem;">عدد اللاعبين:</span>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <button onclick="changeDeckPc(-1)" style="width:30px; height:30px; background:#222228; border:1px solid #c9a84c44; border-radius:6px; color:#c9a84c; cursor:pointer; font-size:1rem;">−</button>
-                <span id="deckPcCount" style="font-size:1.2rem; font-weight:800; color:#c9a84c; min-width:30px; text-align:center;">12</span>
-                <button onclick="changeDeckPc(1)" style="width:30px; height:30px; background:#222228; border:1px solid #c9a84c44; border-radius:6px; color:#c9a84c; cursor:pointer; font-size:1rem;">+</button>
+        <div class="deck-summary-bar deck-selection-summary">
+            <div class="deck-total-block">
+                <span>الكروت المختارة</span>
+                <strong>
+                    <span id="deckTotalCount">0</span>
+                    <small>/</small>
+                    <span id="deckTargetCount">12</span>
+                </strong>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button id="deckBtnNoKiller" onclick="setDeckKiller(false)" style="padding:6px 12px; border-radius:8px; border:2px solid #c9a84c; background:#c9a84c11; color:#c9a84c; font-size:0.82rem; font-weight:bold; cursor:pointer;">بدون سفاح</button>
-                <button id="deckBtnYesKiller" onclick="setDeckKiller(true)" style="padding:6px 12px; border-radius:8px; border:1px solid #2a2a30; background:#1a1a1f; color:#666; font-size:0.82rem; font-weight:bold; cursor:pointer;">مع سفاح 🔪</button>
+
+            <div id="deckCountStatus" class="deck-count-status under">
+                ناقص 12 كرت
             </div>
-            <div id="deckSuggestion" style="font-size:0.9rem; font-weight:bold; color:#f0e6cc; text-align:center; width:100%;"></div>
+
+            <button
+                id="deckStartButton"
+                class="start-game-btn"
+                onclick="startGameFromDeck()"
+                disabled
+            >اعتماد الكروت وبدء الجلسة 🚀</button>
         </div>
 
-        <div class="deck-summary-bar">
-            <h3>إجمالي الكروت والمقاعد المحددة: <span id="deckTotalCount" style="color:white;">0</span></h3>
-            <button class="start-game-btn" onclick="startGameFromDeck()">اعتماد الكروت وبدء الجلسة 🚀</button>
+        <div class="deck-roles-heading">
+            <h3>الكروت المتاحة</h3>
+            <span>اضغط + لإضافة الدور و− لإزالته</span>
         </div>
+
         <div id="deckGrid" class="deck-grid"></div>
     </div>
 
@@ -1146,72 +1501,176 @@
     <script>
         // ===== AMMAN MAFIA STABLE v10.1 BUGFIX =====
         // ملاحظة: هذه النسخة تنظف وتثبت v9 بدون إضافة ميزات جديدة.
-        // ===== الصفحة الأولى: اختيار عدد اللاعبين فقط =====
-        let pcPlayerCount = 12;
-
-        function changePlayerCount(delta) {
-            pcPlayerCount = Math.max(4, pcPlayerCount + delta);
-            document.getElementById('pcCount').textContent = pcPlayerCount;
-        }
-
-        // عدد المافيا = ثلث عدد اللاعبين، مع حذف أي كسر دون تقريب.
+        // ===== إعداد اللعبة يبدأ مباشرة من صفحة اختيار الأدوار =====
         function calcMafiaCount(players) {
             return Math.floor(Number(players) / 3);
         }
 
-        // ===== شريط الاقتراح في Deck Builder =====
         let deckPcCount = 12;
         let deckHasKiller = false;
 
+        function getDeckTotal() {
+            return Object.values(deckSelection || {}).reduce(
+                (sum, value) => sum + (Number(value) || 0),
+                0
+            );
+        }
+
+        function getSelectedMafiaCount() {
+            return masterRoles
+                .filter(role => role.group === 'mafia_team')
+                .reduce(
+                    (sum, role) =>
+                        sum + (Number(deckSelection[role.value]) || 0),
+                    0
+                );
+        }
+
+        function flashDeckStatus(message, type = 'error') {
+            const status = document.getElementById('deckCountStatus');
+            if (!status) return;
+
+            status.textContent = message;
+            status.className = `deck-count-status ${type}`;
+            status.classList.remove('deck-count-flash');
+            void status.offsetWidth;
+            status.classList.add('deck-count-flash');
+
+            window.setTimeout(updateDeckTotal, 900);
+        }
+
         function changeDeckPc(delta) {
-            deckPcCount = Math.max(4, deckPcCount + delta);
+            const proposed = Math.max(4, deckPcCount + Number(delta || 0));
+            const selectedTotal = getDeckTotal();
+
+            if (proposed < selectedTotal) {
+                flashDeckStatus(
+                    `لا يمكن جعل اللاعبين ${proposed} لأنك اخترت ${selectedTotal} كرتًا`
+                );
+                return;
+            }
+
+            deckPcCount = proposed;
             document.getElementById('deckPcCount').textContent = deckPcCount;
             updateDeckSuggestion();
+            updateDeckTotal();
+        }
+
+        function syncKillerToggleVisual() {
+            const yesButton = document.getElementById('deckBtnYesKiller');
+            const noButton = document.getElementById('deckBtnNoKiller');
+
+            if (yesButton) yesButton.classList.toggle('active', deckHasKiller);
+            if (noButton) noButton.classList.toggle('active', !deckHasKiller);
+        }
+
+        function syncDeckCard(roleValue) {
+            const count = Number(deckSelection[roleValue]) || 0;
+            const countElement = document.getElementById(
+                `deck-count-${roleValue}`
+            );
+            const card = document.getElementById(`deck-card-${roleValue}`);
+
+            if (countElement) countElement.textContent = count;
+            if (card) card.classList.toggle('selected', count > 0);
+        }
+
+        function removeOneMafiaForKiller() {
+            const removalPriority = [
+                'mafia',
+                'mafia_scorpion',
+                'mafia_spy',
+                'mafia_chameleon',
+                'mafia_priest',
+                'mafia_boss'
+            ];
+
+            const roleToReduce = removalPriority.find(
+                roleValue => (Number(deckSelection[roleValue]) || 0) > 0
+            );
+
+            if (!roleToReduce) return false;
+
+            deckSelection[roleToReduce] -= 1;
+            syncDeckCard(roleToReduce);
+            return true;
         }
 
         function setDeckKiller(hasKiller, silent = false) {
-            deckHasKiller = hasKiller;
-            document.getElementById('deckBtnYesKiller').style.border = hasKiller ? '2px solid #ff9500' : '1px solid #444';
-            document.getElementById('deckBtnYesKiller').style.background = hasKiller ? 'rgba(255,149,0,0.2)' : '#2a2a30';
-            document.getElementById('deckBtnYesKiller').style.color = hasKiller ? '#ff9500' : '#aaa';
-            document.getElementById('deckBtnNoKiller').style.border = !hasKiller ? '2px solid #35d07f' : '1px solid #444';
-            document.getElementById('deckBtnNoKiller').style.background = !hasKiller ? 'rgba(53,208,127,0.16)' : '#2a2a30';
-            document.getElementById('deckBtnNoKiller').style.color = !hasKiller ? '#35d07f' : '#aaa';
+            hasKiller = Boolean(hasKiller);
+
+            if (hasKiller === deckHasKiller) {
+                syncKillerToggleVisual();
+                updateDeckSuggestion();
+                updateDeckTotal();
+                return;
+            }
+
+            const currentTotal = getDeckTotal();
+
+            if (hasKiller) {
+                if (currentTotal >= deckPcCount) {
+                    const removedMafia = removeOneMafiaForKiller();
+
+                    if (!removedMafia) {
+                        if (!silent) {
+                            flashDeckStatus(
+                                'لإضافة السفاح عند اكتمال العدد، يجب أن يكون هناك كرت مافيا ليستبدله'
+                            );
+                        }
+                        return;
+                    }
+                }
+
+                deckSelection.serial_killer = 1;
+                deckHasKiller = true;
+            } else {
+                const wasFull = currentTotal === deckPcCount;
+
+                deckSelection.serial_killer = 0;
+                deckHasKiller = false;
+
+                // عند إزالة السفاح من توزيع مكتمل، يعود مكانه كرت مافيا.
+                if (wasFull) {
+                    deckSelection.mafia =
+                        (Number(deckSelection.mafia) || 0) + 1;
+                    syncDeckCard('mafia');
+                }
+            }
+
+            syncDeckCard('serial_killer');
+            syncKillerToggleVisual();
             updateDeckSuggestion();
+            updateDeckTotal();
         }
 
         function updateDeckSuggestion() {
-            const mafia = calcMafiaCount(deckPcCount);
-            const citizenSide = Math.max(0, deckPcCount - mafia);
-            const citizenCards = Math.max(
+            const baseMafia = calcMafiaCount(deckPcCount);
+            const citizenCount = Math.max(
                 0,
-                citizenSide - (deckHasKiller ? 1 : 0)
+                deckPcCount - baseMafia
+            );
+            const killerCount = deckHasKiller ? 1 : 0;
+            const mafiaCount = Math.max(
+                0,
+                baseMafia - killerCount
             );
 
-            document.getElementById('deckSuggestion').innerHTML =
-                `المقترح: <span style="color:#e50914;">${mafia} مافيا 🩸</span> + ` +
-                `<span style="color:#35d07f;">${citizenSide} جهة المواطنين 🛡️</span>` +
-                (deckHasKiller
-                    ? `<br><span style="color:#9ca3af; font-size:0.82rem;">` +
-                      `${citizenCards} كرت مواطن + 1 سفاح ضمن جهة المواطنين` +
-                      `</span>`
-                    : '');
+            document.getElementById('deckSuggestion').innerHTML = `
+                <span class="deck-suggestion-title">التوزيع المقترح</span>
+                <span class="deck-suggestion-chip mafia">
+                    ${mafiaCount} مافيا 🩸
+                </span>
+                ${killerCount ? `
+                    <span class="deck-suggestion-chip killer">
+                        1 سفاح 🔪
+                    </span>
+                ` : ''}
+                <span class="deck-suggestion-chip citizen">
+                    ${citizenCount} مواطن 🛡️
+                </span>
+            `;
         }
-
-        function goToDeckBuilder() {
-            deckPcCount = pcPlayerCount;
-            document.getElementById('deckPcCount').textContent = deckPcCount;
-            // اختيار السفاح يتم فقط من صفحة اختيار الكروت.
-            setDeckKiller(deckHasKiller, true);
-            initDeckBuilder();
-            document.getElementById('sectionPlayerCount').classList.remove('active');
-            document.getElementById('sectionDeckBuilder').classList.add('active');
-        }
-
-        // تهيئة اقتراح صفحة اختيار الكروت فقط.
-        window.addEventListener('DOMContentLoaded', () => {
-            updateDeckSuggestion();
-        });
 
         const masterRoles = [
             { value: 'detective', label: 'المحقق 🔍', group: 'citizen_team', maxAllowed: 1 },
@@ -1252,85 +1711,256 @@
         function initDeckBuilder() {
             const grid = document.getElementById('deckGrid');
             grid.innerHTML = '';
-            
+
             masterRoles.forEach(role => {
-                deckSelection[role.value] = deckSelection[role.value] || 0;
+                deckSelection[role.value] =
+                    Number(deckSelection[role.value]) || 0;
+
+                if (role.value === 'serial_killer') {
+                    deckSelection[role.value] =
+                        deckHasKiller ? 1 : 0;
+                }
+
                 const card = document.createElement('div');
-                card.className = `deck-card-item ${deckSelection[role.value] > 0 ? 'selected' : ''}`;
+                card.className =
+                    `deck-card-item ${
+                        deckSelection[role.value] > 0
+                            ? 'selected'
+                            : ''
+                    }`;
                 card.id = `deck-card-${role.value}`;
-                
+
                 let groupColor = '#aaa';
-                if(role.group === 'citizen_team') groupColor = 'var(--color-citizen-team)';
-                if(role.group === 'mafia_team') groupColor = 'var(--color-mafia-team)';
-                if(role.group === 'solo_team') groupColor = 'var(--color-serial-killer)';
+                if (role.group === 'citizen_team') {
+                    groupColor = 'var(--color-citizen-team)';
+                }
+                if (role.group === 'mafia_team') {
+                    groupColor = 'var(--color-mafia-team)';
+                }
+                if (role.group === 'solo_team') {
+                    groupColor = 'var(--color-serial-killer)';
+                }
 
                 card.innerHTML = `
-                    <div class="deck-card-title" style="color:${groupColor}">${role.label}</div>
+                    <div
+                        class="deck-card-title"
+                        style="color:${groupColor}"
+                    >${role.label}</div>
                     <div class="deck-controls">
-                        <button class="deck-btn" onclick="updateDeckCount('${role.value}', -1)">-</button>
-                        <span class="deck-count" id="deck-count-${role.value}">${deckSelection[role.value]}</span>
-                        <button class="deck-btn" onclick="updateDeckCount('${role.value}', 1)">+</button>
+                        <button
+                            id="deck-minus-${role.value}"
+                            class="deck-btn"
+                            onclick="updateDeckCount('${role.value}', -1)"
+                            aria-label="إزالة ${role.label}"
+                        >−</button>
+                        <span
+                            class="deck-count"
+                            id="deck-count-${role.value}"
+                        >${deckSelection[role.value]}</span>
+                        <button
+                            id="deck-plus-${role.value}"
+                            class="deck-btn"
+                            onclick="updateDeckCount('${role.value}', 1)"
+                            aria-label="إضافة ${role.label}"
+                        >+</button>
                     </div>
                 `;
+
                 grid.appendChild(card);
             });
+
+            syncKillerToggleVisual();
+            updateDeckSuggestion();
             updateDeckTotal();
         }
 
         function updateDeckCount(roleValue, change) {
-            const role = masterRoles.find(r => r.value === roleValue);
-            let current = deckSelection[roleValue];
-            let newVal = current + change;
-            
-            if (newVal < 0) newVal = 0;
-            if (newVal > role.maxAllowed) newVal = role.maxAllowed;
-            
-            deckSelection[roleValue] = newVal;
-            document.getElementById(`deck-count-${roleValue}`).textContent = newVal;
-            
-            const cardElem = document.getElementById(`deck-card-${roleValue}`);
-            if (newVal > 0) cardElem.classList.add('selected');
-            else cardElem.classList.remove('selected');
-            
+            const role = masterRoles.find(
+                item => item.value === roleValue
+            );
+            if (!role) return;
+
+            const current = Number(deckSelection[roleValue]) || 0;
+
+            if (roleValue === 'serial_killer') {
+                setDeckKiller(change > 0);
+                return;
+            }
+
+            if (change > 0 && getDeckTotal() >= deckPcCount) {
+                flashDeckStatus(
+                    `وصلت إلى عدد اللاعبين (${deckPcCount}) — لا يمكن إضافة كرت آخر`
+                );
+                return;
+            }
+
+            let newValue = current + Number(change || 0);
+            newValue = Math.max(0, newValue);
+            newValue = Math.min(role.maxAllowed, newValue);
+
+            if (newValue === current) return;
+
+            deckSelection[roleValue] = newValue;
+            syncDeckCard(roleValue);
             updateDeckTotal();
         }
 
         function updateDeckTotal() {
-            let total = Object.values(deckSelection).reduce((a, b) => a + b, 0);
-            document.getElementById('deckTotalCount').textContent = total;
+            const total = getDeckTotal();
+            const remaining = deckPcCount - total;
+
+            const totalElement =
+                document.getElementById('deckTotalCount');
+            const targetElement =
+                document.getElementById('deckTargetCount');
+            const status =
+                document.getElementById('deckCountStatus');
+            const startButton =
+                document.getElementById('deckStartButton');
+
+            if (totalElement) totalElement.textContent = total;
+            if (targetElement) {
+                targetElement.textContent = deckPcCount;
+            }
+
+            if (status) {
+                if (remaining > 0) {
+                    status.textContent =
+                        `ناقص ${remaining} ${
+                            remaining === 1 ? 'كرت' : 'كروت'
+                        }`;
+                    status.className = 'deck-count-status under';
+                } else if (remaining === 0) {
+                    status.textContent =
+                        'التوزيع مكتمل ومطابق لعدد اللاعبين ✓';
+                    status.className =
+                        'deck-count-status complete';
+                } else {
+                    status.textContent =
+                        `عدد الكروت زائد ${Math.abs(remaining)}`;
+                    status.className =
+                        'deck-count-status error';
+                }
+            }
+
+            if (startButton) {
+                startButton.disabled = remaining !== 0;
+            }
+
+            masterRoles.forEach(role => {
+                const value =
+                    Number(deckSelection[role.value]) || 0;
+                const minusButton = document.getElementById(
+                    `deck-minus-${role.value}`
+                );
+                const plusButton = document.getElementById(
+                    `deck-plus-${role.value}`
+                );
+                const card = document.getElementById(
+                    `deck-card-${role.value}`
+                );
+
+                if (minusButton) {
+                    minusButton.disabled = value <= 0;
+                }
+
+                if (plusButton) {
+                    if (role.value === 'serial_killer') {
+                        const canReplaceMafia =
+                            getSelectedMafiaCount() > 0;
+                        plusButton.disabled =
+                            deckHasKiller ||
+                            (
+                                total >= deckPcCount &&
+                                !canReplaceMafia
+                            );
+                    } else {
+                        plusButton.disabled =
+                            total >= deckPcCount ||
+                            value >= role.maxAllowed;
+                    }
+                }
+
+                if (card) {
+                    card.classList.toggle(
+                        'limit-reached',
+                        Boolean(plusButton?.disabled) &&
+                        value === 0
+                    );
+                }
+            });
         }
 
         function startGameFromDeck() {
-            totalGameSeats = Object.values(deckSelection).reduce((a, b) => a + b, 0);
-            if (totalGameSeats === 0) { alert("الرجاء اختيار كرت واحد على الأقل للبدء!"); return; }
+            const selectedTotal = getDeckTotal();
+
+            if (selectedTotal < deckPcCount) {
+                const missing = deckPcCount - selectedTotal;
+                flashDeckStatus(
+                    `اختر ${missing} ${
+                        missing === 1 ? 'كرتًا إضافيًا' : 'كروت إضافية'
+                    } قبل بدء الجلسة`
+                );
+                return;
+            }
+
+            if (selectedTotal > deckPcCount) {
+                flashDeckStatus(
+                    'عدد الكروت أكبر من عدد اللاعبين'
+                );
+                return;
+            }
+
+            totalGameSeats = deckPcCount;
 
             activeGameRoles = [];
             masterRoles.forEach(role => {
-                if (deckSelection[role.value] > 0) { activeGameRoles.push({ ...role, limit: deckSelection[role.value] }); }
+                if (deckSelection[role.value] > 0) {
+                    activeGameRoles.push({
+                        ...role,
+                        limit: deckSelection[role.value]
+                    });
+                }
             });
 
             nightRoundCounter = 1;
             gameEventLog = [];
             wizardFinalKills = [];
-            localStorage.removeItem('mafiaGameState'); 
+            localStorage.removeItem('mafiaGameState');
             localStorage.removeItem('mafiaSetupSeats');
-            localStorage.removeItem('mafiaSpyUsed'); 
+            localStorage.removeItem('mafiaSpyUsed');
             localStorage.removeItem('mafiaSniperDead');
             localStorage.removeItem('heirSpyUsed');
             localStorage.removeItem('heirSniperDead');
             localStorage.removeItem('mafiaEventLog');
-            gameEventLog = [];
-            localStorage.setItem('mafiaDeckSelection', JSON.stringify(deckSelection));
+            localStorage.setItem(
+                'mafiaDeckSelection',
+                JSON.stringify(deckSelection)
+            );
 
-            // احسب عدد المافيا من الـ deck
-            const mafiaRoles = ['mafia_boss','mafia_priest','mafia_chameleon','mafia_spy','mafia_scorpion','mafia'];
-            let totalMafia = 0;
-            mafiaRoles.forEach(r => { totalMafia += (deckSelection[r] || 0); });
+            const mafiaRoles = [
+                'mafia_boss',
+                'mafia_priest',
+                'mafia_chameleon',
+                'mafia_spy',
+                'mafia_scorpion',
+                'mafia'
+            ];
 
-            // افتح شاشة تحديد المافيا
+            const totalMafia = mafiaRoles.reduce(
+                (sum, roleValue) =>
+                    sum +
+                    (Number(deckSelection[roleValue]) || 0),
+                0
+            );
+
             buildMafiaSetupGrid(totalGameSeats, totalMafia);
-            document.getElementById('sectionDeckBuilder').classList.remove('active');
-            document.getElementById('sectionMafiaSetup').classList.add('active');
+            document
+                .getElementById('sectionDeckBuilder')
+                .classList.remove('active');
+            document
+                .getElementById('sectionMafiaSetup')
+                .classList.add('active');
         }
 
         let mafiaSetupSeats = [];
@@ -1497,7 +2127,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "68");
+                cleanUrl.searchParams.set("v", "83");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -3007,6 +3637,9 @@
             } else { initDeckBuilder(); }
         }
 
+        syncKillerToggleVisual();
+        updateDeckSuggestion();
+        updateDeckTotal();
         loadSavedState();
 
         // تسجيل Service Worker للـ PWA
@@ -3015,8 +3648,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=82"></script>
+    <script src="realtime-config.js?v=83"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=82"></script>
+    <script src="tv-control.js?v=83"></script>
 </body>
 </html>
