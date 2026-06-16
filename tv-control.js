@@ -1041,7 +1041,7 @@
     const nominees = publicState.votingNominees;
 
     if (!nominees.length) {
-      alert('لا يوجد مرشحون للتبرير.');
+      alert('لا يوجد متهمون للتبرير.');
       return;
     }
 
@@ -1402,7 +1402,7 @@
       content.innerHTML = `
         <div class="tv-vote-head">
           <div>
-            <h3>المرشحون للتبرير</h3>
+            <h3>المتهمون للتبرير</h3>
             <p>أصحاب أعلى عدد أصوات ينتقلون جميعًا إلى التبرير.</p>
           </div>
           <div class="tv-vote-progress">${maxVotes} صوت</div>
@@ -1441,7 +1441,7 @@
         <div class="tv-vote-head">
           <div>
             <h3>مرحلة التبرير</h3>
-            <p>المرشح ${index + 1} من ${total}</p>
+            <p>المتهم ${index + 1} من ${total}</p>
           </div>
           <div class="tv-vote-progress">60 ثانية</div>
         </div>
@@ -1481,7 +1481,7 @@
           <button
             class="tv-btn purple"
             data-vote-action="defense-next"
-          >${index + 1 < total ? 'المرشح التالي' : 'الانتقال لتصويت الخروج'}</button>
+          >${index + 1 < total ? 'المتهم التالي' : 'الانتقال لتصويت الخروج'}</button>
         </div>
 
         <button
@@ -1496,7 +1496,7 @@
         <div class="tv-vote-head">
           <div>
             <h3>تصويت الخروج</h3>
-            <p>المرشحون لا يصوتون ولا يدخلون ضمن العدد.</p>
+            <p>المتهمون لا يصوتون ولا يدخلون ضمن العدد.</p>
           </div>
           <div class="tv-vote-progress">
             الحد المطلوب: ${publicState.votingThreshold}
@@ -1618,7 +1618,17 @@
     };
 
     if (action === 'record') {
-      recordLiveVote(seat);
+      if (button.dataset.voteBusy === '1') return;
+
+      button.dataset.voteBusy = '1';
+      button.disabled = true;
+      button.classList.remove('vote-pressed');
+      void button.offsetWidth;
+      button.classList.add('vote-pressed');
+
+      window.setTimeout(() => {
+        recordLiveVote(seat);
+      }, 280);
       return;
     }
 
@@ -1768,7 +1778,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '79');
+    url.searchParams.set('v', '80');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }

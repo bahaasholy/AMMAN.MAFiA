@@ -470,11 +470,24 @@
   color: var(--gold);
 }
 
-.tv-nominee-grid,
-.tv-exit-grid {
+.tv-nominee-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 10px;
+}
+
+.tv-exit-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.tv-exit-card {
+  flex: 0 1 240px;
+  min-width: 210px;
+  max-width: 290px;
 }
 
 .tv-nominee-card,
@@ -604,9 +617,14 @@
     grid-template-columns: repeat(4, minmax(0,1fr));
   }
 
-  .tv-nominee-grid,
-  .tv-exit-grid {
+  .tv-nominee-grid {
     grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .tv-exit-card {
+    flex-basis: 100%;
+    min-width: 0;
+    max-width: none;
   }
 
   .tv-vote-choice-grid,
@@ -622,4 +640,44 @@
   .tv-vote-progress {
     width: 100%;
   }
+}
+
+
+@keyframes tvVoteSeatPressGlow {
+  0% {
+    transform: scale(1);
+    background: linear-gradient(160deg,#202027,#131318);
+    border-color: rgba(201,168,76,.20);
+    color: #f0e6cc;
+    box-shadow: none;
+  }
+  28% {
+    transform: scale(.94);
+    background: linear-gradient(160deg,#f1c75b,#b88928);
+    border-color: rgba(255,226,139,.95);
+    color: #121216;
+    box-shadow:
+      0 0 0 4px rgba(242,195,91,.12),
+      0 0 28px rgba(242,195,91,.72),
+      inset 0 0 18px rgba(255,255,255,.30);
+  }
+  72% {
+    transform: scale(1.04);
+    background: linear-gradient(160deg,#cfaa45,#7f641f);
+    border-color: rgba(242,195,91,.62);
+    color: #fff8df;
+    box-shadow: 0 0 18px rgba(242,195,91,.38);
+  }
+  100% {
+    transform: scale(1);
+    background: linear-gradient(160deg,#202027,#131318);
+    border-color: rgba(201,168,76,.20);
+    color: #f0e6cc;
+    box-shadow: none;
+  }
+}
+
+.tv-vote-seat.vote-pressed {
+  animation: tvVoteSeatPressGlow .28s ease-out both;
+  pointer-events: none;
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v79</title>
+  <title>Amman Mafia — شاشة العرض v80</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -461,12 +461,18 @@
     }
     .live-exit-grid{
       width:100%;
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:16px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:stretch;
+      gap:18px;
+      margin-inline:auto;
     }
     .live-exit-card{
-      padding:22px 18px;
+      flex:0 1 350px;
+      min-width:300px;
+      max-width:410px;
+      padding:22px 24px;
       border-radius:23px;
       border:1px solid rgba(242,195,91,.20);
       background:rgba(11,13,19,.86);
@@ -576,9 +582,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v79-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v80-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=79"></script>
+  <script src="realtime-config.js?v=80"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -801,7 +807,7 @@
         );
 
         content.innerHTML=`
-          <div class="live-vote-title">المرشحون للتبرير</div>
+          <div class="live-vote-title">المتهمون للتبرير</div>
           <div class="live-vote-subtitle" style="margin-top:12px">
             أصحاب أعلى عدد من الأصوات
           </div>
@@ -842,9 +848,9 @@
             </section>
             <section class="live-defense-info">
               <div class="live-defense-player-card">
-                <div class="live-defense-player-label">اللاعب الذي يبرر</div>
+                <div class="live-defense-player-label">تبرير لاعب رقم</div>
                 <div class="live-defense-player-value">${seat}</div>
-                <div class="live-defense-player-note">المرشح ${index+1} من ${nominees.length}</div>
+                <div class="live-defense-player-note">المتهم ${index+1} من ${nominees.length}</div>
               </div>
             </section>
           </div>`;
