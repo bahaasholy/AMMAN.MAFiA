@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v84</title>
+    <title>Amman Mafia — TV Control v85</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v84">
+    <meta name="app-version" content="tv-v85">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=84">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=84">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=84">
+    <link rel="manifest" href="manifest.json?v=85">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=85">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=85">
     <style>
         :root {
             --gold: #c9a84c;
@@ -1119,21 +1119,6 @@
             background: rgba(255,149,0,.13);
         }
 
-        .deck-suggestion-card {
-            margin-top: 12px;
-            min-height: 67px;
-            padding: 13px 15px;
-            border-radius: 17px;
-            border: 1px solid rgba(201,168,76,.14);
-            background: rgba(0,0,0,.20);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-align: center;
-        }
-
         .deck-suggestion-title {
             width: 100%;
             color: rgba(240,230,204,.43);
@@ -1384,7 +1369,7 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=84">
+    <link rel="stylesheet" href="tv-control.css?v=85">
 </head>
 <body>
 
@@ -1441,7 +1426,6 @@
                 </div>
             </div>
 
-            <div id="deckSuggestion" class="deck-suggestion-card"></div>
         </section>
 
         <div class="deck-summary-bar deck-selection-summary">
@@ -2234,7 +2218,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "84");
+                cleanUrl.searchParams.set("v", "85");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -3755,8 +3739,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=84"></script>
+    <script src="realtime-config.js?v=85"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=84"></script>
+    <script src="tv-control.js?v=85"></script>
 </body>
 </html>
