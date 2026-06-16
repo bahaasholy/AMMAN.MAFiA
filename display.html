@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v76</title>
+  <title>Amman Mafia — شاشة العرض v78</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -339,6 +339,98 @@
       font-size:68px;
       line-height:1;
     }
+    .live-defense-layout{
+      width:min(100%,1490px);
+      height:100%;
+      margin:16px auto 0;
+      display:grid;
+      grid-template-columns:790px minmax(0,1fr);
+      align-items:center;
+      justify-items:stretch;
+      gap:56px;
+      direction:ltr;
+      padding:6px 10px 8px;
+    }
+    .live-defense-timer-stage{
+      width:790px;
+      height:592px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:38px;
+      background:linear-gradient(180deg,rgba(7,10,16,.38),rgba(5,7,12,.22));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .live-defense-timer-stage.warning .ring-progress{
+      stroke:var(--red);
+      filter:drop-shadow(0 0 13px rgba(255,76,86,.62));
+    }
+    .live-defense-info{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-end;
+      min-height:520px;
+      padding:0;
+    }
+    .live-defense-player-card{
+      position:relative;
+      width:100%;
+      max-width:620px;
+      height:500px;
+      margin-inline-start:auto;
+      border-radius:32px;
+      background:linear-gradient(180deg,rgba(12,15,21,.96),rgba(7,9,13,.88));
+      border:1px solid rgba(255,255,255,.09);
+      box-shadow:0 24px 60px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.025);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:30px;
+      padding:18px 24px;
+    }
+    .live-defense-player-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top center,rgba(242,195,91,.08),transparent 58%);
+      pointer-events:none;
+    }
+    .live-defense-player-card::after{
+      content:"";
+      position:absolute;
+      left:44px;
+      right:44px;
+      bottom:0;
+      height:5px;
+      border-radius:999px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+    .live-defense-player-label{
+      color:var(--gold);
+      font-size:48px;
+      font-weight:900;
+      line-height:1;
+      text-align:center;
+    }
+    .live-defense-player-value{
+      font-family:"Arial Black","Segoe UI",Arial,sans-serif;
+      font-size:220px;
+      line-height:.92;
+      font-weight:950;
+      color:#f8f5ed;
+      text-shadow:0 0 25px rgba(255,255,255,.06);
+    }
+    .live-defense-player-note{
+      color:#9ea3af;
+      font-size:30px;
+      font-weight:700;
+      line-height:1;
+      margin-top:-2px;
+      text-align:center;
+    }
     .live-defense-seat{
       color:var(--gold);
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
@@ -471,9 +563,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v76-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v78-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=76"></script>
+  <script src="realtime-config.js?v=78"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -711,22 +803,38 @@
           </div>`;
         return;
       }
-
       if(stage==="defense"){
         const index=Math.max(
           0,
           Number(state.votingDefenseIndex)||0
         );
         const seat=Number(nominees[index])||"—";
+        const remMs=Math.max(0,remaining());
+        const durationMs=Math.max(1000,Number(state.timerDurationMs)||60000);
+        const isWarn=remMs<=warningThreshold()||state.timerStatus==="finished";
+        const ratio=Math.max(0,Math.min(1,remMs/durationMs));
+        const dashOffset=RING_CIRCUMFERENCE*(1-ratio);
 
         content.innerHTML=`
-          <div class="live-vote-title">دور التبرير</div>
-          <div class="live-vote-subtitle">
-            المرشح ${index+1} من ${nominees.length}
-          </div>
-          <div class="live-defense-seat">${seat}</div>
-          <div class="live-defense-timer">
-            ${formatSeconds(authoritativeDisplaySeconds())}
+          <div class="live-vote-title">جولة التبرير</div>
+          <div class="live-defense-layout">
+            <section class="live-defense-timer-stage ${isWarn?"warning":""}">
+              <div class="timer-wrap">
+                <svg class="timer-svg" viewBox="0 0 640 640" aria-hidden="true">
+                  <circle class="ring-track" cx="320" cy="320" r="270"></circle>
+                  <circle class="ring-progress" cx="320" cy="320" r="270" style="stroke-dasharray:${RING_CIRCUMFERENCE};stroke-dashoffset:${dashOffset}"></circle>
+                  <circle class="ring-inner" cx="320" cy="320" r="234"></circle>
+                </svg>
+                <div class="timer-readout ${isWarn?"warning":""}">${formatSeconds(authoritativeDisplaySeconds())}</div>
+              </div>
+            </section>
+            <section class="live-defense-info">
+              <div class="live-defense-player-card">
+                <div class="live-defense-player-label">اللاعب الذي يبرر</div>
+                <div class="live-defense-player-value">${seat}</div>
+                <div class="live-defense-player-note">المرشح ${index+1} من ${nominees.length}</div>
+              </div>
+            </section>
           </div>`;
         return;
       }
