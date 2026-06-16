@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v74</title>
+  <title>Amman Mafia — شاشة العرض v75</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -237,56 +237,71 @@
     .live-tally-list{
       width:100%;
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:13px 18px;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
       max-height:350px;
       overflow:hidden;
     }
     .live-tally-row{
+      position:relative;
+      min-height:86px;
       display:grid;
-      grid-template-columns:150px minmax(0,1fr) 80px;
+      grid-template-columns:minmax(0,1fr) auto;
       align-items:center;
-      gap:14px;
-      padding:12px 15px;
-      border-radius:16px;
-      background:rgba(11,13,19,.84);
-      border:1px solid rgba(255,255,255,.07);
+      gap:12px;
+      padding:16px 18px 18px;
+      border-radius:18px;
+      background:
+        linear-gradient(180deg,rgba(16,18,25,.94),rgba(10,12,18,.90));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 10px 24px rgba(0,0,0,.16);
+      overflow:hidden;
+    }
+    .live-tally-row::after{
+      content:"";
+      position:absolute;
+      left:16px;
+      right:16px;
+      bottom:0;
+      height:4px;
+      border-radius:999px;
+      background:linear-gradient(90deg,#b88a2e,var(--gold));
+      box-shadow:0 0 10px rgba(242,195,91,.22);
     }
     .live-tally-seat{
       color:#f4f0e6;
-      font-size:24px;
+      font-size:23px;
       font-weight:800;
-    }
-    .live-tally-track{
-      height:14px;
-      overflow:hidden;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-    }
-    .live-tally-fill{
-      height:100%;
-      border-radius:inherit;
-      background:linear-gradient(90deg,#b88a2e,var(--gold));
-      box-shadow:0 0 12px rgba(242,195,91,.32);
+      white-space:nowrap;
     }
     .live-tally-votes{
       color:var(--gold);
       font-family:"Arial Black","Segoe UI",Arial,sans-serif;
-      font-size:28px;
+      font-size:38px;
+      line-height:1;
+      text-align:left;
     }
     .live-nominees{
       display:flex;
       flex-wrap:wrap;
       align-items:center;
       justify-content:center;
-      gap:18px;
+      gap:22px;
+      margin-top:34px;
+      padding:8px 0 18px;
     }
     .live-nominee{
-      min-width:210px;
-      padding:20px 26px;
-      border-radius:24px;
+      min-width:230px;
+      padding:24px 30px;
+      border-radius:26px;
       border:2px solid rgba(242,195,91,.45);
-      background:rgba(12,14,20,.92);
+      background:
+        linear-gradient(180deg,rgba(17,19,26,.96),rgba(10,12,18,.92));
+      box-shadow:
+        0 16px 36px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.04);
     }
     .live-nominee span{
       display:block;
@@ -433,9 +448,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v74-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v75-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=74"></script>
+  <script src="realtime-config.js?v=75"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -624,10 +639,7 @@
         );
 
         content.innerHTML=`
-          <div class="live-vote-title">جاري تسجيل الأصوات</div>
-          <div class="live-vote-subtitle">
-            النتائج تتحدث مباشرة — بدون إظهار من صوّت لمن
-          </div>
+          <div class="live-vote-title">عملية التصويت</div>
           <div class="live-vote-progress">
             تم التصويت: ${completed} من ${voters.length}
           </div>
@@ -636,27 +648,17 @@
               .filter(item=>Number(item.votes)>0)
               .map(item=>{
                 const votes=Math.max(0,Number(item.votes)||0);
-                const width=Math.max(
-                  8,
-                  Math.round((votes/maxVotes)*100)
-                );
                 return `
                   <div class="live-tally-row">
                     <div class="live-tally-seat">
                       اللاعب ${item.seat}
-                    </div>
-                    <div class="live-tally-track">
-                      <div
-                        class="live-tally-fill"
-                        style="width:${width}%"
-                      ></div>
                     </div>
                     <div class="live-tally-votes">${votes}</div>
                   </div>`;
               }).join("")||`
                 <div
                   class="live-vote-subtitle"
-                  style="grid-column:1/-1"
+                  style="grid-column:1/-1;margin-top:24px"
                 >
                   بانتظار تسجيل أول صوت…
                 </div>`}
@@ -672,7 +674,7 @@
 
         content.innerHTML=`
           <div class="live-vote-title">المرشحون للتبرير</div>
-          <div class="live-vote-subtitle">
+          <div class="live-vote-subtitle" style="margin-top:12px">
             أصحاب أعلى عدد من الأصوات
           </div>
           <div class="live-nominees">
