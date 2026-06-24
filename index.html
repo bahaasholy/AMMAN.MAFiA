@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v89</title>
+    <title>Amman Mafia — TV Control v90</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v89">
+    <meta name="app-version" content="tv-v90">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=89">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=89">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=89">
+    <link rel="manifest" href="manifest.json?v=90">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=90">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=90">
     <style>
         :root {
             --gold: #c9a84c;
@@ -1371,16 +1371,21 @@
     
         .night-step-seat-label,
         #nightStepSeatLabel {
-            margin-top: 8px;
-            margin-bottom: 6px;
-            color: #c9a84c;
-            font-size: 0.95rem;
+            display: block;
+            width: fit-content;
+            margin: 10px auto 2px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            color: #0a0a0d;
+            background: #c9a84c;
+            font-size: 0.98rem;
             font-weight: 900;
             text-align: center;
             letter-spacing: .2px;
+            box-shadow: 0 0 18px rgba(201,168,76,.16);
         }
 </style>
-    <link rel="stylesheet" href="tv-control.css?v=89">
+    <link rel="stylesheet" href="tv-control.css?v=90">
 </head>
 <body>
 
@@ -2229,7 +2234,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "89");
+                cleanUrl.searchParams.set("v", "90");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -2579,27 +2584,11 @@
             const normalizedRole = String(roleValue || '');
             if (!normalizedRole) return null;
 
-            const seats = Array.from(document.querySelectorAll('[id^="seat-"]'));
+            if (typeof getSeatIdByRole === 'function') {
+                const seatId = getSeatIdByRole(normalizedRole);
 
-            for (const seat of seats) {
-                const seatRole =
-                    seat.dataset.roleValue ||
-                    seat.dataset.role ||
-                    seat.getAttribute('data-role-value') ||
-                    seat.getAttribute('data-role') ||
-                    '';
-
-                if (seatRole !== normalizedRole) continue;
-
-                const isDead =
-                    seat.classList.contains('dead-status') ||
-                    seat.classList.contains('eliminated') ||
-                    seat.classList.contains('dead') ||
-                    seat.classList.contains('out-status');
-
-                if (!isDead) {
-                    const idMatch = String(seat.id || '').match(/\d+/);
-                    if (idMatch) return Number(idMatch[0]);
+                if (seatId) {
+                    return Number(seatId);
                 }
             }
 
@@ -2607,7 +2596,7 @@
         }
 
         function getNightStepSeatLabel(step) {
-            if (!step) return '';
+            if (!step || step.code === 'summary') return '';
 
             const roleValue = step.roleValue || step.role || '';
 
@@ -2657,25 +2646,25 @@
             // 5. المحقق
             if (isRoleActiveInGame('detective')) {
                 let lbl = (getHeirInheritedRole() === 'detective') ? 'الوارث (المحقق)' : 'المحقق 🔍';
-                activeNightSteps.push({ code: 'detectiveCheck', title: `🔍 <b>[ ${lbl} ]</b> اسأل` });
+                activeNightSteps.push({ code: 'detectiveCheck', roleValue: (getHeirInheritedRole() === 'detective') ? 'heir' : 'detective', title: `🔍 <b>[ ${lbl} ]</b> اسأل` });
             }
             // 6. الطبيب
             if (isRoleActiveInGame('doctor')) {
                 let lbl = (getHeirInheritedRole() === 'doctor') ? 'الوارث (الطبيب)' : 'الطبيب 🧪';
-                activeNightSteps.push({ code: 'doctorSave', title: `🧪 <b>[ ${lbl} ]</b> احمي` });
+                activeNightSteps.push({ code: 'doctorSave', roleValue: (getHeirInheritedRole() === 'doctor') ? 'heir' : 'doctor', title: `🧪 <b>[ ${lbl} ]</b> احمي` });
             }
             // 7. القناص
             if (isRoleActiveInGame('sniper')) {
                 let dead = isHeirHoldingRole('sniper') ? (localStorage.getItem('heirSniperDead') === 'true') : (localStorage.getItem('mafiaSniperDead') === 'true');
                 if (!dead) {
                     let lbl = (getHeirInheritedRole() === 'sniper') ? 'الوارث (القناص)' : 'القناص 🎯';
-                    activeNightSteps.push({ code: 'sniperKill', title: `🎯 <b>[ ${lbl} ]</b> بدك تقنص` });
+                    activeNightSteps.push({ code: 'sniperKill', roleValue: (getHeirInheritedRole() === 'sniper') ? 'heir' : 'sniper', title: `🎯 <b>[ ${lbl} ]</b> بدك تقنص` });
                 }
             }
             // 8. السفاح
             if (isRoleActiveInGame('serial_killer')) {
                 let lbl = (getHeirInheritedRole() === 'serial_killer') ? 'الوارث (السفاح)' : 'السفاح 🔪';
-                activeNightSteps.push({ code: 'killerKill', title: `🔪 <b>[ ${lbl} ]</b> إذبح` });
+                activeNightSteps.push({ code: 'killerKill', roleValue: (getHeirInheritedRole() === 'serial_killer') ? 'heir' : 'serial_killer', title: `🔪 <b>[ ${lbl} ]</b> إذبح` });
             }
             
             // 9. الخلاصة النهائية الشاملة
@@ -3828,8 +3817,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=89"></script>
+    <script src="realtime-config.js?v=90"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=89"></script>
+    <script src="tv-control.js?v=90"></script>
 </body>
 </html>
