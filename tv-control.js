@@ -4,6 +4,8 @@
 
   const STORAGE_KEY = 'ammanMafiaPublicDisplayStateV1';
   const ROOM_KEY = 'ammanMafiaPublicDisplayRoomV1';
+  const FIXED_TV_ROOM_CODE = 'AMMANMAFIA';
+  localStorage.setItem(ROOM_KEY, FIXED_TV_ROOM_CODE);
   const LOCAL_STATE_PREFIX = 'ammanMafiaLocalDisplayStateV2:';
   const LOCAL_REQUEST_PREFIX = 'ammanMafiaLocalDisplayRequestV2:';
   const LOCAL_PRESENCE_PREFIX = 'ammanMafiaLocalDisplayPresenceV2:';
@@ -28,7 +30,7 @@
   let realtimeErrorText = '';
 
   function generateRoomCode() {
-    return 'AMMANMAFIA';
+    return FIXED_TV_ROOM_CODE;
   }
 
   function normalizeState(raw) {
@@ -158,11 +160,9 @@
     catch (_) { return normalizeState(null); }
   })();
 
-  const FIXED_TV_ROOM_CODE = 'AMMANMAFIA';
-
   let roomCode = (localStorage.getItem(ROOM_KEY) || '').trim().toUpperCase();
-  if (roomCode !== FIXED_TV_ROOM_CODE) {
-    roomCode = FIXED_TV_ROOM_CODE;
+  if (!/^[A-Z2-9]{6,14}$/.test(roomCode)) {
+    roomCode = generateRoomCode();
     localStorage.setItem(ROOM_KEY, roomCode);
   }
 
