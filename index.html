@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v88</title>
+    <title>Amman Mafia — TV Control v89</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v88">
+    <meta name="app-version" content="tv-v89">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=88">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=88">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=88">
+    <link rel="manifest" href="manifest.json?v=89">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=89">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=89">
     <style>
         :root {
             --gold: #c9a84c;
@@ -1368,8 +1368,19 @@
                 flex-direction: column;
             }
         }
-    </style>
-    <link rel="stylesheet" href="tv-control.css?v=88">
+    
+        .night-step-seat-label,
+        #nightStepSeatLabel {
+            margin-top: 8px;
+            margin-bottom: 6px;
+            color: #c9a84c;
+            font-size: 0.95rem;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: .2px;
+        }
+</style>
+    <link rel="stylesheet" href="tv-control.css?v=89">
 </head>
 <body>
 
@@ -2218,7 +2229,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "88");
+                cleanUrl.searchParams.set("v", "89");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -2563,6 +2574,55 @@
         }
 
         // بناء مصفوفة الخطوات الفعالة ديناميكياً 100%
+
+        function getAliveSeatNumberByRole(roleValue) {
+            const normalizedRole = String(roleValue || '');
+            if (!normalizedRole) return null;
+
+            const seats = Array.from(document.querySelectorAll('[id^="seat-"]'));
+
+            for (const seat of seats) {
+                const seatRole =
+                    seat.dataset.roleValue ||
+                    seat.dataset.role ||
+                    seat.getAttribute('data-role-value') ||
+                    seat.getAttribute('data-role') ||
+                    '';
+
+                if (seatRole !== normalizedRole) continue;
+
+                const isDead =
+                    seat.classList.contains('dead-status') ||
+                    seat.classList.contains('eliminated') ||
+                    seat.classList.contains('dead') ||
+                    seat.classList.contains('out-status');
+
+                if (!isDead) {
+                    const idMatch = String(seat.id || '').match(/\d+/);
+                    if (idMatch) return Number(idMatch[0]);
+                }
+            }
+
+            return null;
+        }
+
+        function getNightStepSeatLabel(step) {
+            if (!step) return '';
+
+            const roleValue = step.roleValue || step.role || '';
+
+            if (roleValue) {
+                const seatNumber = getAliveSeatNumberByRole(roleValue);
+
+                if (seatNumber) {
+                    return `رقم المقعد: ${seatNumber}`;
+                }
+            }
+
+            return '';
+        }
+
+
         function buildActiveNightSteps() {
             activeNightSteps = [];
             const mafiaNightActive = hasActiveMafiaNightPower();
@@ -2572,25 +2632,26 @@
             if (mafiaNightActive && currentMafiaLeaderRoleValue) {
                 activeNightSteps.push({
                     code: 'mafiaKill',
+                    roleValue: currentMafiaLeaderRoleValue,
                     title: `🌙 <b>[ ${currentMafiaLeaderLabel} ]</b> يغتال`
                 });
             }
 
             // 2. الوارث (شيخ المافيا)
             if (mafiaNightActive && getHeirInheritedRole() === 'mafia_boss') {
-                activeNightSteps.push({ code: 'heirKill', title: `🌙 <b>[ الوارث (شيخ المافيا) ]</b> يغتال` });
+                activeNightSteps.push({ code: 'heirKill', roleValue: 'heir', title: `🌙 <b>[ الوارث (شيخ المافيا) ]</b> يغتال` });
             }
             // 3. قص المافيا
             if (mafiaNightActive && isRoleActiveInGame('mafia_priest')) {
                 let lbl = (getHeirInheritedRole() === 'mafia_priest') ? 'الوارث (قص المافيا)' : 'قص المافيا 📿';
-                activeNightSteps.push({ code: 'priestSilence', title: `🤫 <b>[ ${lbl} ]</b> يسكت` });
+                activeNightSteps.push({ code: 'priestSilence', roleValue: (getHeirInheritedRole() === 'mafia_priest') ? 'heir' : 'mafia_priest', title: `🤫 <b>[ ${lbl} ]</b> يسكت` });
             }
             // 4. جاسوس المافيا
             if (mafiaNightActive && isRoleActiveInGame('mafia_spy')) {
                 let used = isHeirHoldingRole('mafia_spy') ? (localStorage.getItem('heirSpyUsed') === 'true') : (localStorage.getItem('mafiaSpyUsed') === 'true');
                 if (!used) {
                     let lbl = (getHeirInheritedRole() === 'mafia_spy') ? 'الوارث (جاسوس المافيا)' : 'جاسوس المافيا 👁️';
-                    activeNightSteps.push({ code: 'spyCheck', title: `👁️ <b>[ ${lbl} ]</b> بدك تكشف` });
+                    activeNightSteps.push({ code: 'spyCheck', roleValue: (getHeirInheritedRole() === 'mafia_spy') ? 'heir' : 'mafia_spy', title: `👁️ <b>[ ${lbl} ]</b> بدك تكشف` });
                 }
             }
             // 5. المحقق
@@ -2730,7 +2791,7 @@
             }
             
             const instruction = document.getElementById('nightInstructionText');
-            instruction.innerHTML = currentStepObj.title;
+            instruction.innerHTML = currentStepObj.title + (getNightStepSeatLabel(currentStepObj) ? `<div class="night-step-seat-label">${getNightStepSeatLabel(currentStepObj)}</div>` : '');
             
             if (currentStepObj.code === 'mafiaKill' || currentStepObj.code === 'heirKill' || currentStepObj.code === 'killerKill') {
                 instruction.style.color = '#ff333d';
@@ -3767,8 +3828,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=88"></script>
+    <script src="realtime-config.js?v=89"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=88"></script>
+    <script src="tv-control.js?v=89"></script>
 </body>
 </html>
