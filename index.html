@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v85</title>
+    <title>Amman Mafia — TV Control v86</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v85">
+    <meta name="app-version" content="tv-v86">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=85">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=85">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=85">
+    <link rel="manifest" href="manifest.json?v=86">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=86">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=86">
     <style>
         :root {
             --gold: #c9a84c;
@@ -1369,7 +1369,7 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="tv-control.css?v=85">
+    <link rel="stylesheet" href="tv-control.css?v=86">
 </head>
 <body>
 
@@ -2218,7 +2218,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "85");
+                cleanUrl.searchParams.set("v", "86");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -2470,6 +2470,21 @@
             document.getElementById('soloLiveCount').textContent = solos;
         }
 
+        function hasActiveMafiaNightPower() {
+            const mafiaNightRoles = [
+                'mafia_boss',
+                'mafia_priest',
+                'mafia_chameleon',
+                'mafia_spy',
+                'mafia_scorpion',
+                'mafia'
+            ];
+
+            return mafiaNightRoles.some(roleValue =>
+                isRoleActiveInGame(roleValue)
+            );
+        }
+
         function determineLiveMafiaLeader() {
             const liveRoles = [];
             for (let i = 1; i <= totalGameSeats; i++) {
@@ -2489,8 +2504,14 @@
             for (let i = 0; i < hierarchy.length; i++) {
                 if (liveRoles.includes(hierarchy[i].value)) { leaderFound = hierarchy[i]; break; }
             }
-            if (!leaderFound) leaderFound = hierarchy[0]; 
-            currentMafiaLeaderLabel = leaderFound.label; currentMafiaLeaderRoleValue = leaderFound.value; 
+            if (!leaderFound) {
+                currentMafiaLeaderLabel = "";
+                currentMafiaLeaderRoleValue = "";
+                return;
+            }
+
+            currentMafiaLeaderLabel = leaderFound.label;
+            currentMafiaLeaderRoleValue = leaderFound.value;
         }
 
         function getSeatIdByRole(roleValue) {
@@ -2544,21 +2565,28 @@
         // بناء مصفوفة الخطوات الفعالة ديناميكياً 100%
         function buildActiveNightSteps() {
             activeNightSteps = [];
-            
+            const mafiaNightActive = hasActiveMafiaNightPower();
+
             // 1. المافيا يغتال
-            activeNightSteps.push({ code: 'mafiaKill', title: `🌙 <b>[ ${currentMafiaLeaderLabel} ]</b> يغتال` });
-            
+            // إذا خرج كل فريق المافيا، لا تظهر هذه الخطوة.
+            if (mafiaNightActive && currentMafiaLeaderRoleValue) {
+                activeNightSteps.push({
+                    code: 'mafiaKill',
+                    title: `🌙 <b>[ ${currentMafiaLeaderLabel} ]</b> يغتال`
+                });
+            }
+
             // 2. الوارث (شيخ المافيا)
-            if (getHeirInheritedRole() === 'mafia_boss') {
+            if (mafiaNightActive && getHeirInheritedRole() === 'mafia_boss') {
                 activeNightSteps.push({ code: 'heirKill', title: `🌙 <b>[ الوارث (شيخ المافيا) ]</b> يغتال` });
             }
             // 3. قص المافيا
-            if (isRoleActiveInGame('mafia_priest')) {
+            if (mafiaNightActive && isRoleActiveInGame('mafia_priest')) {
                 let lbl = (getHeirInheritedRole() === 'mafia_priest') ? 'الوارث (قص المافيا)' : 'قص المافيا 📿';
                 activeNightSteps.push({ code: 'priestSilence', title: `🤫 <b>[ ${lbl} ]</b> يسكت` });
             }
             // 4. جاسوس المافيا
-            if (isRoleActiveInGame('mafia_spy')) {
+            if (mafiaNightActive && isRoleActiveInGame('mafia_spy')) {
                 let used = isHeirHoldingRole('mafia_spy') ? (localStorage.getItem('heirSpyUsed') === 'true') : (localStorage.getItem('mafiaSpyUsed') === 'true');
                 if (!used) {
                     let lbl = (getHeirInheritedRole() === 'mafia_spy') ? 'الوارث (جاسوس المافيا)' : 'جاسوس المافيا 👁️';
@@ -3739,8 +3767,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=85"></script>
+    <script src="realtime-config.js?v=86"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=85"></script>
+    <script src="tv-control.js?v=86"></script>
 </body>
 </html>
