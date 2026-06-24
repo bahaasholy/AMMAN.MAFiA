@@ -5,7 +5,6 @@
   const STORAGE_KEY = 'ammanMafiaPublicDisplayStateV1';
   const ROOM_KEY = 'ammanMafiaPublicDisplayRoomV1';
   const FIXED_TV_ROOM_CODE = 'AMMANMAFIA';
-  localStorage.setItem(ROOM_KEY, FIXED_TV_ROOM_CODE);
   const LOCAL_STATE_PREFIX = 'ammanMafiaLocalDisplayStateV2:';
   const LOCAL_REQUEST_PREFIX = 'ammanMafiaLocalDisplayRequestV2:';
   const LOCAL_PRESENCE_PREFIX = 'ammanMafiaLocalDisplayPresenceV2:';
@@ -18,8 +17,10 @@
   };
 
   let channel = null;
+  let fixedTvChannel = null;
   let supabaseClient = null;
   let localChannel = null;
+  let fixedTvLocalChannel = null;
   let connectionMode = 'local';
   let tvLastSeenAt = 0;
   let tvPresenceTimer = null;
@@ -30,7 +31,11 @@
   let realtimeErrorText = '';
 
   function generateRoomCode() {
-    return FIXED_TV_ROOM_CODE;
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes = new Uint8Array(8);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 255);
+    return Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
   }
 
   function normalizeState(raw) {
@@ -178,13 +183,27 @@
     return LOCAL_PRESENCE_PREFIX + code;
   }
 
+  function fixedTvLocalStateKey() {
+    return LOCAL_STATE_PREFIX + FIXED_TV_ROOM_CODE;
+  }
+
   function writeLocalState(payload) {
     try {
+      const writtenAt = Date.now();
+      const nonce = Math.random().toString(36).slice(2);
+
       localStorage.setItem(localStateKey(), JSON.stringify({
         event: 'state',
         payload,
-        writtenAt: Date.now(),
-        nonce: Math.random().toString(36).slice(2)
+        writtenAt,
+        nonce
+      }));
+
+      localStorage.setItem(fixedTvLocalStateKey(), JSON.stringify({
+        event: 'state',
+        payload: { ...payload, roomCode: FIXED_TV_ROOM_CODE },
+        writtenAt,
+        nonce: `${nonce}-fixed`
       }));
     } catch (_) {}
   }
@@ -1448,8 +1467,10 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
       const old = btn.textContent; btn.textContent = 'تم النسخ ✓'; setTimeout(() => btn.textContent = old, 1200);
     });
 
-    document.getElementById('tvNewRoomBtn')?.addEventListener('click', () => {
-      roomCode = FIXED_TV_ROOM_CODE;
+    document.getElementById('tvNewRoomBtn').addEventListener('click', () => {
+      if (!confirm('إنشاء رمز جديد سيفصل شاشة التلفزيون الحالية. متابعة؟')) return;
+      disconnectRealtime();
+      roomCode = generateRoomCode();
       localStorage.setItem(ROOM_KEY, roomCode);
       tvLastSeenAt = 0;
       connectRealtime();
@@ -1692,8 +1713,27 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
 
     if (connectionMode === 'supabase' && channel) {
       channel.send({ type:'broadcast', event:'state', payload }).catch(() => {});
+
+      if (fixedTvChannel) {
+        fixedTvChannel
+          .send({
+            type:'broadcast',
+            event:'state',
+            payload: { ...payload, roomCode: FIXED_TV_ROOM_CODE }
+          })
+          .catch(() => {});
+      }
     } else if (localChannel) {
       try { localChannel.postMessage({ event:'state', payload }); } catch (_) {}
+
+      if (fixedTvLocalChannel) {
+        try {
+          fixedTvLocalChannel.postMessage({
+            event:'state',
+            payload: { ...payload, roomCode: FIXED_TV_ROOM_CODE }
+          });
+        } catch (_) {}
+      }
     }
   }
 
@@ -1701,9 +1741,15 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
     if (tvPresenceTimer) clearInterval(tvPresenceTimer);
     tvPresenceTimer = null;
     try { if (channel && supabaseClient) supabaseClient.removeChannel(channel); } catch (_) {}
-    channel = null; supabaseClient = null;
+    try { if (fixedTvChannel && supabaseClient) supabaseClient.removeChannel(fixedTvChannel); } catch (_) {}
+    channel = null;
+    fixedTvChannel = null;
+    supabaseClient = null;
+
     try { if (localChannel) localChannel.close(); } catch (_) {}
+    try { if (fixedTvLocalChannel) fixedTvLocalChannel.close(); } catch (_) {}
     localChannel = null;
+    fixedTvLocalChannel = null;
   }
 
   function connectRealtime() {
@@ -1724,6 +1770,24 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
           }
         }
       );
+
+      if (roomCode !== FIXED_TV_ROOM_CODE) {
+        fixedTvChannel = supabaseClient.channel(
+          `amman-mafia-display-${FIXED_TV_ROOM_CODE}`,
+          {
+            config:{
+              private:false,
+              broadcast:{self:false,ack:true}
+            }
+          }
+        );
+
+        fixedTvChannel.subscribe(status => {
+          if (status === 'SUBSCRIBED') {
+            broadcastState();
+          }
+        });
+      }
 
       realtimeStatus='connecting';
       realtimeErrorText='';
@@ -1754,6 +1818,10 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
         const data = e.data || {};
         messageReceived(data.event, data.payload);
       };
+
+      if (roomCode !== FIXED_TV_ROOM_CODE) {
+        fixedTvLocalChannel = new BroadcastChannel(`amman-mafia-display-${FIXED_TV_ROOM_CODE}`);
+      }
 
       const seenAt = readLocalPresence();
       if (seenAt) tvLastSeenAt = seenAt;

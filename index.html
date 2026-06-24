@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Amman Mafia — TV Control v93</title>
+    <title>Amman Mafia — TV Control v94</title>
     <meta name="description" content="Stable mobile app style dashboard for managing an in-person Mafia game.">
-    <meta name="app-version" content="tv-v93">
+    <meta name="app-version" content="tv-v94">
     <meta name="application-name" content="Amman Mafia">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Amman Mafia">
     <meta name="theme-color" content="#0a0a0d">
-    <link rel="manifest" href="manifest.json?v=93">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=93">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=93">
+    <link rel="manifest" href="manifest.json?v=94">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=94">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=94">
     <style>
         :root {
             --gold: #c9a84c;
@@ -1385,7 +1385,7 @@
             box-shadow: 0 0 18px rgba(201,168,76,.16);
         }
 </style>
-    <link rel="stylesheet" href="tv-control.css?v=93">
+    <link rel="stylesheet" href="tv-control.css?v=94">
 </head>
 <body>
 
@@ -2234,7 +2234,7 @@
                 const cleanUrl = new URL(window.location.href);
                 cleanUrl.hash = "";
                 cleanUrl.search = "";
-                cleanUrl.searchParams.set("v", "93");
+                cleanUrl.searchParams.set("v", "94");
                 cleanUrl.searchParams.set("newGame", String(Date.now()));
                 window.location.replace(cleanUrl.toString());
             }
@@ -3817,8 +3817,8 @@
         }
     </script>
 
-    <script src="realtime-config.js?v=93"></script>
+    <script src="realtime-config.js?v=94"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="tv-control.js?v=93"></script>
+    <script src="tv-control.js?v=94"></script>
 </body>
 </html>

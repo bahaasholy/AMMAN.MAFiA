@@ -688,12 +688,12 @@
 }
 
 
-/* ===== v93: fixed TV link + timer sync fix ===== */
+/* ===== v94: fixed TV relay link ===== */
 #tvNewRoomBtn {
   display: none !important;
 }
 .tv-room-code::after {
-  content: "  · رابط ثابت";
+  content: "  · رابط التلفزيون ثابت";
   font-size: .78em;
   color: rgba(242,234,216,.72);
 }
