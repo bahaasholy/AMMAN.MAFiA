@@ -663,3 +663,26 @@
     0 0 16px rgba(242,195,91,.42),
     inset 0 0 10px rgba(255,255,255,.20);
 }
+
+
+/* ===== v87: manual voting only ===== */
+#tvVotingManager,
+.tv-voting-manager,
+.live-voting-panel {
+  display: none !important;
+}
+
+
+/* ===== v88: remove voting-choice UI completely ===== */
+#tvVotingManager,
+#tvVotingContent,
+.tv-voting-manager,
+.tv-vote-intro,
+.tv-vote-choice-grid {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

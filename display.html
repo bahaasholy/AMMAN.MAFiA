@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#05070c">
-  <title>Amman Mafia — شاشة العرض v86</title>
+  <title>Amman Mafia — شاشة العرض v88</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -582,9 +582,9 @@
   </main>
 
   <script>
-    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v86-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
+    (()=>{try{if("caches" in window){caches.keys().then(keys=>keys.filter(k=>k.startsWith("amman-mafia-tv-")&&k!=="amman-mafia-tv-v88-cache-v1").forEach(k=>caches.delete(k)))}}catch(_){}})();
   </script>
-  <script src="realtime-config.js?v=86"></script>
+  <script src="realtime-config.js?v=88"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script>
   (function(){
@@ -740,172 +740,9 @@
     function renderLiveVoting(){
       const panel=$("liveVotingPanel");
       const content=$("liveVotingContent");
-      if(!panel||!content||!state)return;
 
-      const isLive=
-        state.phase==="voting" &&
-        state.votingMode==="live" &&
-        !["choice","manual"].includes(state.votingStage);
-
-      panel.style.display=isLive?"flex":"none";
-
-      if(!isLive){
-        content.innerHTML="";
-        return;
-      }
-
-      const stage=state.votingStage;
-      const voters=Array.isArray(state.votingVoters)
-        ?state.votingVoters
-        :[];
-      const tallies=Array.isArray(state.votingTallies)
-        ?state.votingTallies
-        :[];
-      const nominees=Array.isArray(state.votingNominees)
-        ?state.votingNominees
-        :[];
-
-      if(stage==="collecting"){
-        const completed=Object.keys(state.votingBallots||{}).length;
-        const maxVotes=Math.max(
-          1,
-          ...tallies.map(item=>Number(item.votes)||0)
-        );
-
-        content.innerHTML=`
-          <div class="live-vote-title">عملية التصويت</div>
-          <div class="live-vote-progress">
-            تم التصويت: ${completed} من ${voters.length}
-          </div>
-          <div class="live-tally-list">
-            ${tallies
-              .filter(item=>Number(item.votes)>0)
-              .map(item=>{
-                const votes=Math.max(0,Number(item.votes)||0);
-                return `
-                  <div class="live-tally-row">
-                    <div class="live-tally-seat">
-                      اللاعب ${item.seat}
-                    </div>
-                    <div class="live-tally-votes">${votes}</div>
-                  </div>`;
-              }).join("")||`
-                <div
-                  class="live-vote-subtitle"
-                  style="grid-column:1/-1;padding:34px 0 12px"
-                >
-                  بانتظار تسجيل أول صوت…
-                </div>`}
-          </div>`;
-        return;
-      }
-
-      if(stage==="nominees"){
-        const maxVotes=Math.max(
-          0,
-          ...tallies.map(item=>Number(item.votes)||0)
-        );
-
-        content.innerHTML=`
-          <div class="live-vote-title">المتهمون للتبرير</div>
-          <div class="live-vote-subtitle" style="margin-top:12px">
-            أصحاب أعلى عدد من الأصوات
-          </div>
-          <div class="live-nominees">
-            ${nominees.map(seat=>`
-              <div class="live-nominee">
-                <span>اللاعب</span>
-                <strong>${seat}</strong>
-                <span>${maxVotes} صوت</span>
-              </div>
-            `).join("")}
-          </div>`;
-        return;
-      }
-      if(stage==="defense"){
-        const index=Math.max(
-          0,
-          Number(state.votingDefenseIndex)||0
-        );
-        const seat=Number(nominees[index])||"—";
-        const remMs=Math.max(0,remaining());
-        const durationMs=Math.max(1000,Number(state.timerDurationMs)||60000);
-        const isWarn=remMs<=warningThreshold()||state.timerStatus==="finished";
-        const ratio=Math.max(0,Math.min(1,remMs/durationMs));
-        const dashOffset=RING_CIRCUMFERENCE*(1-ratio);
-
-        content.innerHTML=`
-          <div class="live-defense-layout">
-            <section class="live-defense-timer-stage ${isWarn?"warning":""}">
-              <div class="timer-wrap">
-                <svg class="timer-svg" viewBox="0 0 640 640" aria-hidden="true">
-                  <circle class="ring-track" cx="320" cy="320" r="270"></circle>
-                  <circle class="ring-progress" cx="320" cy="320" r="270" style="stroke-dasharray:${RING_CIRCUMFERENCE};stroke-dashoffset:${dashOffset}"></circle>
-                  <circle class="ring-inner" cx="320" cy="320" r="234"></circle>
-                </svg>
-                <div class="timer-readout ${isWarn?"warning":""}">${formatSeconds(authoritativeDisplaySeconds())}</div>
-              </div>
-            </section>
-            <section class="live-defense-info">
-              <div class="live-defense-player-card">
-                <div class="live-defense-player-label">تبرير لاعب رقم</div>
-                <div class="live-defense-player-value">${seat}</div>
-                <div class="live-defense-player-note">المتهم ${index+1} من ${nominees.length}</div>
-              </div>
-            </section>
-          </div>`;
-        return;
-      }
-
-      if(stage==="exit"){
-        const eligible=Math.max(
-          0,
-          Number(state.votingEligibleCount)||0
-        );
-        const threshold=Math.max(
-          0,
-          Number(state.votingThreshold)||0
-        );
-
-        content.innerHTML=`
-          <div class="live-vote-title">تصويت الخروج</div>
-          <div class="live-vote-subtitle">
-            المصوتون المؤهلون: ${eligible}
-            — الحد المطلوب: ${threshold}
-          </div>
-          <div class="live-exit-grid">
-            ${nominees.map(seat=>{
-              const outVotes=Math.max(
-                0,
-                Number(
-                  (state.votingExitVotes||{})[String(seat)]
-                )||0
-              );
-              const stayVotes=Math.max(0,eligible-outVotes);
-
-              return `
-                <div class="live-exit-card">
-                  <div class="seat">اللاعب ${seat}</div>
-                  <span class="votes">${outVotes}</span>
-                  <div class="meta">
-                    يخرج ${outVotes} — يبقى ${stayVotes}
-                  </div>
-                </div>`;
-            }).join("")}
-          </div>`;
-        return;
-      }
-
-      if(stage==="result"){
-        content.innerHTML=`
-          <div class="live-vote-title">نتيجة التصويت</div>
-          <div class="live-result-text">
-            ${escapeVotingHtml(
-              state.votingResultText||
-              "جاري إعلان النتيجة"
-            )}
-          </div>`;
-      }
+      if(panel) panel.style.display="none";
+      if(content) content.innerHTML="";
     }
 
     function render(){
@@ -915,16 +752,7 @@
         ?state.phase
         :"idle";
 
-      const liveVoting=
-        phase==="voting" &&
-        state.votingMode==="live" &&
-        !["choice","manual"].includes(state.votingStage);
-
-      const defenseMode =
-        phase==="voting" && state.votingStage==="defense";
-
-      document.body.className=
-        `phase-${phase}${liveVoting?" voting-live":""}${defenseMode?" voting-defense":""}`;
+      document.body.className=`phase-${phase}`;
       $("phaseTitle").textContent=
         defenseMode?"جولة التبرير":PHASE_LABELS[phase];
       $("roundBadge").textContent=String(

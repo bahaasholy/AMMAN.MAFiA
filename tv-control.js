@@ -532,7 +532,7 @@
     // Update everything directly so the transition does not depend on
     // another helper or on the timer state.
     publicState.phase = 'voting';
-    resetVotingFlow('choice');
+    resetVotingFlow('manual');
     publicState.speakerCycleActive = false;
     publicState.speakerVisible = false;
     publicState.speakerChangeId += 1;
@@ -843,11 +843,8 @@
 
 
   function resetVotingFlow(mode = 'choice') {
-    publicState.votingMode = mode;
-    publicState.votingStage =
-      mode === 'manual'
-        ? 'manual'
-        : 'choice';
+    publicState.votingMode = 'manual';
+    publicState.votingStage = 'manual';
     publicState.votingVoters = [];
     publicState.votingBallots = {};
     publicState.votingVoteOrder = [];
@@ -881,40 +878,7 @@
   }
 
   function startLiveVoting() {
-    const voters = getAliveSeatNumbers();
-
-    if (!voters.length) {
-      alert('لا يوجد لاعبون أحياء لبدء التصويت.');
-      return;
-    }
-
-    publicState.phase = 'voting';
-    publicState.speakerCycleActive = false;
-    publicState.speakerVisible = false;
-    publicState.votingMode = 'live';
-    publicState.votingStage = 'collecting';
-    publicState.votingVoters = [...voters];
-    publicState.votingBallots = {};
-    publicState.votingVoteOrder = [];
-    publicState.votingTallies = voters.map(seat => ({ seat, votes: 0 }));
-    publicState.votingNominees = [];
-    publicState.votingCurrentVoterIndex = 0;
-    publicState.votingDefenseIndex = 0;
-    publicState.votingExitVotes = {};
-    publicState.votingEligibleCount = 0;
-    publicState.votingThreshold = 0;
-    publicState.votingResultType = 'pending';
-    publicState.votingResultSeat = null;
-    publicState.votingResultText = '';
-    publicState.votingResultConfirmed = false;
-
-    publicState.timerRemainingMs = publicState.timerDurationMs;
-    publicState.timerEndsAt = 0;
-    publicState.timerStatus = 'idle';
-    hasBroadcastFinished = false;
-
-    vibrate([30, 30, 50]);
-    saveState();
+    useManualVoting();
   }
 
   function useManualVoting() {
@@ -928,13 +892,6 @@
   }
 
   function cancelLiveVoting() {
-    if (
-      publicState.votingMode === 'live' &&
-      !confirm(
-        'سيتم إلغاء بيانات التصويت الإلكتروني فقط، بدون إقصاء أي لاعب. متابعة؟'
-      )
-    ) return;
-
     useManualVoting();
   }
 
@@ -1279,361 +1236,19 @@
 
   function renderVotingManager() {
     const card = document.getElementById('tvVotingManager');
-    const content = document.getElementById('tvVotingContent');
-
-    if (!card || !content) return;
-
-    const inVoting = publicState.phase === 'voting';
-    card.hidden = !inVoting;
+    if (card) card.remove();
 
     const section = document.getElementById('sectionDisplayControl');
-    section?.classList.toggle('tv-voting-phase-active', inVoting);
+    section?.classList.remove('tv-voting-phase-active');
 
-    if (!inVoting) return;
-
-    if (
-      publicState.votingMode === 'choice' ||
-      publicState.votingStage === 'choice'
-    ) {
-      content.innerHTML = `
-        <div class="tv-vote-intro">
-          <div class="tv-vote-icon">🗳️</div>
-          <h3>كيف تريد إدارة التصويت؟</h3>
-          <p>التصويت عبر المنصة اختياري، ويمكن إلغاؤه بأي وقت بدون إقصاء أي لاعب.</p>
-          <div class="tv-vote-choice-grid">
-            <button class="tv-btn gold" data-vote-action="start-live">
-              بدء التصويت المباشر عبر المنصة
-            </button>
-            <button class="tv-btn" data-vote-action="use-manual">
-              التصويت بالطريقة المعتادة
-            </button>
-          </div>
-        </div>`;
-      return;
-    }
-
-    if (
-      publicState.votingMode === 'manual' ||
-      publicState.votingStage === 'manual'
-    ) {
-      content.innerHTML = `
-        <div class="tv-vote-intro">
-          <div class="tv-vote-icon">✋</div>
-          <h3>التصويت بالطريقة المعتادة</h3>
-          <p>المنصة لن تسجل الأصوات أو تقصي أي لاعب.</p>
-          <div class="tv-vote-choice-grid">
-            <button class="tv-btn gold" data-vote-action="start-live">
-              تجربة التصويت عبر المنصة
-            </button>
-            <button class="tv-btn purple" data-vote-action="go-night">
-              الانتقال إلى جولة الليل
-            </button>
-          </div>
-        </div>`;
-      return;
-    }
-
-    if (publicState.votingStage === 'collecting') {
-      const voters = publicState.votingVoters;
-      const completed = Object.keys(publicState.votingBallots).length;
-      const voter = Number(
-        voters[
-          Math.min(
-            publicState.votingCurrentVoterIndex,
-            Math.max(0, voters.length - 1)
-          )
-        ]
-      );
-
-      content.innerHTML = `
-        <div class="tv-vote-head">
-          <div>
-            <h3>تسجيل الأصوات</h3>
-            <p>اختر الرقم الذي صوّت عليه اللاعب الحالي. مسموح يصوّت على نفسه.</p>
-          </div>
-          <div class="tv-vote-progress">${completed} / ${voters.length}</div>
-        </div>
-
-        <div class="tv-current-voter">
-          <span>المصوّت الحالي</span>
-          <strong>لاعب ${voter || '—'}</strong>
-        </div>
-
-        <div class="tv-vote-targets">
-          ${voters.map(seat => `
-            <button
-              type="button"
-              class="tv-vote-seat"
-              data-vote-action="record"
-              data-seat="${seat}"
-            >${seat}</button>
-          `).join('')}
-        </div>
-
-        <div class="tv-vote-tally-mini">
-          ${publicState.votingTallies
-            .filter(item => item.votes > 0)
-            .map(item => `
-              <span>لاعب ${item.seat}: <b>${item.votes}</b></span>
-            `).join('') || '<span>لم يُسجل أي صوت بعد</span>'}
-        </div>
-
-        <div class="tv-vote-actions">
-          <button
-            class="tv-btn"
-            data-vote-action="undo"
-            ${publicState.votingVoteOrder.length ? '' : 'disabled'}
-          >تراجع عن آخر صوت</button>
-
-          <button
-            class="tv-btn red"
-            data-vote-action="cancel"
-          >إلغاء والمتابعة يدويًا</button>
-        </div>`;
-      return;
-    }
-
-    if (publicState.votingStage === 'nominees') {
-      const maxVotes = Math.max(
-        0,
-        ...publicState.votingTallies.map(item => item.votes)
-      );
-
-      content.innerHTML = `
-        <div class="tv-vote-head">
-          <div>
-            <h3>المتهمون للتبرير</h3>
-            <p>أصحاب أعلى عدد أصوات ينتقلون جميعًا إلى التبرير.</p>
-          </div>
-          <div class="tv-vote-progress">${maxVotes} صوت</div>
-        </div>
-
-        <div class="tv-nominee-grid">
-          ${publicState.votingNominees.map(seat => `
-            <div class="tv-nominee-card">
-              <span>اللاعب</span>
-              <strong>${seat}</strong>
-              <small>${maxVotes} صوت</small>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="tv-vote-actions">
-          <button
-            class="tv-btn gold"
-            data-vote-action="begin-defense"
-          >بدء التبرير — دقيقة لكل لاعب</button>
-
-          <button
-            class="tv-btn red"
-            data-vote-action="cancel"
-          >إلغاء والمتابعة يدويًا</button>
-        </div>`;
-      return;
-    }
-
-    if (publicState.votingStage === 'defense') {
-      const seat = getCurrentDefenseSeat();
-      const index = publicState.votingDefenseIndex;
-      const total = publicState.votingNominees.length;
-
-      content.innerHTML = `
-        <div class="tv-vote-head">
-          <div>
-            <h3>مرحلة التبرير</h3>
-            <p>المتهم ${index + 1} من ${total}</p>
-          </div>
-          <div class="tv-vote-progress">60 ثانية</div>
-        </div>
-
-        <div class="tv-defense-player">
-          <span>دور التبرير</span>
-          <strong>اللاعب رقم ${seat || '—'}</strong>
-          <div class="tv-defense-time">${formattedTimer(getRemainingMs())}</div>
-        </div>
-
-        <div class="tv-vote-actions three">
-          <button
-            class="tv-btn gold"
-            data-vote-action="defense-start"
-            ${publicState.timerStatus === 'running' ? 'disabled' : ''}
-          >بدء</button>
-
-          <button
-            class="tv-btn"
-            data-vote-action="defense-pause"
-            ${publicState.timerStatus !== 'running' ? 'disabled' : ''}
-          >إيقاف</button>
-
-          <button
-            class="tv-btn"
-            data-vote-action="defense-reset"
-          >إعادة الدقيقة</button>
-        </div>
-
-        <div class="tv-vote-actions">
-          <button
-            class="tv-btn"
-            data-vote-action="defense-prev"
-            ${index <= 0 ? 'disabled' : ''}
-          >السابق</button>
-
-          <button
-            class="tv-btn purple"
-            data-vote-action="defense-next"
-          >${index + 1 < total ? 'المتهم التالي' : 'الانتقال لتصويت الخروج'}</button>
-        </div>
-
-        <button
-          class="tv-btn red tv-vote-cancel-wide"
-          data-vote-action="cancel"
-        >إلغاء والمتابعة يدويًا</button>`;
-      return;
-    }
-
-    if (publicState.votingStage === 'exit') {
-      content.innerHTML = `
-        <div class="tv-vote-head">
-          <div>
-            <h3>تصويت الخروج</h3>
-            <p>المتهمون لا يصوتون ولا يدخلون ضمن العدد.</p>
-          </div>
-          <div class="tv-vote-progress">
-            الحد المطلوب: ${publicState.votingThreshold}
-          </div>
-        </div>
-
-        <div class="tv-exit-summary">
-          المصوتون المؤهلون:
-          <b>${publicState.votingEligibleCount}</b>
-        </div>
-
-        <div class="tv-exit-grid">
-          ${publicState.votingNominees.map(seat => {
-            const outVotes = Math.max(
-              0,
-              Number(publicState.votingExitVotes[String(seat)]) || 0
-            );
-            const stayVotes = Math.max(
-              0,
-              publicState.votingEligibleCount - outVotes
-            );
-
-            return `
-              <div class="tv-exit-card">
-                <div class="tv-exit-player">اللاعب ${seat}</div>
-                <div class="tv-exit-count">
-                  <button
-                    class="tv-vote-step"
-                    data-vote-action="exit-minus"
-                    data-seat="${seat}"
-                  >−</button>
-                  <strong>${outVotes}</strong>
-                  <button
-                    class="tv-vote-step"
-                    data-vote-action="exit-plus"
-                    data-seat="${seat}"
-                  >+</button>
-                </div>
-                <div class="tv-exit-labels">
-                  <span>يخرج: <b>${outVotes}</b></span>
-                  <span>يبقى: <b>${stayVotes}</b></span>
-                </div>
-              </div>`;
-          }).join('')}
-        </div>
-
-        <div class="tv-vote-actions">
-          <button
-            class="tv-btn gold"
-            data-vote-action="calculate-result"
-          >حساب النتيجة</button>
-
-          <button
-            class="tv-btn red"
-            data-vote-action="cancel"
-          >إلغاء والمتابعة يدويًا</button>
-        </div>`;
-      return;
-    }
-
-    if (publicState.votingStage === 'result') {
-      const canConfirm =
-        publicState.votingResultType === 'eliminate' &&
-        !publicState.votingResultConfirmed;
-
-      content.innerHTML = `
-        <div class="tv-vote-result ${publicState.votingResultType}">
-          <div class="tv-vote-icon">
-            ${publicState.votingResultType === 'eliminate'
-              ? '🗳️'
-              : publicState.votingResultType === 'tie'
-                ? '⚖️'
-                : '✅'}
-          </div>
-          <h3>نتيجة التصويت</h3>
-          <p>${escapeHtml(publicState.votingResultText)}</p>
-
-          ${canConfirm ? `
-            <button
-              class="tv-btn gold tv-result-main"
-              data-vote-action="confirm-elimination"
-            >تأكيد إخراج اللاعب</button>
-          ` : `
-            <button
-              class="tv-btn purple tv-result-main"
-              data-vote-action="go-night"
-            >الانتقال إلى جولة الليل</button>
-          `}
-
-          <button
-            class="tv-btn red tv-vote-cancel-wide"
-            data-vote-action="cancel"
-          >إلغاء والمتابعة يدويًا</button>
-        </div>`;
+    if (publicState.phase === 'voting') {
+      publicState.votingMode = 'manual';
+      publicState.votingStage = 'manual';
     }
   }
 
   function handleVotingManagerClick(event) {
-    const button = event.target.closest('[data-vote-action]');
-    if (!button || button.disabled) return;
-
-    const action = button.dataset.voteAction;
-    const seat = Number(button.dataset.seat);
-
-    const actions = {
-      'start-live': startLiveVoting,
-      'use-manual': useManualVoting,
-      'cancel': cancelLiveVoting,
-      'undo': undoLastLiveVote,
-      'begin-defense': beginVotingDefenses,
-      'defense-start': startVotingDefenseTimer,
-      'defense-pause': pauseVotingDefenseTimer,
-      'defense-reset': resetVotingDefenseTimer,
-      'defense-next': nextVotingDefense,
-      'defense-prev': previousVotingDefense,
-      'calculate-result': finalizeExitVoting,
-      'confirm-elimination': confirmVotingElimination,
-      'go-night': finishVotingAndOpenNight
-    };
-
-    if (action === 'record') {
-      // تسجيل فوري بدون أي تأخير أو انتظار للمؤثر.
-      recordLiveVote(seat);
-      return;
-    }
-
-    if (action === 'exit-plus') {
-      adjustExitVotes(seat, 1);
-      return;
-    }
-
-    if (action === 'exit-minus') {
-      adjustExitVotes(seat, -1);
-      return;
-    }
-
-    actions[action]?.();
+    return;
   }
 
   function createUI() {
@@ -1707,20 +1322,7 @@
             <button id="tvSpeakerPrevious" class="tv-btn" type="button">السابق</button>
           </div>
         </section>
-
-        <section
-          id="tvVotingManager"
-          class="tv-control-card full tv-voting-manager"
-          hidden
-        >
-          <div class="tv-control-title">
-            <h2>إدارة التصويت المباشر 🗳️</h2>
-            <span class="tv-muted">اختياري</span>
-          </div>
-          <div id="tvVotingContent"></div>
-        </section>
-
-        <section class="tv-control-card">
+<section class="tv-control-card">
           <div class="tv-control-title"><h3>حالة الجولة</h3></div>
           <div class="tv-phase-grid">
             <button class="tv-btn tv-phase blue" type="button" data-phase="discussion">بدء جولة النقاش 💬</button>
@@ -1769,7 +1371,7 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '86');
+    url.searchParams.set('v', '88');
     url.searchParams.set('room', roomCode);
     return url.toString();
   }
@@ -1796,7 +1398,7 @@
       publicState.speakerVisible = false;
 
       if (options.keepVotingState !== true) {
-        resetVotingFlow('choice');
+        resetVotingFlow('manual');
       }
     }
 
@@ -1840,11 +1442,7 @@
   }
 
   function bindUI() {
-    document
-      .getElementById('tvVotingManager')
-      .addEventListener('click', handleVotingManagerClick);
-
-    document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
+document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
       const url = getDisplayUrl();
       try { await navigator.clipboard.writeText(url); }
       catch (_) {
