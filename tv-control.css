@@ -686,3 +686,14 @@
   padding: 0 !important;
   margin: 0 !important;
 }
+
+
+/* ===== v91: fixed TV link ===== */
+#tvNewRoomBtn {
+  display: none !important;
+}
+.tv-room-code::after {
+  content: "  · رابط ثابت";
+  font-size: .78em;
+  color: rgba(242,234,216,.72);
+}

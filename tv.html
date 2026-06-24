@@ -39,15 +39,10 @@
   </main>
   <script>
     (() => {
-      const sourceParams = new URLSearchParams(window.location.search);
       const target = new URL('display.html', window.location.href);
 
-      sourceParams.forEach((value, key) => {
-        if (key !== 'v') target.searchParams.set(key, value);
-      });
-
-      target.searchParams.set('v', '90');
-      target.hash = window.location.hash;
+      target.searchParams.set('room', 'AMMANMAFIA');
+      target.searchParams.set('v', '91');
 
       document.getElementById('fallbackLink').href = target.href;
 

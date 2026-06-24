@@ -162,11 +162,10 @@
     catch (_) { return normalizeState(null); }
   })();
 
-  let roomCode = (localStorage.getItem(ROOM_KEY) || '').trim().toUpperCase();
-  if (!/^[A-Z2-9]{6,14}$/.test(roomCode)) {
-    roomCode = generateRoomCode();
-    localStorage.setItem(ROOM_KEY, roomCode);
-  }
+  const FIXED_TV_ROOM_CODE = 'AMMANMAFIA';
+
+  let roomCode = FIXED_TV_ROOM_CODE;
+  localStorage.setItem(ROOM_KEY, roomCode);
 
   function localStateKey(code = roomCode) {
     return LOCAL_STATE_PREFIX + code;
@@ -1352,7 +1351,7 @@
           </div>
           <div class="tv-room-row">
             <div id="tvRoomCode" class="tv-room-code">${roomCode}</div>
-            <button id="tvNewRoomBtn" class="tv-btn" type="button">رمز جديد</button>
+            <button id="tvNewRoomBtn" class="tv-btn" type="button" hidden>رابط ثابت</button>
           </div>
           <div class="tv-link-box">
             <input id="tvDisplayUrl" readonly aria-label="رابط شاشة العرض">
@@ -1371,8 +1370,6 @@
 
   function getDisplayUrl() {
     const url = new URL('tv.html', window.location.href);
-    url.searchParams.set('v', '90');
-    url.searchParams.set('room', roomCode);
     return url.toString();
   }
 
@@ -1453,10 +1450,8 @@ document.getElementById('tvCopyLinkBtn').addEventListener('click', async () => {
       const old = btn.textContent; btn.textContent = 'تم النسخ ✓'; setTimeout(() => btn.textContent = old, 1200);
     });
 
-    document.getElementById('tvNewRoomBtn').addEventListener('click', () => {
-      if (!confirm('إنشاء رمز جديد سيفصل شاشة التلفزيون الحالية. متابعة؟')) return;
-      disconnectRealtime();
-      roomCode = generateRoomCode();
+    document.getElementById('tvNewRoomBtn')?.addEventListener('click', () => {
+      roomCode = FIXED_TV_ROOM_CODE;
       localStorage.setItem(ROOM_KEY, roomCode);
       tvLastSeenAt = 0;
       connectRealtime();

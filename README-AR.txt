@@ -1,11 +1,14 @@
-AMMAN MAFIA — v90 — FIX NIGHT ROLE SEAT NUMBER DISPLAY
+AMMAN MAFIA — v91 — FIXED TV LINK
 
-الإصلاح:
-- النسخة السابقة أضافت النص لكن لم تكن تقرأ رقم المقعد من مكانه الصحيح.
-- تم ربط رقم المقعد بدالة المنصة الأصلية getSeatIdByRole().
-- تم إضافة roleValue فعليًا لأدوار:
-  المحقق، الطبيب، القناص، السفاح.
-- الآن يظهر رقم المقعد تحت اسم الدور في جولة الليل.
+التعديل:
+- أصبح رابط شاشة التلفزيون ثابتًا:
+  https://bahaasholy.github.io/AMMAN.MAFiA/tv.html
+- لا يحتاج الرابط إلى room أو رمز جلسة.
+- لوحة المشرف تستخدم غرفة ثابتة تلقائيًا: AMMANMAFIA
+- تم إخفاء زر "رمز جديد" حتى لا يتغير رابط التلفزيون.
+- زر نسخ الرابط يعطي رابط tv.html فقط.
+- عند فتح tv.html يتم تحويله تلقائيًا إلى display.html?room=AMMANMAFIA&v=91
+- بقيت تعديلات v90 كما هي.
 
-الرابط:
-https://bahaasholy.github.io/AMMAN.MAFiA/?v=90
+بعد رفع الملفات على GitHub Pages، افتح الرابط الثابت:
+https://bahaasholy.github.io/AMMAN.MAFiA/tv.html
