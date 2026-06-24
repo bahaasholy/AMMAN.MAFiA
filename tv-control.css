@@ -688,7 +688,7 @@
 }
 
 
-/* ===== v91: fixed TV link ===== */
+/* ===== v92: fixed TV link without touching discussion controls ===== */
 #tvNewRoomBtn {
   display: none !important;
 }

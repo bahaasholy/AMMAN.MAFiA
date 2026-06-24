@@ -28,11 +28,7 @@
   let realtimeErrorText = '';
 
   function generateRoomCode() {
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const bytes = new Uint8Array(8);
-    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
-    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 255);
-    return Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+    return 'AMMANMAFIA';
   }
 
   function normalizeState(raw) {
@@ -164,8 +160,11 @@
 
   const FIXED_TV_ROOM_CODE = 'AMMANMAFIA';
 
-  let roomCode = FIXED_TV_ROOM_CODE;
-  localStorage.setItem(ROOM_KEY, roomCode);
+  let roomCode = (localStorage.getItem(ROOM_KEY) || '').trim().toUpperCase();
+  if (roomCode !== FIXED_TV_ROOM_CODE) {
+    roomCode = FIXED_TV_ROOM_CODE;
+    localStorage.setItem(ROOM_KEY, roomCode);
+  }
 
   function localStateKey(code = roomCode) {
     return LOCAL_STATE_PREFIX + code;
@@ -1369,8 +1368,7 @@
   }
 
   function getDisplayUrl() {
-    const url = new URL('tv.html', window.location.href);
-    return url.toString();
+    return new URL('tv.html', window.location.href).toString();
   }
 
 
