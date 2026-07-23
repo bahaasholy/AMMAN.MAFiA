@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/apply-detective-citizen-role-fix.yml
+      - .github/detective-fix-trigger
 
 permissions:
   contents: write
@@ -19,13 +19,14 @@ jobs:
         with:
           ref: main
 
-      - name: Reveal special citizen roles to the detective
-        shell: python
+      - name: Patch and validate detective logic
+        shell: bash
         run: |
+          python - <<'PY'
           from pathlib import Path
 
-          path = Path("index.html")
-          content = path.read_text(encoding="utf-8")
+          path = Path('index.html')
+          content = path.read_text(encoding='utf-8')
 
           old = """                    if (roleData && roleData.value === 'mafia_chameleon') {
                         touchCard.style.backgroundColor = '#34c759'; document.getElementById(`night-label-${seatId}`).textContent = 'مواطن ✅';
@@ -59,28 +60,25 @@ jobs:
                     }
 """
 
-          matches = content.count(old)
-          if matches != 1:
-              raise SystemExit(f"Expected exactly one detective block, found {matches}")
+          if content.count(old) != 1:
+              raise SystemExit(f'Expected one detective block, found {content.count(old)}')
 
-          path.write_text(content.replace(old, new, 1), encoding="utf-8")
-
-      - name: Validate the applied logic
-        shell: python
-        run: |
-          from pathlib import Path
-          content = Path("index.html").read_text(encoding="utf-8")
+          updated = content.replace(old, new, 1)
           required = [
               "const citizenRoleLabel = trueRoleVal === 'citizen'",
+              "roleData.group === 'citizen_team'",
               "? 'مواطن عادي 👤'",
               ": getRoleLabel(trueRoleVal);",
-              "roleData.group === 'citizen_team'",
           ]
-          missing = [item for item in required if item not in content]
+          missing = [item for item in required if item not in updated]
           if missing:
-              raise SystemExit(f"Validation failed; missing: {missing}")
+              raise SystemExit(f'Validation failed: {missing}')
 
-      - name: Commit and push the source fix
+          path.write_text(updated, encoding='utf-8')
+          PY
+
+      - name: Commit and push index.html
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
