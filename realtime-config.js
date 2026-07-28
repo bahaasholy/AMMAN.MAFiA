@@ -67,3 +67,61 @@ window.AMMAN_MAFIA_REALTIME = {
     }
   };
 })();
+
+// مزامنة قائد المافيا وخطوات الليل فور إقصاء أو إحياء أي لاعب.
+// تمنع استمرار اسم أو صلاحية قائد خرج من اللعبة أثناء جولة ليل مفتوحة.
+(function installNightRosterResync() {
+  const originalToggleElimination = window.toggleElimination;
+  if (typeof originalToggleElimination !== 'function') return;
+
+  window.toggleElimination = function toggleEliminationWithNightResync(seatId) {
+    const previousStepIndex = Number.isInteger(currentStep) ? currentStep : 0;
+    const previousStepCode = Array.isArray(activeNightSteps)
+      && activeNightSteps[previousStepIndex]
+      ? activeNightSteps[previousStepIndex].code
+      : null;
+
+    const result = originalToggleElimination(seatId);
+
+    determineLiveMafiaLeader();
+
+    if (!nightRoundInProgress) {
+      return result;
+    }
+
+    const seatCard = document.getElementById(`seat-${seatId}`);
+    const seatIsDead = Boolean(
+      seatCard && seatCard.classList.contains('dead-status')
+    );
+
+    if (seatIsDead && nightSelections && typeof nightSelections === 'object') {
+      const eliminatedSeatId = String(seatId);
+      Object.keys(nightSelections).forEach(actionCode => {
+        if (nightSelections[actionCode] === eliminatedSeatId) {
+          nightSelections[actionCode] = 'none';
+        }
+      });
+    }
+
+    buildActiveNightSteps();
+
+    const matchingStepIndex = previousStepCode
+      ? activeNightSteps.findIndex(step => step.code === previousStepCode)
+      : -1;
+
+    currentStep = matchingStepIndex >= 0
+      ? matchingStepIndex
+      : Math.min(previousStepIndex, Math.max(0, activeNightSteps.length - 1));
+
+    generateNightCinemaGrid();
+
+    if (document.body.classList.contains('night-mode')) {
+      syncNightWizardStep();
+      if (typeof queueNightScrollToTop === 'function') {
+        queueNightScrollToTop();
+      }
+    }
+
+    return result;
+  };
+})();
