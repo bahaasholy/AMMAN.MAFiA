@@ -125,3 +125,116 @@ window.AMMAN_MAFIA_REALTIME = {
     return result;
   };
 })();
+
+// قدرة عقرب المافيا:
+// عند خروجه، يتم تعطيل أدوار المواطنين الليلية في جولة الليل التالية فقط.
+(function installMafiaScorpionCitizenNightBlock() {
+  const STORAGE_KEY = 'mafiaScorpionCitizenBlockRound';
+  const BLOCKED_CITIZEN_STEP_CODES = new Set([
+    'detectiveCheck',
+    'doctorSave',
+    'sniperKill'
+  ]);
+
+  function getCurrentNightRound() {
+    const value = typeof nightRoundCounter !== 'undefined'
+      ? Number(nightRoundCounter)
+      : 1;
+    return Math.max(1, Math.floor(value) || 1);
+  }
+
+  function isNightCurrentlyInProgress() {
+    return typeof nightRoundInProgress !== 'undefined'
+      && Boolean(nightRoundInProgress);
+  }
+
+  function readBlockedRound() {
+    const value = Math.floor(
+      Number(localStorage.getItem(STORAGE_KEY)) || 0
+    );
+    return value > 0 ? value : null;
+  }
+
+  function setBlockedRound(roundNumber) {
+    localStorage.setItem(
+      STORAGE_KEY,
+      String(Math.max(1, Math.floor(Number(roundNumber)) || 1))
+    );
+  }
+
+  function clearBlockedRound() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  function scheduleNextCitizenBlock() {
+    const currentRound = getCurrentNightRound();
+    const targetRound = isNightCurrentlyInProgress()
+      ? currentRound + 1
+      : currentRound;
+    setBlockedRound(targetRound);
+  }
+
+  function isCurrentNightBlocked() {
+    return readBlockedRound() === getCurrentNightRound();
+  }
+
+  const originalBuildActiveNightSteps = window.buildActiveNightSteps;
+  if (typeof originalBuildActiveNightSteps === 'function') {
+    window.buildActiveNightSteps = function buildActiveNightStepsWithScorpionBlock(...args) {
+      const result = originalBuildActiveNightSteps.apply(this, args);
+
+      if (!isCurrentNightBlocked() || !Array.isArray(activeNightSteps)) {
+        return result;
+      }
+
+      activeNightSteps = activeNightSteps.filter(step =>
+        step && !BLOCKED_CITIZEN_STEP_CODES.has(step.code)
+      );
+
+      if (nightSelections && typeof nightSelections === 'object') {
+        nightSelections.detectiveCheck = 'none';
+        nightSelections.doctorSave = 'none';
+        nightSelections.sniperKill = 'none';
+      }
+
+      return result;
+    };
+  }
+
+  const originalToggleElimination = window.toggleElimination;
+  if (typeof originalToggleElimination === 'function') {
+    window.toggleElimination = function toggleEliminationWithScorpionBlock(seatId, ...args) {
+      const seatCard = document.getElementById(`seat-${seatId}`);
+      const roleSelect = document.getElementById(`select-${seatId}`);
+      const isScorpion = Boolean(
+        roleSelect && roleSelect.value === 'mafia_scorpion'
+      );
+      const wasDead = Boolean(
+        seatCard && seatCard.classList.contains('dead-status')
+      );
+
+      if (isScorpion && !wasDead) {
+        scheduleNextCitizenBlock();
+      } else if (isScorpion && wasDead) {
+        clearBlockedRound();
+      }
+
+      return originalToggleElimination.call(this, seatId, ...args);
+    };
+  }
+
+  const originalEndNightRound = window.endNightRound;
+  if (typeof originalEndNightRound === 'function') {
+    window.endNightRound = function endNightRoundWithScorpionCleanup(...args) {
+      const completedRound = getCurrentNightRound();
+      const shouldConsumeBlock = readBlockedRound() === completedRound;
+      const result = originalEndNightRound.apply(this, args);
+
+      if (shouldConsumeBlock) {
+        clearBlockedRound();
+      }
+
+      return result;
+    };
+  }
+})();
